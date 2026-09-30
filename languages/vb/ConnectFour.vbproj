@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>ConnectFour</RootNamespace>
+    <AssemblyName>connect_four_vb</AssemblyName>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <OptionStrict>On</OptionStrict>
+    <InvariantGlobalization>true</InvariantGlobalization>
+  </PropertyGroup>
+
+</Project>

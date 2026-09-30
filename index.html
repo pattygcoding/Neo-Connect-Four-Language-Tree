@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connect Four Multi-Language Showcase</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <style>
+        ::-webkit-scrollbar { width: 10px; height: 10px; }
+        ::-webkit-scrollbar-track { background: #111827; }
+        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 5px; }
+        ::-webkit-scrollbar-thumb:hover { background: #4b5563; }
+        pre code { white-space: pre; }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 flex h-screen overflow-hidden">
+
+    <!-- Sidebar / Language Library -->
+    <aside class="w-80 bg-gray-800 border-r border-gray-700 flex flex-col shrink-0">
+        <div class="p-4 border-b border-gray-700">
+            <h1 class="text-xl font-bold text-emerald-400">Connect Four</h1>
+            <p class="text-xs text-gray-400">Multi-Language Implementation Library</p>
+            <p id="meta-line" class="text-[11px] text-gray-500 mt-1">&nbsp;</p>
+        </div>
+        <div class="p-3 border-b border-gray-700">
+            <input id="search" type="search" placeholder="Search languages..."
+                   class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm
+                          placeholder-gray-500 focus:outline-none focus:border-emerald-500" />
+            <div id="category-filters" class="flex flex-wrap gap-1.5 mt-2"></div>
+        </div>
+        <nav id="language-list" class="overflow-y-auto flex-1 p-2 space-y-1">
+            <!-- Populated via JavaScript -->
+        </nav>
+    </aside>
+
+    <!-- Main Content Panel -->
+    <div class="flex-1 flex flex-col h-full overflow-hidden">
+        <!-- Top Bar / View Switcher -->
+        <header class="bg-gray-800 border-b border-gray-700 px-4 py-3 flex flex-wrap gap-3 justify-between items-center">
+            <div class="min-w-0">
+                <h2 id="selected-title" class="text-lg font-semibold truncate">Select a language</h2>
+                <p id="selected-file" class="text-xs text-gray-500 font-mono truncate">&nbsp;</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <label class="hidden sm:flex items-center gap-2 text-xs text-gray-400">
+                    Console capture
+                    <select id="scenario-select"
+                            class="bg-gray-900 border border-gray-700 rounded-md px-2 py-1.5 text-xs text-gray-200
+                                   focus:outline-none focus:border-emerald-500"></select>
+                </label>
+                <div class="flex space-x-2 bg-gray-900 p-1 rounded-lg">
+                    <button onclick="switchTab('code')" id="btn-code"
+                            class="px-4 py-1.5 rounded-md text-sm font-medium bg-emerald-600 text-white transition">Source Code</button>
+                    <button onclick="switchTab('output')" id="btn-output"
+                            class="px-4 py-1.5 rounded-md text-sm font-medium text-gray-400 hover:text-white transition">Console Output</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Viewport Container -->
+        <main class="flex-1 overflow-hidden p-6 bg-gray-950 flex flex-col">
+            <!-- Code View -->
+            <section id="view-code" class="flex-1 flex flex-col min-h-0">
+                <div class="flex items-center justify-between mb-2">
+                    <span id="code-caption" class="text-xs text-gray-500 font-mono">Source code</span>
+                    <button onclick="copyCode()" id="copy-btn"
+                            class="text-xs px-3 py-1 rounded-md bg-gray-800 border border-gray-700 text-gray-300 hover:bg-gray-700 transition">Copy</button>
+                </div>
+                <pre class="rounded-lg flex-1 min-h-0 overflow-auto m-0 p-4 bg-[#2d2d2d]"><code id="code-block" class="language-clike whitespace-pre">Select a language from the sidebar to view source code.</code></pre>
+            </section>
+            <!-- Console Output View -->
+            <section id="view-output" class="hidden flex-1 flex flex-col min-h-0">
+                <div class="flex items-center justify-between mb-2">
+                    <span id="output-caption" class="text-xs text-gray-500 font-mono">Console output</span>
+                    <span class="text-[11px] text-emerald-400/80">Byte-for-byte identical across every implementation</span>
+                </div>
+                <pre class="bg-black text-emerald-400 font-mono p-4 rounded-lg flex-1 min-h-0 overflow-auto text-sm border border-gray-800"><code id="output-block" class="language-none">Console logs will appear here...</code></pre>
+            </section>
+            <!-- Error / Empty State -->
+            <div id="empty-state" class="hidden flex-1 flex items-center justify-center text-center text-gray-500">
+                <div>
+                    <p class="text-lg mb-2">No dashboard data found.</p>
+                    <p class="text-sm">Run <code class="text-emerald-400">python tools/generate_dashboard.py</code> to build
+                        <code class="text-emerald-400">dashboard-data.js</code>.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Data (generated from the real repository) -->
+    <script src="dashboard-data.js"></script>
+    <!-- Prism.js core + autoloader (loads a grammar on demand for any language) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" data-manual></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script>
+        (function () {
+            "use strict";
+
+            var DATA = window.CONNECT_FOUR_DATA;
+            var state = { langId: null, tab: "code", scenarioId: null, query: "", category: "All" };
+
+            if (window.Prism && Prism.plugins && Prism.plugins.autoloader) {
+                Prism.plugins.autoloader.languages_path =
+                    "https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/";
+            }
+
+            var el = {
+                list: document.getElementById("language-list"),
+                filters: document.getElementById("category-filters"),
+                search: document.getElementById("search"),
+                title: document.getElementById("selected-title"),
+                file: document.getElementById("selected-file"),
+                codeCaption: document.getElementById("code-caption"),
+                outputCaption: document.getElementById("output-caption"),
+                codeBlock: document.getElementById("code-block"),
+                outputBlock: document.getElementById("output-block"),
+                scenarioSelect: document.getElementById("scenario-select"),
+                metaLine: document.getElementById("meta-line"),
+                viewCode: document.getElementById("view-code"),
+                viewOutput: document.getElementById("view-output"),
+                emptyState: document.getElementById("empty-state"),
+                btnCode: document.getElementById("btn-code"),
+                btnOutput: document.getElementById("btn-output"),
+                copyBtn: document.getElementById("copy-btn")
+            };
+
+            function activeLanguages() {
+                var q = state.query.trim().toLowerCase();
+                return DATA.languages.filter(function (lang) {
+                    var matchesCategory = state.category === "All" || lang.category === state.category;
+                    var haystack = (lang.name + " " + lang.id + " " + (lang.category || "")).toLowerCase();
+                    return matchesCategory && (q === "" || haystack.indexOf(q) !== -1);
+                });
+            }
+
+            function renderSidebar() {
+                var langs = activeLanguages();
+                el.list.innerHTML = "";
+                if (langs.length === 0) {
+                    var none = document.createElement("p");
+                    none.className = "text-xs text-gray-500 px-3 py-2";
+                    none.innerText = "No languages match your search.";
+                    el.list.appendChild(none);
+                    return;
+                }
+                langs.forEach(function (lang) {
+                    var btn = document.createElement("button");
+                    var active = lang.id === state.langId;
+                    btn.className = "w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition flex items-center justify-between gap-2 " +
+                        (active ? "bg-emerald-600/20 text-emerald-400 border border-emerald-500/30"
+                                : "text-gray-300 hover:bg-gray-700/50 border border-transparent");
+                    var label = document.createElement("span");
+                    label.innerText = lang.name;
+                    var badge = document.createElement("span");
+                    badge.className = "text-[10px] uppercase tracking-wide px-1.5 py-0.5 rounded bg-gray-700/60 text-gray-400";
+                    badge.innerText = lang.category || "Other";
+                    btn.appendChild(label);
+                    btn.appendChild(badge);
+                    btn.onclick = function () { selectLanguage(lang.id); };
+                    el.list.appendChild(btn);
+                });
+            }
+
+            function renderCategoryFilters() {
+                var categories = ["All"];
+                (DATA.languages || []).forEach(function (lang) {
+                    if (lang.category && categories.indexOf(lang.category) === -1) {
+                        categories.push(lang.category);
+                    }
+                });
+                el.filters.innerHTML = "";
+                categories.forEach(function (cat) {
+                    var chip = document.createElement("button");
+                    var active = cat === state.category;
+                    chip.className = "text-[11px] px-2 py-0.5 rounded-full border transition " +
+                        (active ? "bg-emerald-600 text-white border-emerald-500"
+                                : "bg-gray-900 text-gray-400 border-gray-700 hover:text-gray-200");
+                    chip.innerText = cat;
+                    chip.onclick = function () { state.category = cat; renderCategoryFilters(); renderSidebar(); };
+                    el.filters.appendChild(chip);
+                });
+            }
+
+            function selectLanguage(id) {
+                state.langId = id;
+                renderSidebar();
+                updateCode();
+            }
+
+            function updateCode() {
+                var lang = (DATA.languages || []).find(function (item) { return item.id === state.langId; });
+                if (!lang) { return; }
+                el.title.innerText = lang.name + " Implementation";
+                el.file.innerText = lang.file;
+                el.codeCaption.innerText = lang.file;
+                el.codeBlock.className = (lang.prism || "language-clike") + " whitespace-pre";
+                el.codeBlock.textContent = lang.code;
+                if (window.Prism) { Prism.highlightElement(el.codeBlock); }
+            }
+
+            function selectScenario(id) {
+                state.scenarioId = id;
+                updateOutput();
+            }
+
+            function updateOutput() {
+                var scenario = (DATA.scenarios || []).find(function (item) { return item.id === state.scenarioId; });
+                el.outputCaption.innerText = scenario ? scenario.label : "Console output";
+                el.outputBlock.textContent = (DATA.outputs && DATA.outputs[state.scenarioId]) || "(no capture)";
+            }
+
+            function switchTab(tab) {
+                state.tab = tab;
+                var codeActive = tab === "code";
+                el.viewCode.classList.toggle("hidden", !codeActive);
+                el.viewOutput.classList.toggle("hidden", codeActive);
+                el.btnCode.className = "px-4 py-1.5 rounded-md text-sm font-medium transition " +
+                    (codeActive ? "bg-emerald-600 text-white" : "text-gray-400 hover:text-white");
+                el.btnOutput.className = "px-4 py-1.5 rounded-md text-sm font-medium transition " +
+                    (!codeActive ? "bg-emerald-600 text-white" : "text-gray-400 hover:text-white");
+            }
+
+            function copyCode() {
+                var text = el.codeBlock.textContent;
+                var done = function () {
+                    el.copyBtn.innerText = "Copied!";
+                    setTimeout(function () { el.copyBtn.innerText = "Copy"; }, 1200);
+                };
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(text).then(done, function () {});
+                }
+            }
+
+            function showEmptyState() {
+                el.viewCode.classList.add("hidden");
+                el.viewOutput.classList.add("hidden");
+                el.emptyState.classList.remove("hidden");
+                el.metaLine.innerText = "no data";
+            }
+
+            function init() {
+                if (!DATA || !DATA.languages || DATA.languages.length === 0) {
+                    showEmptyState();
+                    return;
+                }
+                var meta = DATA.meta || {};
+                el.metaLine.innerText = (meta.languageCount || DATA.languages.length) +
+                    " languages \u00b7 " + (meta.scenarioCount || 0) + " captures \u00b7 generated " +
+                    (meta.generated || "n/a");
+
+                (DATA.scenarios || []).forEach(function (scenario) {
+                    var option = document.createElement("option");
+                    option.value = scenario.id;
+                    option.innerText = scenario.label;
+                    el.scenarioSelect.appendChild(option);
+                });
+
+                var params = new URLSearchParams(window.location.search || "");
+                var requestedLang = params.get("lang");
+                state.langId = (requestedLang && DATA.languages.some(function (l) {
+                    return l.id === requestedLang;
+                })) ? requestedLang : DATA.languages[0].id;
+
+                var scenarios = DATA.scenarios || [];
+                var preferred = scenarios.find(function (s) { return s.id === "horizontal_win"; });
+                var requestedScenario = params.get("scenario");
+                if (requestedScenario && scenarios.some(function (s) {
+                    return s.id === requestedScenario;
+                })) {
+                    state.scenarioId = requestedScenario;
+                } else {
+                    state.scenarioId = (preferred || scenarios[0] || {}).id || null;
+                }
+                el.scenarioSelect.value = state.scenarioId || "";
+
+                el.search.addEventListener("input", function () {
+                    state.query = el.search.value;
+                    renderSidebar();
+                });
+                el.scenarioSelect.addEventListener("change", function () {
+                    selectScenario(el.scenarioSelect.value);
+                });
+
+                renderCategoryFilters();
+                renderSidebar();
+                updateCode();
+                updateOutput();
+                switchTab(params.get("tab") === "output" ? "output" : "code");
+            }
+
+            window.switchTab = switchTab;
+            window.copyCode = copyCode;
+            init();
+        })();
+    </script>
+</body>
+</html>
