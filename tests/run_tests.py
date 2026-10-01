@@ -19,6 +19,7 @@ for instructions on installing a toolchain automatically.
 from __future__ import annotations
 
 import argparse
+import glob
 import os
 import queue
 import shutil
@@ -91,6 +92,407 @@ def mingw64_env() -> dict:
     return {}
 
 
+def msys2_clang_env() -> dict:
+    """Env overrides so the Objective-C entry uses MSYS2's clang + libobjc2.
+
+    Windows ships no Objective-C runtime, so the toolchain here is MSYS2's
+    ``clang64`` environment: clang plus the GNUstep libobjc2 runtime.  The
+    built program needs the same directory on ``PATH`` at run time to load
+    ``libobjc-4.6.dll`` (libobjc2 keeps that compatibility name).
+    """
+    candidates = []
+    resolved = shutil.which("clang")
+    if resolved:
+        candidates.append(Path(resolved).resolve().parent)
+    if os.name == "nt":
+        candidates.append(Path(r"C:\msys64\clang64\bin"))
+    for bin_dir in candidates:
+        if (bin_dir / "clang.exe").exists() and (bin_dir / "libobjc-4.6.dll").exists():
+            return {"PATH": str(bin_dir) + os.pathsep + os.environ.get("PATH", "")}
+    return {}
+
+
+_VCVARS_ENV: dict | None = None
+
+
+def vcvars_env() -> dict:
+    """Environment from the Visual Studio developer prompt, cached.
+
+    The Swift toolchain for Windows links against the MSVC/Windows SDK libraries
+    and pulls its C headers from the same places, so building needs the
+    variables ``vcvars64.bat`` sets (``INCLUDE``, ``LIB``, ...).  Capturing them
+    once keeps the registry's ``build`` a plain argv instead of a shell script.
+    """
+    global _VCVARS_ENV
+    if _VCVARS_ENV is not None:
+        return _VCVARS_ENV
+    _VCVARS_ENV = {}
+    if os.name != "nt":
+        return _VCVARS_ENV
+    scripts = sorted(
+        glob.glob(
+            r"C:\Program Files*\Microsoft Visual Studio\*\*\VC\Auxiliary\Build\vcvars64.bat"
+        )
+    )
+    if not scripts:
+        return _VCVARS_ENV
+    result = subprocess.run(
+        'call "%s" >nul && set' % scripts[-1],
+        shell=True,
+        capture_output=True,
+        text=True,
+    )
+    for line in result.stdout.splitlines():
+        if "=" in line:
+            key, _, value = line.partition("=")
+            _VCVARS_ENV[key] = value
+    return _VCVARS_ENV
+
+
+def swift_env() -> dict:
+    """Env overrides so the Swift entry builds and runs on Windows.
+
+    ``swiftc`` needs ``SDKROOT`` pointing at the Windows.sdk that ships with the
+    toolchain, plus the MSVC environment from :func:`vcvars_env` for the C
+    headers and link libraries.  The compiled program loads the Swift runtime
+    DLLs, so that directory goes on ``PATH`` as well.
+    """
+    root = Path(os.environ.get("LOCALAPPDATA", "")) / "Programs" / "Swift"
+    toolchains = sorted(root.glob("Toolchains/*/usr/bin"))
+    runtimes = sorted(root.glob("Runtimes/*/usr/bin"))
+    sdks = sorted(root.glob("Platforms/*/Windows.platform/Developer/SDKs/Windows.sdk"))
+    if not (toolchains and runtimes and sdks):
+        return {}
+    env = dict(vcvars_env())
+    parts = [str(toolchains[-1]), str(runtimes[-1])]
+    if env.get("PATH"):
+        parts.append(env["PATH"])
+    env["PATH"] = os.pathsep.join(parts)
+    env["SDKROOT"] = str(sdks[-1])
+    return env
+
+
+def elm_tool() -> str:
+    """Path to the Elm compiler.
+
+    Elm is installed here through Scoop, whose shim is on ``PATH``; the
+    explicit candidates cover the same layout when it is not.
+    """
+    resolved = shutil.which("elm")
+    if resolved:
+        return resolved
+    if os.name == "nt":
+        home = os.environ.get("USERPROFILE", "")
+        candidates = [
+            Path(home) / "scoop" / "shims" / "elm.exe",
+            Path(home) / "scoop" / "apps" / "elm" / "current" / "elm.exe",
+        ]
+        for candidate in candidates:
+            if candidate.exists():
+                return str(candidate)
+    return "elm"
+
+
+_ELM_HOST = """const path = require('path');
+const readline = require('readline');
+
+const compiled = require(path.join(__dirname, 'connect_four.js'));
+
+const app = compiled.Elm.ConnectFour.init();
+
+app.ports.toHost.subscribe(function (text) {
+    process.stdout.write(text);
+});
+
+const lines = readline.createInterface({ input: process.stdin, crlfDelay: Infinity });
+
+lines.on('line', function (line) {
+    app.ports.fromHost.send(line);
+});
+
+lines.on('close', function () {
+    app.ports.fromHost.send(null);
+});
+
+app.ports.quitToHost.subscribe(function () {
+    lines.close();
+    process.stdout.write('', function () {
+        process.exit(0);
+    });
+});
+"""
+
+
+def _elm_project() -> Path:
+    """Project directory for the Elm build, created and populated on demand.
+
+    Elm has no stdin of its own, so a console program is a ``Platform.worker``
+    with ports, driven by a small Node host.  Elm also requires a module's file
+    name to match its module name, requires the source to live inside the
+    project directory, and rejects an ``elm.json`` whose language version does
+    not match the compiler.  The runner therefore assembles the project here
+    from the one source file in ``languages/elm/`` plus the host template, and
+    copies the source in under its module name; nothing in the repository is
+    generated or modified.
+    """
+    project = BUILD_DIR / "elm"
+    source_dir = project / "src"
+    source_dir.mkdir(parents=True, exist_ok=True)
+    version = "0.19.2"
+    result = subprocess.run([elm_tool(), "--version"], capture_output=True, text=True)
+    if result.returncode == 0 and result.stdout.strip():
+        version = result.stdout.strip()
+    manifest = (
+        "{\n"
+        '    "type": "application",\n'
+        '    "source-directories": ["src"],\n'
+        '    "elm-version": "%s",\n' % version
+        + '    "dependencies": {"direct": {"elm/core": "1.0.5", "elm/json": "1.1.4"}, "indirect": {}},\n'
+        '    "test-dependencies": {"direct": {}, "indirect": {}}\n'
+        "}\n"
+    )
+    (project / "elm.json").write_text(manifest, encoding="utf-8")
+    (project / "host.js").write_text(_ELM_HOST, encoding="utf-8")
+    shutil.copyfile(LANG_DIR / "elm" / "connect_four.elm", source_dir / "ConnectFour.elm")
+    return project
+
+
+def fpc_tool() -> str:
+    """Path to the Free Pascal compiler.
+
+    ``fpc`` is normally on ``PATH`` (Scoop's shim, for instance, which is how
+    it is installed here); the explicit candidates are for the stock installer
+    layout, which does not add itself to ``PATH``.
+    """
+    resolved = shutil.which("fpc")
+    if resolved:
+        return resolved
+    if os.name == "nt":
+        home = os.environ.get("USERPROFILE", "")
+        candidates = [
+            Path(home) / "scoop" / "shims" / "fpc.exe",
+            Path(r"C:\FPC\3.2.2\bin\i386-win32\fpc.exe"),
+            Path(r"C:\tools\fpc\bin\i386-win32\fpc.exe"),
+        ]
+        for candidate in candidates:
+            if candidate.exists():
+                return str(candidate)
+    return "fpc"
+
+
+def lisp_tool() -> str:
+    """Path to SBCL (Steel Bank Common Lisp).
+
+    SBCL is installed here through Scoop; the stock Windows MSI would leave
+    ``sbcl.exe`` under ``C:\\Program Files\\Steel Bank Common Lisp`` instead.
+    """
+    resolved = shutil.which("sbcl")
+    if resolved:
+        return resolved
+    if os.name == "nt":
+        home = os.environ.get("USERPROFILE", "")
+        candidates = [
+            Path(home) / "scoop" / "shims" / "sbcl.exe",
+            Path(home) / "scoop" / "apps" / "sbcl" / "current" / "sbcl.exe",
+        ]
+        stock = Path(r"C:\Program Files\Steel Bank Common Lisp")
+        candidates.extend(sorted(stock.glob("sbcl.exe"), reverse=True))
+        for candidate in candidates:
+            if candidate.exists():
+                return str(candidate)
+    return "sbcl"
+
+
+def lisp_env() -> dict:
+    """Env overrides so SBCL can find its core file.
+
+    SBCL locates ``sbcl.core`` through ``SBCL_HOME``.  Scoop sets that for new
+    shells, but one that was already running when SBCL was installed will not
+    have it, so it is supplied here whenever the layout is recognisable.
+    """
+    tool = lisp_tool()
+    if os.name != "nt" or tool == "sbcl":
+        return {}
+    home = Path(tool).parent
+    if (home / "sbcl.core").exists():
+        return {"SBCL_HOME": str(home)}
+    return {}
+
+
+def r_tool() -> str:
+    """Path to ``Rscript``, R's non-interactive front end.
+
+    R is installed here through Scoop; the stock installer would place
+    ``Rscript.exe`` under ``C:\\Program Files\\R\\R-x.y.z\\bin`` instead.
+    """
+    resolved = shutil.which("Rscript")
+    if resolved:
+        return resolved
+    if os.name == "nt":
+        home = os.environ.get("USERPROFILE", "")
+        candidates = [
+            Path(home) / "scoop" / "shims" / "Rscript.exe",
+            Path(home) / "scoop" / "apps" / "r" / "current" / "bin" / "Rscript.exe",
+        ]
+        candidates.extend(
+            sorted(Path(r"C:\Program Files\R").glob("R-*/bin/Rscript.exe"), reverse=True)
+        )
+        for candidate in candidates:
+            if candidate.exists():
+                return str(candidate)
+    return "Rscript"
+
+
+def julia_tool() -> str:
+    """Path to the Julia interpreter.
+
+    Julia is installed here through Scoop, whose shim is on ``PATH``; the
+    explicit candidates cover the same layout when it is not.
+    """
+    resolved = shutil.which("julia")
+    if resolved:
+        return resolved
+    if os.name == "nt":
+        home = os.environ.get("USERPROFILE", "")
+        candidates = [
+            Path(home) / "scoop" / "shims" / "julia.exe",
+            Path(home) / "scoop" / "apps" / "julia" / "current" / "bin" / "julia.exe",
+            Path(r"C:\tools\julia\bin\julia.exe"),
+        ]
+        for candidate in candidates:
+            if candidate.exists():
+                return str(candidate)
+    return "julia"
+
+
+def v_tool() -> str:
+    """Path to the V compiler.
+
+    V ships as a plain zip rather than an installer, so ``v.exe`` is not on
+    ``PATH`` here; the unpacked copy under ``C:\\tools\\v`` is used instead.
+    """
+    resolved = shutil.which("v")
+    if resolved:
+        return resolved
+    if os.name == "nt":
+        home = os.environ.get("USERPROFILE", "")
+        candidates = [
+            Path(r"C:\tools\v\v.exe"),
+            Path(r"C:\v\v.exe"),
+            Path(home) / "scoop" / "apps" / "v" / "current" / "v.exe",
+        ]
+        for candidate in candidates:
+            if candidate.exists():
+                return str(candidate)
+    return "v"
+
+
+def _fpc_output_dir() -> str:
+    """Output directory for the Pascal build, created if it does not exist.
+
+    ``fpc`` writes units and the executable to ``-FU``/``-FE`` but will not
+    create those directories, and the runner only ever creates files.
+    """
+    path = BUILD_DIR / "pascal"
+    path.mkdir(parents=True, exist_ok=True)
+    return str(path)
+
+
+def _gnat_tools_dir() -> Path | None:
+    """Directory holding a GNAT (Ada) toolchain, if one is installed.
+
+    Ada needs a GCC built with the Ada front end, which the Windows compilers
+    here do not have; the MSYS2 ``mingw-w64-x86_64-gcc-ada`` package provides
+    one under ``C:\\msys64``, and an Alire toolchain would also fit.
+    """
+    resolved = shutil.which("gnatmake")
+    if resolved:
+        return Path(resolved).resolve().parent
+    if os.name == "nt":
+        candidates = [Path(r"C:\msys64\mingw64\bin"), Path(r"C:\GNAT\bin")]
+        for candidate in candidates:
+            if (candidate / "gnatmake.exe").exists():
+                return candidate
+    return None
+
+
+def gnat_tool() -> str:
+    """Path to ``gnatmake``, the GNAT build driver."""
+    tools = _gnat_tools_dir()
+    if tools is None:
+        return "gnatmake"
+    return str(tools / ("gnatmake.exe" if os.name == "nt" else "gnatmake"))
+
+
+def gnat_env() -> dict:
+    """Env overrides so the Ada entry builds with the MSYS2 GNAT.
+
+    That ``bin`` directory is not on the default ``PATH``, so it goes first.
+    The built program links the Ada runtime statically, so running it needs
+    nothing extra.
+    """
+    tools = _gnat_tools_dir()
+    if tools is None:
+        return {}
+    return {"PATH": str(tools) + os.pathsep + os.environ.get("PATH", "")}
+
+
+def _gnat_object_dir() -> str:
+    """Object directory for the Ada build, created if it does not exist.
+
+    ``gnatmake -D`` refuses to build into a missing directory, and the runner
+    only ever creates files, so the directory is made here.
+    """
+    path = BUILD_DIR / "ada"
+    path.mkdir(parents=True, exist_ok=True)
+    return str(path)
+
+
+def bash_tool() -> str:
+    """Path to a bash interpreter.
+
+    Windows ships no bash of its own, and neither Git for Windows nor MSYS2
+    puts it on ``PATH`` by default, so the interpreter is referenced by
+    absolute path when one of the usual installs is present.  Both accept the
+    plain Windows path the registry passes as the script argument.
+    """
+    resolved = shutil.which("bash")
+    if resolved:
+        return resolved
+    if os.name == "nt":
+        candidates = [
+            Path(r"C:\Program Files\Git\bin\bash.exe"),
+            Path(r"C:\Program Files\Git\usr\bin\bash.exe"),
+            Path(r"C:\msys64\usr\bin\bash.exe"),
+        ]
+        for candidate in candidates:
+            if candidate.exists():
+                return str(candidate)
+    return "bash"
+
+
+def php_env() -> dict:
+    """Env overrides so the PHP entry finds a local PHP build.
+
+    Windows PHP releases are plain archives rather than installers; when
+    ``php`` is not already on ``PATH`` the interpreter unpacked under
+    ``C:\\tools\\php`` is used instead.
+    """
+    candidates = []
+    resolved = shutil.which("php")
+    if resolved:
+        candidates.append(Path(resolved).resolve().parent)
+    if os.name == "nt":
+        candidates.append(Path(r"C:\tools\php"))
+    local = os.environ.get("LOCALAPPDATA")
+    if local:
+        candidates.append(Path(local) / "php")
+    for bin_dir in candidates:
+        if (bin_dir / "php.exe").exists():
+            return {"PATH": str(bin_dir) + os.pathsep + os.environ.get("PATH", "")}
+    return {}
+
+
 # --------------------------------------------------------------------------
 # Language registry.  Each entry needs:
 #   name     - short identifier, matches languages/<name>/
@@ -140,6 +542,91 @@ LANGUAGES = [
         "run": ["node", str(BUILD_DIR / "ts" / "connect_four.js")],
     },
     {
+        "name": "dart",
+        "source": _src("dart", "connect_four.dart"),
+        "artifact": _exe("connect_four_dart"),
+        "build": ["dart", "compile", "exe",
+                  "-o", _exe("connect_four_dart"),
+                  _src("dart", "connect_four.dart")],
+        "run": [_exe("connect_four_dart")],
+    },
+    {
+        "name": "powershell",
+        "source": _src("powershell", "connect_four.ps1"),
+        "artifact": None,
+        "build": None,
+        "run": ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass",
+                "-File", _src("powershell", "connect_four.ps1")],
+    },
+    {
+        "name": "elm",
+        "source": _src("elm", "connect_four.elm"),
+        "artifact": str(_elm_project() / "connect_four.js"),
+        "build": [elm_tool(), "make", "src/ConnectFour.elm", "--optimize",
+                  "--output=connect_four.js"],
+        "run": ["node", str(_elm_project() / "host.js")],
+        "cwd": str(_elm_project()),
+    },
+    {
+        "name": "lisp",
+        "source": _src("lisp", "connect_four.lisp"),
+        "artifact": None,
+        "build": None,
+        "run": [lisp_tool(), "--script", _src("lisp", "connect_four.lisp")],
+        "env": lisp_env(),
+    },
+    {
+        "name": "r",
+        "source": _src("r", "connect_four.R"),
+        "artifact": None,
+        "build": None,
+        "run": [r_tool(), "--vanilla", _src("r", "connect_four.R")],
+    },
+    {
+        "name": "julia",
+        "source": _src("julia", "connect_four.jl"),
+        "artifact": None,
+        "build": None,
+        "run": [julia_tool(), "--startup-file=no", "--color=no",
+                _src("julia", "connect_four.jl")],
+    },
+    {
+        "name": "v",
+        "source": _src("v", "connect_four.v"),
+        "artifact": _exe("connect_four_v"),
+        "build": [v_tool(), "-o", _exe("connect_four_v"),
+                  _src("v", "connect_four.v")],
+        "run": [_exe("connect_four_v")],
+    },
+    {
+        "name": "pascal",
+        "source": _src("pascal", "connect_four.pas"),
+        "artifact": _exe("pascal/connect_four"),
+        "build": [fpc_tool(), "-O2",
+                  "-FU" + _fpc_output_dir(),
+                  "-FE" + _fpc_output_dir(),
+                  _src("pascal", "connect_four.pas")],
+        "run": [_exe("pascal/connect_four")],
+    },
+    {
+        "name": "ada",
+        "source": _src("ada", "connect_four.adb"),
+        "artifact": _exe("connect_four_ada"),
+        "build": [gnat_tool(), "-O2", "-D", _gnat_object_dir(),
+                  "-o", _exe("connect_four_ada"),
+                  _src("ada", "connect_four.adb")],
+        "run": [_exe("connect_four_ada")],
+        "env": gnat_env(),
+    },
+    {
+        "name": "bash",
+        "source": _src("bash", "connect_four.sh"),
+        "artifact": None,
+        "build": None,
+        "run": [bash_tool(), "--noprofile", "--norc",
+                _src("bash", "connect_four.sh")],
+    },
+    {
         "name": "c",
         "source": _src("c", "connect_four.c"),
         "artifact": _exe("connect_four_c"),
@@ -170,6 +657,81 @@ LANGUAGES = [
                   _src("assembly", "connect_four.s")],
         "run": [_exe("connect_four_asm")],
         "env": mingw64_env(),
+    },
+    {
+        "name": "nim",
+        "source": _src("nim", "connect_four.nim"),
+        "artifact": _exe("connect_four_nim"),
+        "build": ["nim", "c", "--hints:off", "--warnings:off", "-d:release",
+                  "--nimcache:" + str(BUILD_DIR / "nimcache"),
+                  "-o:" + _exe("connect_four_nim"),
+                  _src("nim", "connect_four.nim")],
+        "run": [_exe("connect_four_nim")],
+        "env": mingw64_env(),
+    },
+    {
+        "name": "zig",
+        "source": _src("zig", "connect_four.zig"),
+        "artifact": _exe("connect_four_zig"),
+        "build": ["zig", "build-exe", "-O", "ReleaseFast",
+                  "--name", "connect_four_zig", _src("zig", "connect_four.zig")],
+        "run": [_exe("connect_four_zig")],
+        "cwd": str(BUILD_DIR),
+    },
+    {
+        "name": "objectivec",
+        "source": _src("objectivec", "connect_four.m"),
+        "artifact": _exe("connect_four_objc"),
+        "build": ["clang", "-fobjc-runtime=gnustep-2.0", "-O2",
+                  "-o", _exe("connect_four_objc"),
+                  _src("objectivec", "connect_four.m"), "-lobjc"],
+        "run": [_exe("connect_four_objc")],
+        "env": msys2_clang_env(),
+    },
+    {
+        "name": "ocaml",
+        "source": _src("ocaml", "connect_four.ml"),
+        "artifact": _exe("connect_four_ocaml"),
+        "build": ["opam", "exec", "--", "ocamlopt",
+                  "-o", _exe("connect_four_ocaml"),
+                  _src("ocaml", "connect_four.ml")],
+        "run": [_exe("connect_four_ocaml")],
+    },
+    {
+        "name": "fortran",
+        "source": _src("fortran", "connect_four.f90"),
+        "artifact": _exe("connect_four_fortran"),
+        "build": ["gfortran", "-O2", "-o", _exe("connect_four_fortran"),
+                  _src("fortran", "connect_four.f90")],
+        "run": [_exe("connect_four_fortran")],
+        "env": mingw64_env(),
+    },
+    {
+        "name": "php",
+        "source": _src("php", "connect_four.php"),
+        "artifact": None,
+        "build": None,
+        "run": ["php", _src("php", "connect_four.php")],
+        "env": php_env(),
+    },
+    {
+        "name": "swift",
+        "source": _src("swift", "connect_four.swift"),
+        "artifact": _exe("connect_four_swift"),
+        "build": ["swiftc", "-O", "-o", _exe("connect_four_swift"),
+                  _src("swift", "connect_four.swift")],
+        "run": [_exe("connect_four_swift")],
+        "env": swift_env(),
+    },
+    {
+        "name": "haskell",
+        "source": _src("haskell", "connect_four.hs"),
+        "artifact": _exe("connect_four_haskell"),
+        "build": ["ghc", "-O2",
+                  "-outputdir", str(BUILD_DIR / "haskell"),
+                  "-o", _exe("connect_four_haskell"),
+                  _src("haskell", "connect_four.hs")],
+        "run": [_exe("connect_four_haskell")],
     },
     {
         "name": "rust",

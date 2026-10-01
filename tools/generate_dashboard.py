@@ -37,6 +37,7 @@ OUTPUT_FILE = ROOT / "dashboard-data.js"
 # ---------------------------------------------------------------------------
 LANGUAGE_INFO = {
     "ada": ("Ada", "language-ada", "Systems"),
+    "elm": ("Elm", "language-elm", "Web"),
     "bash": ("Bash", "language-bash", "Scripting"),
     "c": ("C", "language-c", "Systems"),
     "assembly": ("Assembly", "language-nasm", "Systems"),
@@ -103,6 +104,21 @@ def read_text(path: Path) -> str:
     return path.read_text(encoding="utf-8").replace("\r\n", "\n").replace("\r", "\n")
 
 
+def is_source_text(path: Path) -> bool:
+    """True when ``path`` decodes as UTF-8 text.
+
+    A language directory can hold compile artefacts beside its source (OCaml's
+    ``ocamlopt`` writes ``connect_four.cmi``/``.cmx``/``.o`` next to
+    ``connect_four.ml``), and those sort before the source.  Only the source is
+    text, so binaries are skipped here.
+    """
+    try:
+        path.read_text(encoding="utf-8")
+    except (UnicodeDecodeError, OSError):
+        return False
+    return True
+
+
 def discover_languages() -> list[dict]:
     """Find every languages/<name>/connect_four.<ext> implementation."""
     found = []
@@ -112,9 +128,10 @@ def discover_languages() -> list[dict]:
         if not directory.is_dir():
             continue
         matches = sorted(directory.glob("connect_four.*"))
-        if not matches:
+        sources = [path for path in matches if is_source_text(path)]
+        if not sources:
             continue
-        source = matches[0]
+        source = sources[0]
         key = directory.name.lower()
         name, prism, category = LANGUAGE_INFO.get(
             key, (directory.name.replace("_", " ").title(), DEFAULT_PRISM, "Other")

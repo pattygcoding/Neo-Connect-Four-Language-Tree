@@ -144,28 +144,46 @@ the site is available at `https://<user>.github.io/<repo>/`.
 
 | Language   | Source                                 | Toolchain         |
 |------------|----------------------------------------|-------------------|
+| Ada        | `languages/ada/connect_four.adb`       | `gnatmake`        |
 | Assembly   | `languages/assembly/connect_four.s`    | `gcc` (x86-64)    |
+| Bash       | `languages/bash/connect_four.sh`       | `bash`            |
 | C          | `languages/c/connect_four.c`           | `gcc` (C11)       |
 | C#         | `languages/csharp/connect_four.cs`     | `dotnet` (.NET 8) |
 | C++        | `languages/cpp/connect_four.cpp`       | `g++` (C++17)     |
 | Clojure    | `languages/clojure/connect_four.clj`   | `clojure`         |
 | COBOL      | `languages/cobol/connect_four.cob`     | `cobc` (GnuCOBOL) |
+| Dart       | `languages/dart/connect_four.dart`     | `dart`            |
+| Elm        | `languages/elm/connect_four.elm`       | `elm` + `node`    |
 | Elixir     | `languages/elixir/connect_four.ex`     | `elixir`          |
 | Erlang     | `languages/erlang/connect_four.erl`    | `erlc` + `erl`    |
 | F#         | `languages/fsharp/connect_four.fs`     | `dotnet` (.NET 8) |
+| Fortran    | `languages/fortran/connect_four.f90`   | `gfortran`        |
 | Go         | `languages/go/connect_four.go`         | `go`              |
+| Haskell    | `languages/haskell/connect_four.hs`    | `ghc`             |
 | Java       | `languages/java/connect_four.java`     | `javac`/`java`    |
 | JavaScript | `languages/javascript/connect_four.js` | `node`            |
+| Julia      | `languages/julia/connect_four.jl`      | `julia`           |
 | Kotlin     | `languages/kotlin/connect_four.kt`     | `kotlinc`/`java`  |
+| Lisp       | `languages/lisp/connect_four.lisp`     | `sbcl`            |
 | Lua        | `languages/lua/connect_four.lua`       | `lua`             |
+| Nim        | `languages/nim/connect_four.nim`       | `nim` (gcc)       |
+| Objective-C | `languages/objectivec/connect_four.m` | `clang` (libobjc2) |
+| OCaml      | `languages/ocaml/connect_four.ml`      | `ocamlopt`        |
+| Pascal     | `languages/pascal/connect_four.pas`  | `fpc`             |
 | Perl       | `languages/perl/connect_four.pl`       | `perl`            |
+| PHP        | `languages/php/connect_four.php`       | `php`             |
+| PowerShell | `languages/powershell/connect_four.ps1` | `powershell`      |
 | Prolog     | `languages/prolog/connect_four.pro`    | `swipl`           |
 | Python     | `languages/python/connect_four.py`     | `python3`         |
+| R          | `languages/r/connect_four.R`           | `Rscript`         |
 | Ruby       | `languages/ruby/connect_four.rb`       | `ruby`            |
 | Rust       | `languages/rust/connect_four.rs`       | `rustc`           |
 | Scala      | `languages/scala/connect_four.scala`   | `scala`           |
+| Swift      | `languages/swift/connect_four.swift`   | `swiftc`          |
 | TypeScript | `languages/typescript/connect_four.ts` | `tsc` + `node`    |
+| V          | `languages/v/connect_four.v`           | `v`               |
 | VB.NET     | `languages/vb/connect_four.vb`         | `dotnet` (.NET 8) |
+| Zig        | `languages/zig/connect_four.zig`       | `zig` (LLVM)      |
 
 The test runner compiles everything for you and skips rebuilds when nothing
 changed. To play a compiled implementation directly, use the artifact under
