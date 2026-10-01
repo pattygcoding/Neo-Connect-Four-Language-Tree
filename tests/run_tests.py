@@ -387,6 +387,24 @@ def v_tool() -> str:
     return "v"
 
 
+def tiger_tool() -> str:
+    """Path to the Tiger interpreter.
+
+    Tiger is a custom language written in Go with no package-manager release,
+    so a ``tiger`` on ``PATH`` wins and otherwise the binary built in a sibling
+    checkout of pattygcoding/Tiger-Programming-Language is used.
+    """
+    resolved = shutil.which("tiger")
+    if resolved:
+        return resolved
+    name = "tiger.exe" if os.name == "nt" else "tiger"
+    for folder in ("Tiger-Programming-Language", "Tiger-programming-Language"):
+        candidate = ROOT.parent / folder / "bin" / name
+        if candidate.exists():
+            return str(candidate)
+    return "tiger"
+
+
 def _fpc_output_dir() -> str:
     """Output directory for the Pascal build, created if it does not exist.
 
@@ -597,6 +615,13 @@ LANGUAGES = [
         "build": [v_tool(), "-o", _exe("connect_four_v"),
                   _src("v", "connect_four.v")],
         "run": [_exe("connect_four_v")],
+    },
+    {
+        "name": "tiger",
+        "source": _src("tiger", "connect_four.tg"),
+        "artifact": None,
+        "build": None,
+        "run": [tiger_tool(), "run", _src("tiger", "connect_four.tg")],
     },
     {
         "name": "pascal",

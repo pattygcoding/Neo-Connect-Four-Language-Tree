@@ -23,14 +23,12 @@ single source file.
 
 ## How to run
 
-Generate a Spring Boot project and drop these files into it (the app is a
-slice, so the scaffolding comes from the initializer):
+The folder is a complete Maven project (`pom.xml` pulls in Spring Web and
+Thymeleaf through the Spring Boot parent):
 
 ```sh
-# from https://start.spring.io : group com.example, artifact connectfour,
-# dependency "Spring Web" + "Thymeleaf", then unzip it
-cp -r frameworks/springboot/src/. connectfour/src/
-cd connectfour && ./mvnw spring-boot:run
+cd frameworks/springboot
+mvn spring-boot:run
 ```
 
 Then open <http://localhost:8080> and play - the board is a 6x7 grid whose
@@ -66,6 +64,7 @@ folder on GitHub. Everything the app needs is under `frameworks/springboot/`:
 
 ```
 frameworks/springboot/
+  pom.xml
   src/main/java/com/example/connectfour/ConnectFourBoard.java
   src/main/java/com/example/connectfour/GameController.java
   src/main/java/com/example/connectfour/ConnectFourApplication.java

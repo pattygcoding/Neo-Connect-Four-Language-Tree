@@ -8,9 +8,14 @@ defmodule ConnectFourWeb.GameController do
     render(conn, :board, game: game, status: Game.status(game), columns: 1..Game.columns())
   end
 
-  def move(conn, %{"column" => column}) do
+  def move(conn, params) do
     game = current_game(conn)
-    value = String.to_integer(column)
+
+    value =
+      case Integer.parse(to_string(params["column"])) do
+        {value, ""} -> value
+        _ -> 0
+      end
 
     game =
       if value >= 1 and value <= Game.columns() and not Game.over?(game) and

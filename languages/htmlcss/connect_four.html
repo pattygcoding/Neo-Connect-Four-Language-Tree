@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connect Four - HTML/CSS</title>
+    <style>
+        :root {
+            --bg: #0b1220;
+            --frame: #1d4ed8;
+            --frame-dark: #1e3a8a;
+            --slot: #0b1220;
+            --red: #ef4444;
+            --red-deep: #991b1b;
+            --yellow: #facc15;
+            --yellow-deep: #a16207;
+            --text: #e2e8f0;
+            --muted: #94a3b8;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            padding: 1.5rem;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            background: radial-gradient(circle at 50% -10%, #1e293b, var(--bg) 65%);
+            color: var(--text);
+        }
+
+        .game {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.1rem;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.4rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .status {
+            margin: 0;
+            min-height: 1.4rem;
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--muted);
+        }
+        .status.red { color: var(--red); }
+        .status.yellow { color: var(--yellow); }
+
+        .board {
+            display: grid;
+            grid-auto-flow: column;
+            grid-auto-columns: 1fr;
+            gap: 0.55rem;
+            padding: 0.85rem;
+            border-radius: 1.1rem;
+            background: linear-gradient(180deg, #3b82f6, var(--frame) 45%, var(--frame-dark));
+            box-shadow: 0 26px 50px -20px rgba(0, 0, 0, 0.85);
+        }
+
+        .column {
+            display: grid;
+            grid-template-rows: repeat(6, 1fr);
+            gap: 0.55rem;
+            padding: 0;
+            border: 0;
+            background: none;
+            cursor: pointer;
+            border-radius: 0.6rem;
+            transition: background 0.15s ease;
+        }
+        .column:not(:disabled):hover { background: rgba(255, 255, 255, 0.09); }
+        .column:focus-visible { outline: 2px solid var(--yellow); outline-offset: 2px; }
+        .column:disabled { cursor: default; }
+
+        .cell {
+            width: clamp(2rem, 9vw, 3rem);
+            height: clamp(2rem, 9vw, 3rem);
+            border-radius: 50%;
+            background: var(--slot);
+            box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.65);
+        }
+
+        .cell.red { background: radial-gradient(circle at 34% 30%, #fecaca, var(--red) 52%, var(--red-deep)); }
+        .cell.yellow { background: radial-gradient(circle at 34% 30%, #fef9c3, var(--yellow) 52%, var(--yellow-deep)); }
+        .cell.ghost-red { background: rgba(239, 68, 68, 0.4); }
+        .cell.ghost-yellow { background: rgba(250, 204, 21, 0.4); }
+
+        .reset {
+            padding: 0.55rem 1.4rem;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.15s ease, border-color 0.15s ease;
+        }
+        .reset:hover { background: rgba(255, 255, 255, 0.14); border-color: rgba(255, 255, 255, 0.35); }
+    </style>
+</head>
+<body>
+    <main class="game">
+        <h1>Connect Four</h1>
+        <p class="status" id="status">Red to play</p>
+        <div class="board" id="board"></div>
+        <button class="reset" id="reset" type="button">New game</button>
+    </main>
+    <script>
+        (function () {
+            "use strict";
+
+            var ROWS = 6;
+            var COLS = 7;
+            var RED = 1;
+            var YELLOW = 2;
+            var DIRECTIONS = [[0, 1], [1, 0], [1, 1], [1, -1]];
+
+            var boardEl = document.getElementById("board");
+            var statusEl = document.getElementById("status");
+            var resetEl = document.getElementById("reset");
+
+            var grid = [];
+            var cells = [];
+            var current = RED;
+            var moves = 0;
+            var over = false;
+
+            function emptyGrid() {
+                var rows = [];
+                for (var row = 0; row < ROWS; row++) {
+                    rows.push([0, 0, 0, 0, 0, 0, 0]);
+                }
+                return rows;
+            }
+
+            function build() {
+                boardEl.innerHTML = "";
+                grid = emptyGrid();
+                cells = [];
+                for (var col = 0; col < COLS; col++) {
+                    var column = document.createElement("button");
+                    column.type = "button";
+                    column.className = "column";
+                    column.setAttribute("aria-label", "Drop in column " + (col + 1));
+                    var stack = [];
+                    for (var row = ROWS - 1; row >= 0; row--) {
+                        var cell = document.createElement("span");
+                        cell.className = "cell";
+                        stack[row] = cell;
+                        column.appendChild(cell);
+                    }
+                    cells[col] = stack;
+                    column.addEventListener("click", drop(col));
+                    column.addEventListener("mouseenter", preview(col));
+                    column.addEventListener("focus", preview(col));
+                    column.addEventListener("mouseleave", clearGhost);
+                    column.addEventListener("blur", clearGhost);
+                    boardEl.appendChild(column);
+                }
+            }
+
+            function lowestEmpty(col) {
+                for (var row = 0; row < ROWS; row++) {
+                    if (grid[row][col] === 0) { return row; }
+                }
+                return -1;
+            }
+
+            function render() {
+                for (var col = 0; col < COLS; col++) {
+                    for (var row = 0; row < ROWS; row++) {
+                        var value = grid[row][col];
+                        cells[col][row].className = "cell" +
+                            (value === RED ? " red" : value === YELLOW ? " yellow" : "");
+                    }
+                }
+            }
+
+            function preview(col) {
+                return function () {
+                    clearGhost();
+                    if (over) { return; }
+                    var row = lowestEmpty(col);
+                    if (row < 0) { return; }
+                    cells[col][row].className = "cell " +
+                        (current === RED ? "ghost-red" : "ghost-yellow");
+                };
+            }
+
+            function clearGhost() {
+                var ghosts = boardEl.querySelectorAll(".ghost-red, .ghost-yellow");
+                for (var i = 0; i < ghosts.length; i++) {
+                    ghosts[i].className = "cell";
+                }
+            }
+
+            function countLine(row, col, rowStep, colStep, player) {
+                var total = 0;
+                var r = row + rowStep;
+                var c = col + colStep;
+                while (r >= 0 && r < ROWS && c >= 0 && c < COLS && grid[r][c] === player) {
+                    total += 1;
+                    r += rowStep;
+                    c += colStep;
+                }
+                return total;
+            }
+
+            function wins(row, col, player) {
+                for (var i = 0; i < DIRECTIONS.length; i++) {
+                    var dr = DIRECTIONS[i][0];
+                    var dc = DIRECTIONS[i][1];
+                    var run = 1 + countLine(row, col, dr, dc, player) +
+                        countLine(row, col, -dr, -dc, player);
+                    if (run >= 4) { return true; }
+                }
+                return false;
+            }
+
+            function nameOf(player) {
+                return player === RED ? "Red" : "Yellow";
+            }
+
+            function setStatus(text, player) {
+                statusEl.textContent = text;
+                statusEl.className = "status" +
+                    (player === RED ? " red" : player === YELLOW ? " yellow" : "");
+            }
+
+            function finish(player) {
+                over = true;
+                var buttons = boardEl.querySelectorAll(".column");
+                for (var i = 0; i < buttons.length; i++) { buttons[i].disabled = true; }
+                if (player === 0) {
+                    setStatus("It's a tie!", 0);
+                } else {
+                    setStatus(nameOf(player) + " wins!", player);
+                }
+            }
+
+            function drop(col) {
+                return function () {
+                    if (over) { return; }
+                    var row = lowestEmpty(col);
+                    if (row < 0) { return; }
+                    grid[row][col] = current;
+                    moves += 1;
+                    render();
+                    if (wins(row, col, current)) {
+                        finish(current);
+                    } else if (moves === ROWS * COLS) {
+                        finish(0);
+                    } else {
+                        current = current === RED ? YELLOW : RED;
+                        setStatus(nameOf(current) + " to play", current);
+                    }
+                };
+            }
+
+            function reset() {
+                current = RED;
+                moves = 0;
+                over = false;
+                build();
+                render();
+                setStatus("Red to play", RED);
+            }
+
+            resetEl.addEventListener("click", reset);
+            reset();
+        })();
+    </script>
+</body>
+</html>

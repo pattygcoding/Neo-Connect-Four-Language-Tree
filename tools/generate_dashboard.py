@@ -68,6 +68,7 @@ LANGUAGE_INFO = {
     "go": ("Go", "language-go", "Systems"),
     "groovy": ("Groovy", "language-groovy", "JVM/.NET"),
     "haskell": ("Haskell", "language-haskell", "Functional"),
+    "htmlcss": ("HTML/CSS", "language-markup", "Web"),
     "java": ("Java", "language-java", "JVM/.NET"),
     "javascript": ("JavaScript", "language-javascript", "Web"),
     "julia": ("Julia", "language-julia", "Scientific"),
@@ -91,10 +92,51 @@ LANGUAGE_INFO = {
     "scheme": ("Scheme", "language-scheme", "Functional"),
     "sql": ("SQL", "language-sql", "Data"),
     "swift": ("Swift", "language-swift", "Systems"),
+    "tiger": ("Tiger (Custom)", "language-javascript", "Custom"),
     "typescript": ("TypeScript", "language-typescript", "Web"),
     "v": ("V", "language-v", "Systems"),
     "vb": ("Visual Basic", "language-vbnet", "JVM/.NET"),
     "zig": ("Zig", "language-zig", "Systems"),
+}
+
+# Languages that are not console programs at all.  HTML/CSS lives in
+# ``languages/`` like the others, but a browser page cannot read stdin or print
+# the golden stdout, so it is deliberately **not** in ``tests/run_tests.py`` and
+# the dashboard gives it no console capture.  Instead it shows the file plus a
+# live, playable preview (``preview``, loaded in an iframe).  Keys are directory
+# names; ``folder`` defaults to ``languages/<id>``.
+INTERACTIVE_LANGUAGES = {
+    "htmlcss": {
+        "note": "HTML/CSS is not a console program, so it is not part of the "
+                "byte-for-byte suite. This one page holds the markup, the styles "
+                "and a little JavaScript - open the Play tab to drop red and "
+                "yellow discs. See {link} to read the file on GitHub.",
+        "linkText": "the HTML/CSS implementation on GitHub",
+        "preview": "languages/htmlcss/connect_four.html",
+    },
+}
+
+# Console languages that still carry a banner above their code.  ``note`` may use
+# ``{name}`` placeholders that the dashboard turns into anchors from ``noteLinks``.
+LANGUAGE_NOTES = {
+    "tiger": {
+        "note": "Tiger is a custom programming language written in Go by Patrick "
+                "Goodwin: a dynamically typed, tree-walking interpreter with "
+                "Python-like expressions, brace-delimited scopes, f-strings and "
+                "C-style cfor/cif. It passes the same byte-for-byte suite as every "
+                "other language here. Try it in the {demo}, or read the source at "
+                "{repo}.",
+        "noteLinks": {
+            "demo": {
+                "text": "Tiger Language demo",
+                "href": "https://www.pattygcoding.com/tiger",
+            },
+            "repo": {
+                "text": "pattygcoding/Tiger-Programming-Language",
+                "href": "https://github.com/pattygcoding/Tiger-Programming-Language",
+            },
+        },
+    },
 }
 
 # Friendly labels for the scenarios captured under tests/expected/.
@@ -180,14 +222,14 @@ FRAMEWORK_INFO = {
         "linkText": "the full Django app on GitHub",
     },
     "expressjs": {
-        "name": "Express",
-        "prism": "language-javascript",
+        "name": "Express (Node)",
+        "prism": "language-typescript",
         "category": "Web",
-        "file": "app.js",
+        "file": "app.ts",
         "folder": "frameworks/expressjs",
         "note": "This is one representative file from the app. See {link} to "
                 "browse the board logic, EJS view and the rest of the project.",
-        "linkText": "the full Express app on GitHub",
+        "linkText": "the full Express (Node) app on GitHub",
     },
     "fastapi": {
         "name": "FastAPI",
@@ -239,6 +281,19 @@ FRAMEWORK_INFO = {
                 "browse the app entry, board logic and the rest of the project.",
         "linkText": "the full Flutter app on GitHub",
     },
+    "fyne": {
+        "name": "Fyne",
+        "prism": "language-go",
+        "category": "Desktop",
+        "file": "main.go",
+        "folder": "frameworks/fyne",
+        "note": "This is one representative file from the app - Fyne is a "
+                "cross-platform desktop GUI toolkit, so it opens a native "
+                "window instead of serving HTML (Prism has no Fyne grammar, so "
+                "this is plain Go). See {link} to browse the board logic and "
+                "the rest of the project.",
+        "linkText": "the full Fyne app on GitHub",
+    },
     "gin": {
         "name": "Gin",
         "prism": "language-go",
@@ -249,6 +304,30 @@ FRAMEWORK_INFO = {
                 "browse the board, templates and the rest of the project.",
         "linkText": "the full Gin app on GitHub",
     },
+    "graphql": {
+        "name": "GraphQL",
+        "prism": "language-graphql",
+        "category": "API",
+        "file": "schema.graphql",
+        "folder": "frameworks/graphql",
+        "note": "This is the representative file - a GraphQL schema (a Board type "
+                "with Query and Mutation operations), with a Python resolver "
+                "server and example operations beside it. See {link} to browse "
+                "the resolvers and the rest of the example.",
+        "linkText": "the full GraphQL example on GitHub",
+    },
+    "json": {
+        "name": "JSON",
+        "prism": "language-json",
+        "category": "Data",
+        "file": "connect_four.json",
+        "folder": "frameworks/json",
+        "note": "This is the representative file - a data-first Connect Four whose "
+                "board and scripted moves live in JSON, played by a small Python "
+                "loader. See {link} to browse the loader and the rest of the "
+                "example.",
+        "linkText": "the JSON example on GitHub",
+    },
     "laravel": {
         "name": "Laravel",
         "prism": "language-php",
@@ -258,6 +337,42 @@ FRAMEWORK_INFO = {
         "note": "This is one representative file from the app. See {link} to "
                 "browse the board, routes, Blade view and the rest of the project.",
         "linkText": "the full Laravel app on GitHub",
+    },
+    "minimax": {
+        "name": "Minimax AI",
+        "prism": "language-python",
+        "category": "AI",
+        "file": "minimax.py",
+        "folder": "frameworks/minimax",
+        "note": "This is the representative file - a minimax search with alpha-beta "
+                "pruning that plays Connect Four, with the board rules and a "
+                "self-play driver beside it. See {link} to browse the board, the "
+                "player and the rest of the example.",
+        "linkText": "the full Minimax AI app on GitHub",
+    },
+    "mongodb": {
+        "name": "MongoDB (NoSQL)",
+        "prism": "language-javascript",
+        "category": "Database",
+        "file": "schema.js",
+        "folder": "frameworks/mongodb",
+        "note": "This is the representative file - a MongoDB collection whose moves "
+                "are embedded in each game document, validated with a $jsonSchema, "
+                "with a seed game and aggregation pipelines beside it. See {link} to "
+                "browse the seed data, the queries and the rest of the example.",
+        "linkText": "the MongoDB example on GitHub",
+    },
+    "mysql": {
+        "name": "MySQL",
+        "prism": "language-sql",
+        "category": "Database",
+        "file": "schema.sql",
+        "folder": "frameworks/mysql",
+        "note": "This is the representative file - a Connect Four schema (a games "
+                "table, a moves table and a board view) with a seed game and "
+                "window-function queries beside it. See {link} to browse the seed "
+                "data, the queries and the rest of the example.",
+        "linkText": "the MySQL example on GitHub",
     },
     "nestjs": {
         "name": "NestJS",
@@ -365,6 +480,42 @@ FRAMEWORK_INFO = {
                 "browse the board, Twig template, routes and the rest of the project.",
         "linkText": "the full Symfony app on GitHub",
     },
+    "tkinter": {
+        "name": "Tkinter (Python)",
+        "prism": "language-python",
+        "category": "Desktop",
+        "file": "app.py",
+        "folder": "frameworks/tkinter",
+        "note": "This is the representative file - a Tkinter window that draws the "
+                "board on a Canvas and drops red and yellow discs, with the game "
+                "rules beside it. See {link} to browse the board and the rest of "
+                "the example.",
+        "linkText": "the full Tkinter app on GitHub",
+    },
+    "wpf": {
+        "name": "WPF (C#)",
+        "prism": "language-csharp",
+        "category": "Desktop",
+        "file": "MainWindow.xaml.cs",
+        "folder": "frameworks/wpf",
+        "note": "This is the representative file - the code-behind of a WPF window "
+                "(Prism has no XAML grammar, so MainWindow.xaml is not shown here). "
+                "See {link} to browse the XAML view, board logic and the rest of "
+                "the project.",
+        "linkText": "the full WPF (C#) app on GitHub",
+    },
+    "wpfvb": {
+        "name": "WPF (VB.NET)",
+        "prism": "language-vbnet",
+        "category": "Desktop",
+        "file": "MainWindow.xaml.vb",
+        "folder": "frameworks/wpfvb",
+        "note": "This is the representative file - the VB.NET code-behind of a WPF "
+                "window (Prism has no XAML grammar, so MainWindow.xaml is not shown "
+                "here). See {link} to browse the XAML view, board logic and the "
+                "rest of the project.",
+        "linkText": "the full WPF (VB.NET) app on GitHub",
+    },
     "vue": {
         "name": "Vue",
         "prism": "language-javascript",
@@ -469,16 +620,26 @@ def discover_languages() -> list[dict]:
         name, prism, category = LANGUAGE_INFO.get(
             key, (directory.name.replace("_", " ").title(), DEFAULT_PRISM, "Other")
         )
-        found.append(
-            {
-                "id": key,
-                "name": name,
-                "category": category,
-                "prism": prism,
-                "file": source.relative_to(ROOT).as_posix(),
-                "code": read_text(source),
-            }
-        )
+        entry = {
+            "id": key,
+            "name": name,
+            "category": category,
+            "prism": prism,
+            "file": source.relative_to(ROOT).as_posix(),
+            "code": read_text(source),
+        }
+        interactive = INTERACTIVE_LANGUAGES.get(key)
+        if interactive:
+            entry["folder"] = interactive.get("folder", "languages/%s" % key)
+            entry["note"] = interactive.get("note", "")
+            entry["linkText"] = interactive.get("linkText", "")
+            entry["preview"] = interactive.get("preview", entry["file"])
+            entry["interactive"] = True
+        noted = LANGUAGE_NOTES.get(key)
+        if noted:
+            entry["note"] = noted["note"]
+            entry["noteLinks"] = noted.get("noteLinks", {})
+        found.append(entry)
     found.sort(key=lambda item: item["name"].lower())
     return found
 

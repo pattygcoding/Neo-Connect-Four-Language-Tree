@@ -1,0 +1,42 @@
+# Read the current position.
+query Position {
+    board {
+        rows
+        columns
+        moves
+        player
+        winner
+        isOver
+        cells
+    }
+}
+
+# How full each column is, left to right.
+query Heights {
+    columnHeights
+}
+
+# Play one move, passing the column as a variable.
+mutation Drop($column: Int!) {
+    drop(column: $column) {
+        player
+        moves
+    }
+}
+
+# Replay a whole scripted game from an empty board.
+mutation Replay {
+    replay(columns: [1, 1, 2, 2, 3, 3, 4]) {
+        winner
+        isOver
+        cells
+    }
+}
+
+# Start again.
+mutation Reset {
+    reset {
+        moves
+        player
+    }
+}

@@ -10,7 +10,7 @@ class GamesController < ApplicationController
         if playable?(game, column)
             game.drop(column)
         else
-            flash.now[:alert] = "Column #{params[:column]} is not available."
+            flash[:alert] = "Column #{params[:column]} is not available."
         end
 
         session[:game] = game.to_session
@@ -29,6 +29,6 @@ class GamesController < ApplicationController
     end
 
     def playable?(game, column)
-        column.between?(0, ConnectFourGame::COLUMNS - 1) && !game.column_full?(column)
+        column.between?(0, ConnectFourGame::COLUMNS - 1) && !game.finished? && !game.column_full?(column)
     end
 end

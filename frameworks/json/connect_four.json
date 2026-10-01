@@ -1,0 +1,8 @@
+{
+    "title": "Connect Four",
+    "rows": 6,
+    "columns": 7,
+    "empty": ".",
+    "players": ["X", "O"],
+    "moves": [1, 1, 2, 2, 3, 3, 4]
+}

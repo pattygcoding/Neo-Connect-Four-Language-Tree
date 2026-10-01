@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net8.0-windows</TargetFramework>
+        <RootNamespace>ConnectFour</RootNamespace>
+        <UseWPF>true</UseWPF>
+        <OptionStrict>On</OptionStrict>
+        <OptionInfer>On</OptionInfer>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Import Include="System.Windows" />
+        <Import Include="System.Windows.Controls" />
+        <Import Include="System.Windows.Media" />
+    </ItemGroup>
+
+</Project>

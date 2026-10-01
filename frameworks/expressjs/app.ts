@@ -1,17 +1,18 @@
-const path = require("node:path");
+import path from "node:path";
 
-const express = require("express");
-const session = require("express-session");
+import express, { type Request, type Response } from "express";
+import session from "express-session";
 
-const {
-    ROWS,
+import {
     COLUMNS,
+    ROWS,
     createBoard,
     currentPlayer,
-    isColumnFull,
     drop,
+    isColumnFull,
     winner,
-} = require("./board");
+    type Game,
+} from "./board";
 
 const app = express();
 
@@ -26,11 +27,15 @@ app.use(
     })
 );
 
-function currentGame(req) {
+function currentGame(req: Request): Game {
     return req.session.board ?? { cells: createBoard(), moves: 0 };
 }
 
-function status(game) {
+function isOver(game: Game): boolean {
+    return winner(game.cells) !== undefined || game.moves === ROWS * COLUMNS;
+}
+
+function status(game: Game): string {
     const champion = winner(game.cells);
     if (champion) {
         return `Player ${champion} wins!`;
@@ -41,21 +46,21 @@ function status(game) {
     return `Player ${currentPlayer(game.moves)}, choose a column.`;
 }
 
-app.get("/", (req, res) => {
+app.get("/", (req: Request, res: Response) => {
     const game = currentGame(req);
     res.render("board", {
         cells: [...game.cells].reverse(),
         columns: Array.from({ length: COLUMNS }, (_, index) => index + 1),
         status: status(game),
-        over: winner(game.cells) !== undefined || game.moves === ROWS * COLUMNS,
+        over: isOver(game),
     });
 });
 
-app.post("/move", (req, res) => {
+app.post("/move", (req: Request, res: Response) => {
     const game = currentGame(req);
     const column = Number.parseInt(req.body.column, 10);
 
-    if (column >= 1 && column <= COLUMNS && !isColumnFull(game.cells, column - 1)) {
+    if (column >= 1 && column <= COLUMNS && !isOver(game) && !isColumnFull(game.cells, column - 1)) {
         game.cells = drop(game.cells, column - 1, currentPlayer(game.moves));
         game.moves += 1;
     }
@@ -64,12 +69,12 @@ app.post("/move", (req, res) => {
     res.redirect(303, "/");
 });
 
-app.post("/reset", (req, res) => {
+app.post("/reset", (req: Request, res: Response) => {
     delete req.session.board;
     res.redirect(303, "/");
 });
 
-const port = process.env.PORT || 3000;
+const port = Number(process.env.PORT ?? 3000);
 app.listen(port, () => console.log(`Connect Four on http://localhost:${port}`));
 
-module.exports = app;
+export default app;

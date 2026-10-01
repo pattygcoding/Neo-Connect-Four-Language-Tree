@@ -2,7 +2,7 @@
 
 # Erlang Implementation
 
-Erlang with pattern-matched lists and an OTP-style main/0 entry point - one of 41 implementations of the same console protocol in the
+Erlang with pattern-matched lists and an OTP-style main/0 entry point - one of 42 implementations of the same console protocol in the
 [Neo-Connect-Four-Language-Tree](../../README.md) repository. Every
 implementation reads the same stdin and prints byte-for-byte identical
 output, so a single master test verifies them all at once.

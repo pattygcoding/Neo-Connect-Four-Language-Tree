@@ -1,23 +1,33 @@
-const ROWS = 6;
-const COLUMNS = 7;
-const EMPTY = ".";
-const PLAYERS = ["X", "O"];
-const DIRECTIONS = [
+export const ROWS = 6;
+export const COLUMNS = 7;
+export const EMPTY = "." as const;
+export const PLAYERS = ["X", "O"] as const;
+
+export type Player = (typeof PLAYERS)[number];
+export type Cell = Player | typeof EMPTY;
+export type Board = Cell[][];
+
+export interface Game {
+    cells: Board;
+    moves: number;
+}
+
+const DIRECTIONS: ReadonlyArray<readonly [number, number]> = [
     [0, 1],
     [1, 0],
     [1, 1],
     [1, -1],
 ];
 
-function createBoard() {
-    return Array.from({ length: ROWS }, () => Array(COLUMNS).fill(EMPTY));
+export function createBoard(): Board {
+    return Array.from({ length: ROWS }, () => Array<Cell>(COLUMNS).fill(EMPTY));
 }
 
-function currentPlayer(moves) {
+export function currentPlayer(moves: number): Player {
     return PLAYERS[moves % PLAYERS.length];
 }
 
-function lowestEmptyRow(board, column) {
+export function lowestEmptyRow(board: Board, column: number): number {
     for (let row = 0; row < ROWS; row += 1) {
         if (board[row][column] === EMPTY) {
             return row;
@@ -26,11 +36,11 @@ function lowestEmptyRow(board, column) {
     return -1;
 }
 
-function isColumnFull(board, column) {
+export function isColumnFull(board: Board, column: number): boolean {
     return lowestEmptyRow(board, column) === -1;
 }
 
-function drop(board, column, player) {
+export function drop(board: Board, column: number, player: Player): Board {
     const row = lowestEmptyRow(board, column);
     if (row === -1) {
         return board;
@@ -40,7 +50,7 @@ function drop(board, column, player) {
     );
 }
 
-function matches(board, row, column, player) {
+function matches(board: Board, row: number, column: number, player: Player): boolean {
     return (
         row >= 0 &&
         row < ROWS &&
@@ -50,7 +60,7 @@ function matches(board, row, column, player) {
     );
 }
 
-function winner(board) {
+export function winner(board: Board): Player | undefined {
     return PLAYERS.find((player) =>
         board.some((cells, row) =>
             cells.some(
@@ -66,13 +76,3 @@ function winner(board) {
         )
     );
 }
-
-module.exports = {
-    ROWS,
-    COLUMNS,
-    createBoard,
-    currentPlayer,
-    isColumnFull,
-    drop,
-    winner,
-};

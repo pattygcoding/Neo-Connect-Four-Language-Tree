@@ -2,7 +2,7 @@
 
 # Assembly Implementation
 
-Win64 x86-64 assembly in GNU `as` syntax, on the Microsoft x64 ABI - one of 41 implementations of the same console protocol in the
+Win64 x86-64 assembly in GNU `as` syntax, on the Microsoft x64 ABI - one of 42 implementations of the same console protocol in the
 [Neo-Connect-Four-Language-Tree](../../README.md) repository. Every
 implementation reads the same stdin and prints byte-for-byte identical
 output, so a single master test verifies them all at once.

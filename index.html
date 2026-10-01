@@ -248,6 +248,8 @@
                 <div class="flex space-x-1 bg-ink-900 border border-line/5 p-1 rounded-md">
                     <button onclick="switchTab('code')" id="btn-code"
                             class="px-4 py-1.5 rounded text-sm font-medium bg-mint-400 text-on-accent transition">Source Code</button>
+                    <button onclick="switchTab('preview')" id="btn-preview"
+                            class="hidden px-4 py-1.5 rounded text-sm font-medium text-fg-muted hover:text-fg transition">Play</button>
                     <button onclick="switchTab('output')" id="btn-output"
                             class="px-4 py-1.5 rounded text-sm font-medium text-fg-muted hover:text-fg transition">Console Output</button>
                 </div>
@@ -295,6 +297,18 @@
                     <span class="micro text-accent/70">Byte-for-byte identical across every implementation</span>
                 </div>
                 <pre class="bg-console text-accent font-mono p-5 rounded-lg flex-1 min-h-0 overflow-auto text-sm border border-line/5 leading-relaxed"><code id="output-block" class="language-none">Console logs will appear here...</code></pre>
+            </section>
+            <!-- Live Preview View (a non-console language such as HTML/CSS): the page
+                 itself runs in an iframe so the game can be played in the dashboard. -->
+            <section id="view-preview" class="hidden flex-1 flex flex-col min-h-0">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="micro text-fg-dim">Live preview</span>
+                    <span class="micro text-accent/70">Runs in the browser - red vs. yellow</span>
+                </div>
+                <div class="flex-1 min-h-0 rounded-lg overflow-hidden bg-ink-850 border border-line/5">
+                    <iframe id="preview-frame" title="Connect Four live preview"
+                            class="w-full h-full bg-white" loading="lazy"></iframe>
+                </div>
             </section>
             <!-- Error / Empty State -->
             <div id="empty-state" class="hidden flex-1 flex items-center justify-center text-center">
@@ -362,6 +376,31 @@
                 return !!id && frameworks().some(function (item) { return item.id === id; });
             }
 
+            function currentItem() {
+                return allItems().find(function (item) { return item.id === state.langId; });
+            }
+
+            // Whether an item can show a given tab: only a previewable item (HTML/CSS)
+            // has a Play tab, and only a console language has a Console Output tab - a
+            // framework or HTML/CSS has no golden capture.
+            function tabAvailableFor(item, tab) {
+                if (!item) { return tab === "code"; }
+                if (tab === "preview") { return !!item.preview; }
+                if (tab === "output") { return !isFramework(item.id) && !item.preview; }
+                return true;
+            }
+
+            function tabAvailable(tab) {
+                return tabAvailableFor(currentItem(), tab);
+            }
+
+            // The tab an item opens on when the address names none: a previewable item
+            // (HTML/CSS) opens on its live board, everything else on its code.
+            function defaultTabFor(id) {
+                var item = allItems().find(function (entry) { return entry.id === id; });
+                return item && item.preview ? "preview" : "code";
+            }
+
             function knownLang(id) {
                 return !!id && allItems().some(function (item) { return item.id === id; });
             }
@@ -385,13 +424,15 @@
             function locationState() {
                 var tail = window.location.pathname.slice(APP_DIR.length).replace(/\/+$/, "");
                 var parts = tail ? tail.split("/") : [];
-                var pathTab = parts.length === 2 && /^(code|output)$/.test(parts[1]) ? parts[1] : "";
+                var pathTab = parts.length === 2 && /^(code|output|preview)$/.test(parts[1]) ? parts[1] : "";
                 var params = new URLSearchParams(window.location.search || "");
                 var langId = knownLang(parts[0]) ? parts[0] : params.get("lang");
+                var rawTab = pathTab || params.get("tab");
                 return {
                     langId: knownLang(langId) ? langId : null,
-                    tab: (pathTab || params.get("tab")) === "output" ? "output" : "code",
-                    scenarioId: params.get("scenario")
+                    tab: (rawTab === "output" || rawTab === "preview") ? rawTab : "code",
+                    scenarioId: params.get("scenario"),
+                    explicit: !!(pathTab || params.get("tab"))
                 };
             }
 
@@ -399,9 +440,15 @@
             function stateUrl(langId, tab, scenarioId) {
                 var params = new URLSearchParams();
                 if (!canWritePath) { params.set("lang", langId); }
-                if (tab === "output") {
-                    params.set("tab", "output");
-                    if (scenarioId) { params.set("scenario", scenarioId); }
+                // Addresses stay clean: name a tab only when the item can show it and it
+                // is not the tab the item opens on anyway, so a plain /htmlcss opens the
+                // live board and a plain /csharp opens the code.
+                if (!tabAvailableFor(allItems().find(function (item) { return item.id === langId; }), tab)) {
+                    tab = "code";
+                }
+                if (tab !== defaultTabFor(langId)) {
+                    params.set("tab", tab);
+                    if (tab === "output" && scenarioId) { params.set("scenario", scenarioId); }
                 }
                 var search = params.toString();
                 return (canWritePath ? APP_DIR + langId : window.location.pathname) + (search ? "?" + search : "");
@@ -429,7 +476,7 @@
                     updateCode();
                 }
                 applyScenario(target.scenarioId);
-                switchTab(target.tab);
+                switchTab(target.explicit ? target.tab : defaultTabFor(state.langId));
                 applyingHistory = false;
             }
 
@@ -458,7 +505,10 @@
                 scenarioSelect: document.getElementById("scenario-select"),
                 metaLine: document.getElementById("meta-line"),
                 viewCode: document.getElementById("view-code"),
+                viewPreview: document.getElementById("view-preview"),
                 viewOutput: document.getElementById("view-output"),
+                btnPreview: document.getElementById("btn-preview"),
+                previewFrame: document.getElementById("preview-frame"),
                 emptyState: document.getElementById("empty-state"),
                 btnCode: document.getElementById("btn-code"),
                 btnOutput: document.getElementById("btn-output"),
@@ -635,30 +685,39 @@
                 return (lang.file || ("languages/" + lang.id)).replace(/\/[^/]*$/, "");
             }
 
-            // The banner above the code for a framework: a sentence whose `{link}`
-            // placeholder becomes an anchor to the whole project on GitHub.  An item
-            // without a `note` (every language) hides it and shows nothing.
-            function renderCodeNote(note, linkText, url) {
+            // The banner above the code: a sentence whose `{link}` placeholder becomes
+            // an anchor to the whole project on GitHub, and whose other `{name}`
+            // placeholders become anchors from `noteLinks[name]` ({text, href}).  An
+            // item without a `note` hides it and shows nothing.
+            function renderCodeNote(lang, url) {
+                var note = lang.note;
+                var extra = lang.noteLinks || {};
                 el.codeNote.textContent = "";
                 if (!note) {
                     el.codeNote.classList.add("hidden");
                     return;
                 }
                 el.codeNote.classList.remove("hidden");
-                if (note.indexOf("{link}") === -1) {
-                    el.codeNote.textContent = note;
-                    return;
+                var pattern = /\{(\w+)\}/g;
+                var last = 0;
+                var match;
+                while ((match = pattern.exec(note)) !== null) {
+                    var key = match[1];
+                    var target = key === "link"
+                        ? { text: lang.linkText || "the full project on GitHub", href: url || "#" }
+                        : extra[key];
+                    if (!target) { continue; }
+                    el.codeNote.appendChild(document.createTextNode(note.slice(last, match.index)));
+                    var link = document.createElement("a");
+                    link.href = target.href;
+                    link.target = "_blank";
+                    link.rel = "noopener";
+                    link.className = "text-accent hover:underline";
+                    link.textContent = target.text;
+                    el.codeNote.appendChild(link);
+                    last = pattern.lastIndex;
                 }
-                var parts = note.split("{link}");
-                el.codeNote.appendChild(document.createTextNode(parts[0]));
-                var link = document.createElement("a");
-                link.href = url || "#";
-                link.target = "_blank";
-                link.rel = "noopener";
-                link.className = "text-accent hover:underline";
-                link.textContent = linkText || "the full project on GitHub";
-                el.codeNote.appendChild(link);
-                el.codeNote.appendChild(document.createTextNode(parts.slice(1).join("{link}")));
+                el.codeNote.appendChild(document.createTextNode(note.slice(last)));
             }
 
             function updateCode() {
@@ -689,13 +748,25 @@
                     el.repoLink.classList.add("hidden");
                 }
 
-                renderCodeNote(lang.note, lang.linkText, url);
+                renderCodeNote(lang, url);
 
-                // A framework has no golden console capture, so the output tab and its
-                // scenario picker are offered only for languages.
-                el.scenarioControl.classList.toggle("hidden", framework);
-                el.btnOutput.classList.toggle("hidden", framework);
-                if (framework && state.tab === "output") { switchTab("code"); }
+                // A framework has no golden console capture, and HTML/CSS is not a
+                // console program at all: both lose the output tab (and its scenario
+                // picker).  A previewable item instead gets a Play tab that runs its
+                // page in an iframe, so the game can actually be played here.
+                var previewable = !!lang.preview;
+                el.scenarioControl.classList.toggle("hidden", framework || previewable);
+                el.btnOutput.classList.toggle("hidden", framework || previewable);
+                el.btnPreview.classList.toggle("hidden", !previewable);
+                if (previewable) {
+                    var src = APP_DIR + lang.preview;
+                    if (el.previewFrame.getAttribute("src") !== src) {
+                        el.previewFrame.setAttribute("src", src);
+                    }
+                } else {
+                    el.previewFrame.removeAttribute("src");
+                }
+                if (!tabAvailable(state.tab)) { switchTab("code"); }
             }
 
             // The scenario belongs to the console-output address; an unknown or absent id
@@ -720,16 +791,26 @@
                 el.outputBlock.textContent = (DATA.outputs && DATA.outputs[state.scenarioId]) || "(no capture)";
             }
 
+            // Toggles a tab button's active look without clobbering its `hidden` class
+            // (the Play tab is offered only for a previewable item, and the Console
+            // Output tab not at all for a framework or a browser-only language).
+            function styleTab(button, active) {
+                button.classList.toggle("bg-mint-400", active);
+                button.classList.toggle("text-on-accent", active);
+                button.classList.toggle("text-fg-muted", !active);
+                button.classList.toggle("hover:text-fg", !active);
+            }
+
             function switchTab(tab) {
+                if (!tabAvailable(tab)) { tab = "code"; }
                 var changed = state.tab !== tab;
                 state.tab = tab;
-                var codeActive = tab === "code";
-                el.viewCode.classList.toggle("hidden", !codeActive);
-                el.viewOutput.classList.toggle("hidden", codeActive);
-                el.btnCode.className = "px-4 py-1.5 rounded text-sm font-medium transition " +
-                    (codeActive ? "bg-mint-400 text-on-accent" : "text-fg-muted hover:text-fg");
-                el.btnOutput.className = "px-4 py-1.5 rounded text-sm font-medium transition " +
-                    (!codeActive ? "bg-mint-400 text-on-accent" : "text-fg-muted hover:text-fg");
+                el.viewCode.classList.toggle("hidden", tab !== "code");
+                el.viewPreview.classList.toggle("hidden", tab !== "preview");
+                el.viewOutput.classList.toggle("hidden", tab !== "output");
+                styleTab(el.btnCode, tab === "code");
+                styleTab(el.btnPreview, tab === "preview");
+                styleTab(el.btnOutput, tab === "output");
                 if (changed) { syncUrl("push"); }
             }
 
@@ -768,6 +849,7 @@
 
             function showEmptyState() {
                 el.viewCode.classList.add("hidden");
+                el.viewPreview.classList.add("hidden");
                 el.viewOutput.classList.add("hidden");
                 el.emptyState.classList.remove("hidden");
                 el.metaLine.innerText = "no data";
@@ -827,7 +909,7 @@
                 renderSidebar();
                 updateCode();
                 applyScenario(target.scenarioId);
-                switchTab(target.tab);
+                switchTab(target.explicit ? target.tab : defaultTabFor(state.langId));
                 applyingHistory = false;
                 syncUrl("replace");   // canonical address for what is on screen
             }

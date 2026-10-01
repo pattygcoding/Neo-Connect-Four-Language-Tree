@@ -32,7 +32,7 @@
         (function () {
             var parts = window.location.pathname.replace(/\/+$/, "").split("/");
             var last = parts.pop() || "";
-            var tab = last === "output" || last === "code" ? last : "";
+            var tab = last === "output" || last === "code" || last === "preview" ? last : "";
             if (tab) { last = parts.pop() || ""; }
             // A language id is a bare slug (its directory name).  Anything else — a missing
             // .html, a directory — is junk, so drop one more level and keep climbing
@@ -43,8 +43,9 @@
             // the trip, so the dashboard can put the exact address back in the bar.
             var params = new URLSearchParams(window.location.search || "");
             params.delete("lang");
-            if (tab === "code") { params.delete("tab"); }
-            if (tab === "output") { params.set("tab", "output"); }
+            // A tolerated path segment names the tab explicitly; the dashboard works
+            // out whether that item even has it and falls back to its code if not.
+            if (tab) { params.set("tab", tab); }
             var query = params.toString();
             var target = parts.join("/") + "/index.html";
             if (slug) { target += "?lang=" + encodeURIComponent(slug); }

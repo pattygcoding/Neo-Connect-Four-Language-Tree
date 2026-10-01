@@ -16,7 +16,7 @@ export function useConnectFour() {
 
     const columns = Array.from({ length: COLUMNS }, (_, index) => index);
     const champion = computed(() => winner(board.value));
-    const over = computed(() => champion.value !== null || moves.value === ROWS * COLUMNS);
+    const over = computed(() => champion.value !== undefined || moves.value === ROWS * COLUMNS);
     const status = computed(() => {
         if (champion.value) {
             return `Player ${champion.value} wins!`;

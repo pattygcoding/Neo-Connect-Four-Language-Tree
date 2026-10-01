@@ -29,6 +29,10 @@ function currentGame(request) {
     return request.session.board ?? { cells: createBoard(), moves: 0 };
 }
 
+function isOver(game) {
+    return winner(game.cells) !== undefined || game.moves === ROWS * COLUMNS;
+}
+
 function status(game) {
     const champion = winner(game.cells);
     if (champion) {
@@ -46,7 +50,7 @@ fastify.get("/", (request, reply) => {
         cells: [...game.cells].reverse(),
         columns: Array.from({ length: COLUMNS }, (_, index) => index + 1),
         status: status(game),
-        over: winner(game.cells) !== undefined || game.moves === ROWS * COLUMNS,
+        over: isOver(game),
     });
 });
 
@@ -54,7 +58,7 @@ fastify.post("/move", (request, reply) => {
     const game = currentGame(request);
     const column = Number.parseInt(request.body.column, 10);
 
-    if (column >= 1 && column <= COLUMNS && !isColumnFull(game.cells, column - 1)) {
+    if (column >= 1 && column <= COLUMNS && !isOver(game) && !isColumnFull(game.cells, column - 1)) {
         game.cells = drop(game.cells, column - 1, currentPlayer(game.moves));
         game.moves += 1;
     }

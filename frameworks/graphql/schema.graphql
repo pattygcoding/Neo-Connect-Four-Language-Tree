@@ -1,0 +1,38 @@
+schema {
+    query: Query
+    mutation: Mutation
+}
+
+type Query {
+    "The current game."
+    board: Board!
+    "Whose turn it is: X or O."
+    currentPlayer: String!
+    "How many discs each column holds, left to right."
+    columnHeights: [Int!]!
+}
+
+type Mutation {
+    "Drop the current player's disc into a 1-based column."
+    drop(column: Int!): Board!
+    "Clear the board and begin again."
+    reset: Board!
+    "Replay a scripted list of 1-based columns from an empty board."
+    replay(columns: [Int!]!): Board!
+}
+
+type Board {
+    rows: Int!
+    columns: Int!
+    "How many discs have been played."
+    moves: Int!
+    "The character used for an empty slot."
+    empty: String!
+    "The player to move next."
+    player: String!
+    "X or O once someone has four in a row, otherwise null."
+    winner: String
+    isOver: Boolean!
+    "The board, top row first, as rows of single characters."
+    cells: [[String!]!]!
+}

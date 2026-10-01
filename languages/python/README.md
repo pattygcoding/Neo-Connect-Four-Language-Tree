@@ -2,7 +2,7 @@
 
 # Python Implementation
 
-Python 3 with sys.stdin read line by line - one of 41 implementations of the same console protocol in the
+Python 3 with sys.stdin read line by line - one of 42 implementations of the same console protocol in the
 [Neo-Connect-Four-Language-Tree](../../README.md) repository. Every
 implementation reads the same stdin and prints byte-for-byte identical
 output, so a single master test verifies them all at once.

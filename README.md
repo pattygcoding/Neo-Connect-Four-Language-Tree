@@ -160,6 +160,9 @@ verified captures in `tests/expected/` as the console output, then writes
 python tools/serve.py            # then open http://localhost:8000/
 ```
 
+`serve.bat` (Windows) and `./serve.sh` are one-word shortcuts for exactly that
+command, so the right server is also the easy one to start.
+
 Use that rather than `python -m http.server`. The dashboard's addresses are
 pretty paths (`/csharp`, `/ada`), which are not files, and a bare file server
 answers them with its own 404 page — so *refreshing* one of those screens looks
@@ -255,6 +258,7 @@ locally, so a refresh test there means something.
 | Go         | `languages/go/connect_four.go`         | `go`              |
 | Groovy     | `languages/groovy/connect_four.groovy` | `groovy`          |
 | Haskell    | `languages/haskell/connect_four.hs`    | `ghc`             |
+| HTML/CSS   | `languages/htmlcss/connect_four.html`  | browser (no build) |
 | Java       | `languages/java/connect_four.java`     | `javac`/`java`    |
 | JavaScript | `languages/javascript/connect_four.js` | `node`            |
 | Julia      | `languages/julia/connect_four.jl`      | `julia`           |
@@ -275,10 +279,30 @@ locally, so a refresh test there means something.
 | Rust       | `languages/rust/connect_four.rs`       | `rustc`           |
 | Scala      | `languages/scala/connect_four.scala`   | `scala`           |
 | Swift      | `languages/swift/connect_four.swift`   | `swiftc`          |
+| Tiger (Custom) | `languages/tiger/connect_four.tg`  | `tiger` (Go)      |
 | TypeScript | `languages/typescript/connect_four.ts` | `tsc` + `node`    |
 | V          | `languages/v/connect_four.v`           | `v`               |
 | VB.NET     | `languages/vb/connect_four.vb`         | `dotnet` (.NET 8) |
 | Zig        | `languages/zig/connect_four.zig`       | `zig` (LLVM)      |
+
+**HTML/CSS is the one language here that is not a console program.** A web page
+cannot read stdin or print the golden stdout, so `languages/htmlcss/` is
+deliberately left out of the byte-for-byte suite (`tests/run_tests.py`). It is a
+single, self-contained page with **red and yellow discs**: open it in any browser,
+or use the dashboard's **Play** tab, which runs the page in an iframe so you can
+play it right there.
+
+**Tiger (Custom) is a custom programming language written in Go** by Patrick
+Goodwin: a dynamically typed, tree-walking interpreter with Python-like
+expressions, brace-delimited scopes, f-strings and C-style `cif`/`cfor`. It is a
+full console implementation and passes the same byte-for-byte suite as every
+other language. Try it in the browser at
+[Tiger Language - Patrick Goodwin](https://www.pattygcoding.com/tiger); the
+source is at
+[pattygcoding/Tiger-Programming-Language](https://github.com/pattygcoding/Tiger-Programming-Language).
+The runner uses `tiger` from `PATH`, or else `bin/tiger` in a sibling
+`Tiger-Programming-Language` checkout (build it with
+`go build -o bin/tiger ./cmd/tiger`).
 
 The test runner compiles everything for you and skips rebuilds when nothing
 changed. To play a compiled implementation directly, use the artifact under
@@ -291,7 +315,7 @@ every launch — the built `.dll` starts in well under 0.1s.
 ## Frameworks
 
 Not every showcase here is a single console program. The `frameworks/` tree
-holds a richer, multi-file project built in a real web framework; the dashboard
+holds a richer, multi-file project built in a real framework; the dashboard
 shows **one representative file** from each and links the whole project on
 GitHub, with a note above the code explaining just that.
 
@@ -302,14 +326,20 @@ GitHub, with a note above the code explaining just that.
 | ASP.NET Core  | `frameworks/aspnetcore/`  | `frameworks/aspnetcore/Controllers/GameController.cs`        | `dotnet run`          |
 | Blazor        | `frameworks/blazor/`      | `frameworks/blazor/Components/Pages/ConnectFour.razor`       | `dotnet run`          |
 | Django        | `frameworks/django/`      | `frameworks/django/game/views.py`                            | `manage.py runserver` |
-| Express       | `frameworks/expressjs/`   | `frameworks/expressjs/app.js`                                | `node app.js`         |
+| Express (Node) | `frameworks/expressjs/`  | `frameworks/expressjs/app.ts`                                | `npm start`           |
 | FastAPI       | `frameworks/fastapi/`     | `frameworks/fastapi/app/main.py`                             | `fastapi dev`         |
 | Fastify       | `frameworks/fastify/`     | `frameworks/fastify/app.js`                                  | `node app.js`         |
 | Fiber         | `frameworks/fiber/`       | `frameworks/fiber/main.go`                                   | `go run .`            |
 | Flask         | `frameworks/flask/`       | `frameworks/flask/app.py`                                    | `flask --app app run` |
 | Flutter       | `frameworks/flutter/`     | `frameworks/flutter/lib/connect_four.dart`                   | `flutter run`         |
+| Fyne          | `frameworks/fyne/`        | `frameworks/fyne/main.go`                                    | `go run .`            |
 | Gin           | `frameworks/gin/`         | `frameworks/gin/main.go`                                     | `go run .`            |
+| GraphQL       | `frameworks/graphql/`     | `frameworks/graphql/schema.graphql`                          | `python server.py`    |
+| JSON          | `frameworks/json/`        | `frameworks/json/connect_four.json`                          | `python play.py`      |
 | Laravel       | `frameworks/laravel/`     | `frameworks/laravel/app/Http/Controllers/GameController.php` | `php artisan serve`   |
+| Minimax AI    | `frameworks/minimax/`     | `frameworks/minimax/minimax.py`                              | `python play.py`      |
+| MongoDB (NoSQL) | `frameworks/mongodb/`   | `frameworks/mongodb/schema.js`                               | `mongosh --file schema.js` |
+| MySQL         | `frameworks/mysql/`       | `frameworks/mysql/schema.sql`                                | `mysql < schema.sql`  |
 | NestJS        | `frameworks/nestjs/`      | `frameworks/nestjs/src/game/game.controller.ts`              | `ts-node src/main.ts` |
 | Next.js       | `frameworks/nextjs/`      | `frameworks/nextjs/app/page.jsx`                             | `npm run dev`         |
 | Nuxt          | `frameworks/nuxt/`        | `frameworks/nuxt/composables/useConnectFour.js`              | `npm run dev`         |
@@ -317,15 +347,19 @@ GitHub, with a note above the code explaining just that.
 | React         | `frameworks/react/`       | `frameworks/react/src/ConnectFour.jsx`                       | `npx vite`            |
 | React Native  | `frameworks/reactnative/` | `frameworks/reactnative/src/ConnectFour.jsx`                 | `npx expo start`      |
 | Ruby on Rails | `frameworks/rubyonrails/` | `frameworks/rubyonrails/app/controllers/games_controller.rb` | `bin/rails server`    |
-| Spring Boot   | `frameworks/springboot/`  | `frameworks/springboot/src/main/java/com/example/connectfour/GameController.java` | `mvnw spring-boot:run` |
+| Spring Boot   | `frameworks/springboot/`  | `frameworks/springboot/src/main/java/com/example/connectfour/GameController.java` | `mvn spring-boot:run` |
 | Svelte        | `frameworks/svelte/`      | `frameworks/svelte/src/lib/store.js`                         | `npx vite`            |
 | Symfony       | `frameworks/symfony/`     | `frameworks/symfony/src/Controller/GameController.php`       | `symfony server:start` |
+| Tkinter (Python) | `frameworks/tkinter/`  | `frameworks/tkinter/app.py`                                  | `python app.py`       |
+| WPF (C#)      | `frameworks/wpf/`         | `frameworks/wpf/MainWindow.xaml.cs`                          | `dotnet run`          |
+| WPF (VB.NET)  | `frameworks/wpfvb/`       | `frameworks/wpfvb/MainWindow.xaml.vb`                        | `dotnet run`          |
 | Vue           | `frameworks/vue/`         | `frameworks/vue/src/composables/useConnectFour.js`           | `npx vite`            |
 
-A framework app serves HTML rather than the byte-for-byte console protocol, so
-frameworks are deliberately **outside** the golden test suite (`tests/`). Each
-one carries its own README, and the dashboard's **Frameworks** browse mode
-renders it without the console-capture tab.
+A framework app renders its own UI — HTML, mobile or desktop widgets — rather
+than the byte-for-byte console protocol, so frameworks are deliberately
+**outside** the golden test suite (`tests/`). Each one carries its own README,
+and the dashboard's **Frameworks** browse mode renders it without the
+console-capture tab.
 
 ## Language folders
 

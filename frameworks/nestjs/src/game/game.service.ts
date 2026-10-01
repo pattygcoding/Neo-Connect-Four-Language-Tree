@@ -31,7 +31,12 @@ export class GameService {
     }
 
     play(state: GameState, column: number): GameState {
-        if (column < 1 || column > COLUMNS || isColumnFull(state.cells, column - 1)) {
+        if (
+            column < 1 ||
+            column > COLUMNS ||
+            this.isOver(state) ||
+            isColumnFull(state.cells, column - 1)
+        ) {
             return state;
         }
         return {
@@ -46,8 +51,12 @@ export class GameService {
             moves: state.moves,
             columns: Array.from({ length: COLUMNS }, (_, index) => index + 1),
             status: this.status(state),
-            over: winner(state.cells) !== null || state.moves === ROWS * COLUMNS,
+            over: this.isOver(state),
         };
+    }
+
+    private isOver(state: GameState): boolean {
+        return winner(state.cells) !== null || state.moves === ROWS * COLUMNS;
     }
 
     private status(state: GameState): string {
