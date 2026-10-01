@@ -130,6 +130,10 @@
             background-image:
                 radial-gradient(1100px 520px at 78% -8%, var(--glow-a), transparent 65%),
                 radial-gradient(900px 480px at 8% 108%, var(--glow-b), transparent 70%);
+            /* Full viewport height.  `dvh` tracks the mobile browser's dynamic
+               toolbar so the layout is not cropped; `vh` is the fallback. */
+            height: 100vh;
+            height: 100dvh;
         }
         /* The toggle shows the mode it switches to: sun while dark, moon while light. */
         html[data-theme="dark"] .theme-icon-moon { display: none; }
@@ -167,10 +171,16 @@
         }
     </style>
 </head>
-<body class="bg-ink-950 text-fg font-sans antialiased flex h-screen overflow-hidden">
+<body class="bg-ink-950 text-fg font-sans antialiased flex overflow-hidden">
 
-    <!-- Sidebar / Language Library -->
-    <aside class="w-80 bg-ink-900/70 border-r border-line/5 flex flex-col shrink-0">
+    <!-- Scrim behind the mobile sidebar drawer -->
+    <div id="sidebar-backdrop"
+         class="hidden fixed inset-0 z-30 bg-ink-950/60 backdrop-blur-sm lg:hidden"></div>
+
+    <!-- Sidebar / Language Library.  On phones it is a slide-in drawer; from
+         `lg` up it is the static left column. -->
+    <aside id="sidebar"
+           class="fixed inset-y-0 left-0 z-40 w-80 max-w-[85vw] bg-ink-900 border-r border-line/5 flex flex-col shrink-0 -translate-x-full transition-transform duration-200 ease-out lg:static lg:z-auto lg:translate-x-0 lg:bg-ink-900/70">
         <div class="p-5 border-b border-line/5">
             <div class="flex items-center gap-2.5">
                 <a href="https://pattygcoding.com" target="_blank" rel="noopener" title="pattygcoding.com"
@@ -208,8 +218,14 @@
     <!-- Main Content Panel -->
     <div class="flex-1 flex flex-col h-full overflow-hidden">
         <!-- Top Bar / View Switcher -->
-        <header class="bg-ink-900/80 backdrop-blur border-b border-line/5 px-5 py-4 flex flex-wrap gap-3 justify-between items-center">
-            <div class="min-w-0">
+        <header class="bg-ink-900/80 backdrop-blur border-b border-line/5 px-4 sm:px-5 py-4 flex flex-wrap gap-3 justify-between items-center">
+            <div class="flex items-start gap-3 min-w-0">
+                <button type="button" onclick="toggleSidebar()" id="menu-btn"
+                        aria-label="Toggle navigation" aria-expanded="false" aria-controls="sidebar"
+                        class="lg:hidden shrink-0 mt-0.5 flex items-center justify-center w-9 h-9 rounded-md bg-ink-950 border border-line/10 text-fg-muted hover:text-accent hover:border-accent/40 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>
+                </button>
+                <div class="min-w-0">
                 <p class="micro text-fg-dim">Selected implementation</p>
                 <h2 id="selected-title" class="mt-1.5 text-lg font-semibold tracking-tight truncate text-fg-strong">Select a language</h2>
                 <p id="selected-file" class="mt-0.5 text-xs text-fg-muted font-mono truncate">&nbsp;</p>
@@ -220,6 +236,7 @@
                     </span>
                     <span id="selected-repo-label" class="truncate min-w-0">&nbsp;</span>
                 </a>
+                </div>
             </div>
             <div class="flex items-center gap-3">
                 <label id="scenario-control" class="hidden sm:flex items-center gap-2 micro text-fg-dim">
@@ -248,7 +265,7 @@
         </header>
 
         <!-- Viewport Container -->
-        <main class="flex-1 overflow-hidden p-6 flex flex-col">
+        <main class="flex-1 overflow-hidden p-3 sm:p-6 flex flex-col">
             <!-- Code View -->
             <section id="view-code" class="flex-1 flex flex-col min-h-0">
                 <div class="flex items-center justify-between mb-2">
@@ -447,8 +464,25 @@
                 btnOutput: document.getElementById("btn-output"),
                 copyBtn: document.getElementById("copy-btn"),
                 modeLanguages: document.getElementById("mode-languages"),
-                modeFrameworks: document.getElementById("mode-frameworks")
+                modeFrameworks: document.getElementById("mode-frameworks"),
+                sidebar: document.getElementById("sidebar"),
+                backdrop: document.getElementById("sidebar-backdrop"),
+                menuBtn: document.getElementById("menu-btn")
             };
+
+            // The sidebar is a slide-in drawer below `lg` (toggled by the header's
+            // menu button) and a plain static column above it.  The `-translate-x-full`
+            // class is the closed state; `lg:translate-x-0` keeps it on screen there.
+            function setSidebar(open) {
+                if (!el.sidebar) { return; }
+                el.sidebar.classList.toggle("-translate-x-full", !open);
+                el.backdrop.classList.toggle("hidden", !open);
+                el.menuBtn.setAttribute("aria-expanded", open ? "true" : "false");
+            }
+
+            function toggleSidebar() {
+                setSidebar(el.sidebar.classList.contains("-translate-x-full"));
+            }
 
             // Items for the currently selected browse mode.  Both lists share one
             // shape (id/name/category/prism/file/code; a framework adds folder/
@@ -580,6 +614,7 @@
                 renderSidebar();
                 updateCode();
                 syncUrl("push");
+                setSidebar(false);
             }
 
             function lineNumbersFor(text) {
@@ -776,6 +811,14 @@
                 el.modeLanguages.addEventListener("click", function () { setMode("languages"); });
                 el.modeFrameworks.addEventListener("click", function () { setMode("frameworks"); });
 
+                // Mobile-only drawer controls.  The header button opens/closes it via
+                // its inline `onclick="toggleSidebar()"`; the scrim and Escape close it
+                // (a language tap closes it too, via selectLanguage).
+                el.backdrop.addEventListener("click", function () { setSidebar(false); });
+                document.addEventListener("keydown", function (event) {
+                    if (event.key === "Escape") { setSidebar(false); }
+                });
+
                 // Mirror the address into the view; the address is only written at the
                 // end (a tab taken from the URL must not add a history entry).
                 applyingHistory = true;
@@ -792,6 +835,7 @@
             window.switchTab = switchTab;
             window.copyCode = copyCode;
             window.toggleTheme = toggleTheme;
+            window.toggleSidebar = toggleSidebar;
             init();
         })();
     </script>
