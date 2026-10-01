@@ -175,8 +175,34 @@ The dashboard is GitHub Pages ready with no build step: `index.html` and the
 committed `dashboard-data.js` sit at the repository root, every local asset
 is referenced with a relative path, and all third-party libraries load over
 `https` from CDNs. A `.nojekyll` file is included so Pages serves the files
-verbatim. Publish from the repository root (branch `main`, folder `/`) and
-the site is available at `https://<user>.github.io/<repo>/`.
+verbatim. Publish from the repository root (branch `main`, folder `/`).
+
+The published site lives at **<https://connectfour.pattygcoding.com/>** — the
+`CNAME` file in the repository root names that host, so the `<user>.github.io`
+address redirects to it. The DNS side is a single record at the domain's
+provider:
+
+```
+connectfour   CNAME   pattygcoding.github.io
+```
+
+(This is a subdomain, so it does not disturb `www.pattygcoding.com`, which
+belongs to the portfolio site and has its own `CNAME`.) Point it at the
+hostname the portfolio already uses. If the provider proxies traffic — Cloudflare
+does by default — switch that record to **DNS only** (grey cloud); a proxied
+record breaks Pages' certificate checks.
+
+Because `www.<domain>` is already claimed by another Pages site, a path of that
+domain (`www.pattygcoding.com/connectfour`) is not available to this repository:
+GitHub allows one custom domain per site, and a *path* under someone else's
+domain can only exist inside that site's own files. A dedicated subdomain keeps
+the pretty `/csharp` addresses and the `404.html` fallback intact.
+
+The dashboard adapts to whatever directory it is served from: it derives the
+deployment prefix at load (`APP_DIR`) and builds every link, `pushState` and
+canonical language address from it, so the same files work at
+`https://connectfour.pattygcoding.com/csharp` and at
+`https://<user>.github.io/<repo>/csharp` with no configuration.
 
 Pages has no rewrite rules, so the committed `404.html` stands in for them:
 it is served for any path it cannot find (with the address bar untouched)
