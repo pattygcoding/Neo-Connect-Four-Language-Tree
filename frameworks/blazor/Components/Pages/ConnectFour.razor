@@ -1,0 +1,55 @@
+@page "/"
+@using ConnectFour
+
+<h1>Connect Four</h1>
+
+<p role="status">@Status</p>
+
+<table class="board">
+    @for (var row = ConnectFourBoard.Rows - 1; row >= 0; row--)
+    {
+        var topRow = row;
+        <tr>
+            @for (var column = 0; column < ConnectFourBoard.Columns; column++)
+            {
+                var cellColumn = column;
+                <td class="cell">@_board.Cell(topRow, cellColumn)</td>
+            }
+        </tr>
+    }
+</table>
+
+<div class="columns">
+    @for (var column = 1; column <= ConnectFourBoard.Columns; column++)
+    {
+        var chosen = column;
+        <button type="button"
+                disabled="@(_board.IsOver || _board.IsFull(chosen - 1))"
+                @onclick="() => Play(chosen)">
+            @chosen
+        </button>
+    }
+</div>
+
+<button type="button" @onclick="Reset">New game</button>
+
+@code {
+    private ConnectFourBoard _board = new();
+
+    private string Status => _board.Winner() != '.'
+        ? $"Player {_board.Winner()} wins!"
+        : _board.IsOver
+            ? "It's a tie!"
+            : $"Player {_board.CurrentPlayer}, choose a column.";
+
+    private void Play(int column)
+    {
+        if (_board.IsOver || _board.IsFull(column - 1))
+        {
+            return;
+        }
+        _board.Drop(column - 1);
+    }
+
+    private void Reset() => _board = new ConnectFourBoard();
+}

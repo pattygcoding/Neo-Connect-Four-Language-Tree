@@ -180,6 +180,20 @@ is referenced with a relative path, and all third-party libraries load over
 `https` from CDNs. A `.nojekyll` file is included so Pages serves the files
 verbatim. Publish from the repository root (branch `main`, folder `/`).
 
+**Publishing is automatic.** Pages is set to *deploy from a branch* (`main`,
+folder `/`) with no build step, so **any push to `main` redeploys the site** —
+there is no separate publish or deploy command to run. Commit and push your
+changes from PowerShell:
+
+```powershell
+git add -A; git commit -m "Deploy showcase"; git push
+```
+
+Watch the run under the repository's **Actions → pages build and deployment**;
+the update goes live at <https://connectfour.pattygcoding.com/> a minute or two
+later. If you changed the showcase, re-run `python tools/generate_dashboard.py`
+first so the committed `dashboard-data.js` is current before you push.
+
 The published site lives at **<https://connectfour.pattygcoding.com/>** — the
 `CNAME` file in the repository root names that host, so the `<user>.github.io`
 address redirects to it. The DNS side is a single record at the domain's
@@ -280,9 +294,31 @@ holds a richer, multi-file project built in a real web framework; the dashboard
 shows **one representative file** from each and links the whole project on
 GitHub, with a note above the code explaining just that.
 
-| Framework     | Project                   | Representative file                                           | Run               |
-|---------------|---------------------------|--------------------------------------------------------------|-------------------|
-| Ruby on Rails | `frameworks/rubyonrails/` | `frameworks/rubyonrails/app/controllers/games_controller.rb` | `bin/rails server` |
+| Framework     | Project                   | Representative file                                           | Run                   |
+|---------------|---------------------------|--------------------------------------------------------------|-----------------------|
+| Angular       | `frameworks/angular/`     | `frameworks/angular/src/app/connect-four/connect-four.component.ts` | `ng serve`      |
+| ASP.NET Core  | `frameworks/aspnetcore/`  | `frameworks/aspnetcore/Controllers/GameController.cs`        | `dotnet run`          |
+| Blazor        | `frameworks/blazor/`      | `frameworks/blazor/Components/Pages/ConnectFour.razor`       | `dotnet run`          |
+| Django        | `frameworks/django/`      | `frameworks/django/game/views.py`                            | `manage.py runserver` |
+| Express       | `frameworks/expressjs/`   | `frameworks/expressjs/app.js`                                | `node app.js`         |
+| FastAPI       | `frameworks/fastapi/`     | `frameworks/fastapi/app/main.py`                             | `fastapi dev`         |
+| Fastify       | `frameworks/fastify/`     | `frameworks/fastify/app.js`                                  | `node app.js`         |
+| Fiber         | `frameworks/fiber/`       | `frameworks/fiber/main.go`                                   | `go run .`            |
+| Flask         | `frameworks/flask/`       | `frameworks/flask/app.py`                                    | `flask --app app run` |
+| Flutter       | `frameworks/flutter/`     | `frameworks/flutter/lib/connect_four.dart`                   | `flutter run`         |
+| Gin           | `frameworks/gin/`         | `frameworks/gin/main.go`                                     | `go run .`            |
+| Laravel       | `frameworks/laravel/`     | `frameworks/laravel/app/Http/Controllers/GameController.php` | `php artisan serve`   |
+| NestJS        | `frameworks/nestjs/`      | `frameworks/nestjs/src/game/game.controller.ts`              | `ts-node src/main.ts` |
+| Next.js       | `frameworks/nextjs/`      | `frameworks/nextjs/app/page.jsx`                             | `npm run dev`         |
+| Nuxt          | `frameworks/nuxt/`        | `frameworks/nuxt/composables/useConnectFour.js`              | `npm run dev`         |
+| Phoenix       | `frameworks/phoenix/`     | `frameworks/phoenix/lib/connect_four_web/controllers/game_controller.ex` | `mix phx.server` |
+| React         | `frameworks/react/`       | `frameworks/react/src/ConnectFour.jsx`                       | `npx vite`            |
+| React Native  | `frameworks/reactnative/` | `frameworks/reactnative/src/ConnectFour.jsx`                 | `npx expo start`      |
+| Ruby on Rails | `frameworks/rubyonrails/` | `frameworks/rubyonrails/app/controllers/games_controller.rb` | `bin/rails server`    |
+| Spring Boot   | `frameworks/springboot/`  | `frameworks/springboot/src/main/java/com/example/connectfour/GameController.java` | `mvnw spring-boot:run` |
+| Svelte        | `frameworks/svelte/`      | `frameworks/svelte/src/lib/store.js`                         | `npx vite`            |
+| Symfony       | `frameworks/symfony/`     | `frameworks/symfony/src/Controller/GameController.php`       | `symfony server:start` |
+| Vue           | `frameworks/vue/`         | `frameworks/vue/src/composables/useConnectFour.js`           | `npx vite`            |
 
 A framework app serves HTML rather than the byte-for-byte console protocol, so
 frameworks are deliberately **outside** the golden test suite (`tests/`). Each

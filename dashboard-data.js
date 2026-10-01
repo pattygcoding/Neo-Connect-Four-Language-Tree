@@ -1,8 +1,8 @@
 window.CONNECT_FOUR_DATA = {
   "meta": {
-    "updated": "2026-10-01 04:46 UTC",
+    "updated": "2026-10-01 05:16 UTC",
     "languageCount": 40,
-    "frameworkCount": 1,
+    "frameworkCount": 23,
     "scenarioCount": 8,
     "repository": "https://github.com/pattygcoding/Neo-Connect-Four-Language-Tree",
     "branch": "main"
@@ -375,6 +375,204 @@ window.CONNECT_FOUR_DATA = {
   ],
   "frameworks": [
     {
+      "id": "angular",
+      "name": "Angular",
+      "category": "Web",
+      "prism": "language-typescript",
+      "file": "frameworks/angular/src/app/connect-four/connect-four.component.ts",
+      "folder": "frameworks/angular",
+      "note": "This is one representative file from the app. See {link} to browse the board logic, template and the rest of the project.",
+      "linkText": "the full Angular app on GitHub",
+      "code": "import { Component } from \"@angular/core\";\nimport { CommonModule } from \"@angular/common\";\n\nimport {\n    Board,\n    COLUMNS,\n    ROWS,\n    createBoard,\n    currentPlayer,\n    drop,\n    isColumnFull,\n    winner,\n} from \"./board\";\n\n@Component({\n    selector: \"app-connect-four\",\n    standalone: true,\n    imports: [CommonModule],\n    templateUrl: \"./connect-four.component.html\",\n    styleUrls: [\"./connect-four.component.css\"],\n})\nexport class ConnectFourComponent {\n    readonly columns = Array.from({ length: COLUMNS }, (_, index) => index);\n    board: Board = createBoard();\n    moves = 0;\n\n    get champion(): string | null {\n        return winner(this.board);\n    }\n\n    get over(): boolean {\n        return this.champion !== null || this.moves === ROWS * COLUMNS;\n    }\n\n    get status(): string {\n        if (this.champion) {\n            return `Player ${this.champion} wins!`;\n        }\n        if (this.over) {\n            return \"It's a tie!\";\n        }\n        return `Player ${currentPlayer(this.moves)}, choose a column.`;\n    }\n\n    rows(): Board {\n        return [...this.board].reverse();\n    }\n\n    isFull(column: number): boolean {\n        return isColumnFull(this.board, column);\n    }\n\n    play(column: number): void {\n        if (this.over || isColumnFull(this.board, column)) {\n            return;\n        }\n        this.board = drop(this.board, column, currentPlayer(this.moves));\n        this.moves += 1;\n    }\n\n    reset(): void {\n        this.board = createBoard();\n        this.moves = 0;\n    }\n}\n"
+    },
+    {
+      "id": "aspnetcore",
+      "name": "ASP.NET Core",
+      "category": "Web",
+      "prism": "language-csharp",
+      "file": "frameworks/aspnetcore/Controllers/GameController.cs",
+      "folder": "frameworks/aspnetcore",
+      "note": "This is one representative file from the app. See {link} to browse the board model, Razor view, host setup and the rest of the project.",
+      "linkText": "the full ASP.NET Core app on GitHub",
+      "code": "using ConnectFour.Models;\n\nusing Microsoft.AspNetCore.Mvc;\n\nnamespace ConnectFour.Controllers;\n\npublic class GameController : Controller\n{\n    private const string SessionKey = \"board\";\n\n    public IActionResult Board()\n    {\n        var board = CurrentBoard();\n        ViewData[\"Status\"] = Status(board);\n        return View(board);\n    }\n\n    [HttpPost]\n    [ValidateAntiForgeryToken]\n    public IActionResult Move(int column)\n    {\n        var board = CurrentBoard();\n\n        if (column >= 1 && column <= ConnectFourBoard.Columns && !board.IsOver\n            && !board.IsFull(column - 1))\n        {\n            board.Drop(column - 1);\n        }\n\n        Store(board);\n        return RedirectToAction(nameof(Board));\n    }\n\n    [HttpPost]\n    [ValidateAntiForgeryToken]\n    public IActionResult Reset()\n    {\n        HttpContext.Session.Remove(SessionKey);\n        return RedirectToAction(nameof(Board));\n    }\n\n    private ConnectFourBoard CurrentBoard()\n    {\n        var state = HttpContext.Session.GetString(SessionKey);\n        return state is null ? new ConnectFourBoard() : ConnectFourBoard.Deserialize(state);\n    }\n\n    private void Store(ConnectFourBoard board) =>\n        HttpContext.Session.SetString(SessionKey, board.Serialize());\n\n    private static string Status(ConnectFourBoard board) =>\n        board.Winner() != '.' ? $\"Player {board.Winner()} wins!\"\n        : board.IsOver ? \"It's a tie!\"\n        : $\"Player {board.CurrentPlayer}, choose a column.\";\n}\n"
+    },
+    {
+      "id": "blazor",
+      "name": "Blazor",
+      "category": "Web",
+      "prism": "language-cshtml",
+      "file": "frameworks/blazor/Components/Pages/ConnectFour.razor",
+      "folder": "frameworks/blazor",
+      "note": "This is one representative file from the app. See {link} to browse the board logic and the rest of the project.",
+      "linkText": "the full Blazor app on GitHub",
+      "code": "@page \"/\"\n@using ConnectFour\n\n<h1>Connect Four</h1>\n\n<p role=\"status\">@Status</p>\n\n<table class=\"board\">\n    @for (var row = ConnectFourBoard.Rows - 1; row >= 0; row--)\n    {\n        var topRow = row;\n        <tr>\n            @for (var column = 0; column < ConnectFourBoard.Columns; column++)\n            {\n                var cellColumn = column;\n                <td class=\"cell\">@_board.Cell(topRow, cellColumn)</td>\n            }\n        </tr>\n    }\n</table>\n\n<div class=\"columns\">\n    @for (var column = 1; column <= ConnectFourBoard.Columns; column++)\n    {\n        var chosen = column;\n        <button type=\"button\"\n                disabled=\"@(_board.IsOver || _board.IsFull(chosen - 1))\"\n                @onclick=\"() => Play(chosen)\">\n            @chosen\n        </button>\n    }\n</div>\n\n<button type=\"button\" @onclick=\"Reset\">New game</button>\n\n@code {\n    private ConnectFourBoard _board = new();\n\n    private string Status => _board.Winner() != '.'\n        ? $\"Player {_board.Winner()} wins!\"\n        : _board.IsOver\n            ? \"It's a tie!\"\n            : $\"Player {_board.CurrentPlayer}, choose a column.\";\n\n    private void Play(int column)\n    {\n        if (_board.IsOver || _board.IsFull(column - 1))\n        {\n            return;\n        }\n        _board.Drop(column - 1);\n    }\n\n    private void Reset() => _board = new ConnectFourBoard();\n}\n"
+    },
+    {
+      "id": "django",
+      "name": "Django",
+      "category": "Web",
+      "prism": "language-python",
+      "file": "frameworks/django/game/views.py",
+      "folder": "frameworks/django",
+      "note": "This is one representative file from the app. See {link} to browse the board, forms, URLs, templates and the rest of the project.",
+      "linkText": "the full Django app on GitHub",
+      "code": "from django.shortcuts import redirect, render\n\nfrom .board import COLUMNS, ConnectFourBoard\nfrom .forms import DropForm\n\n\ndef board(request):\n    game = ConnectFourBoard.from_session(request.session.get(\"board\"))\n    context = {\n        \"board\": game,\n        \"columns\": range(1, COLUMNS + 1),\n        \"form\": DropForm(),\n    }\n    return render(request, \"game/board.html\", context)\n\n\ndef move(request):\n    game = ConnectFourBoard.from_session(request.session.get(\"board\"))\n\n    if request.method == \"POST\" and not game.is_over:\n        form = DropForm(request.POST)\n        if form.is_valid():\n            column = form.cleaned_data[\"column\"] - 1\n            if not game.is_full(column):\n                game.drop(column)\n\n    request.session[\"board\"] = game.to_session()\n    return redirect(\"game:board\")\n\n\ndef reset(request):\n    request.session.pop(\"board\", None)\n    return redirect(\"game:board\")\n"
+    },
+    {
+      "id": "expressjs",
+      "name": "Express",
+      "category": "Web",
+      "prism": "language-javascript",
+      "file": "frameworks/expressjs/app.js",
+      "folder": "frameworks/expressjs",
+      "note": "This is one representative file from the app. See {link} to browse the board logic, EJS view and the rest of the project.",
+      "linkText": "the full Express app on GitHub",
+      "code": "const path = require(\"node:path\");\n\nconst express = require(\"express\");\nconst session = require(\"express-session\");\n\nconst {\n    ROWS,\n    COLUMNS,\n    createBoard,\n    currentPlayer,\n    isColumnFull,\n    drop,\n    winner,\n} = require(\"./board\");\n\nconst app = express();\n\napp.set(\"view engine\", \"ejs\");\napp.set(\"views\", path.join(__dirname, \"views\"));\napp.use(express.urlencoded({ extended: false }));\napp.use(\n    session({\n        secret: \"change-me-in-production\",\n        resave: false,\n        saveUninitialized: true,\n    })\n);\n\nfunction currentGame(req) {\n    return req.session.board ?? { cells: createBoard(), moves: 0 };\n}\n\nfunction status(game) {\n    const champion = winner(game.cells);\n    if (champion) {\n        return `Player ${champion} wins!`;\n    }\n    if (game.moves === ROWS * COLUMNS) {\n        return \"It's a tie!\";\n    }\n    return `Player ${currentPlayer(game.moves)}, choose a column.`;\n}\n\napp.get(\"/\", (req, res) => {\n    const game = currentGame(req);\n    res.render(\"board\", {\n        cells: [...game.cells].reverse(),\n        columns: Array.from({ length: COLUMNS }, (_, index) => index + 1),\n        status: status(game),\n        over: winner(game.cells) !== undefined || game.moves === ROWS * COLUMNS,\n    });\n});\n\napp.post(\"/move\", (req, res) => {\n    const game = currentGame(req);\n    const column = Number.parseInt(req.body.column, 10);\n\n    if (column >= 1 && column <= COLUMNS && !isColumnFull(game.cells, column - 1)) {\n        game.cells = drop(game.cells, column - 1, currentPlayer(game.moves));\n        game.moves += 1;\n    }\n\n    req.session.board = game;\n    res.redirect(303, \"/\");\n});\n\napp.post(\"/reset\", (req, res) => {\n    delete req.session.board;\n    res.redirect(303, \"/\");\n});\n\nconst port = process.env.PORT || 3000;\napp.listen(port, () => console.log(`Connect Four on http://localhost:${port}`));\n\nmodule.exports = app;\n"
+    },
+    {
+      "id": "fastapi",
+      "name": "FastAPI",
+      "category": "Web",
+      "prism": "language-python",
+      "file": "frameworks/fastapi/app/main.py",
+      "folder": "frameworks/fastapi",
+      "note": "This is one representative file from the app. See {link} to browse the board, schemas, templates and the rest of the project.",
+      "linkText": "the full FastAPI app on GitHub",
+      "code": "from pathlib import Path\n\nfrom fastapi import FastAPI, Form, Request\nfrom fastapi.responses import RedirectResponse\nfrom fastapi.templating import Jinja2Templates\nfrom starlette.middleware.sessions import SessionMiddleware\n\nfrom .board import COLUMNS, ConnectFourBoard\n\napp = FastAPI(title=\"Connect Four\")\napp.add_middleware(SessionMiddleware, secret_key=\"change-me-in-production\")\n\ntemplates = Jinja2Templates(directory=str(Path(__file__).parent / \"templates\"))\n\n\ndef current_board(request: Request) -> ConnectFourBoard:\n    return ConnectFourBoard.from_session(request.session.get(\"board\"))\n\n\n@app.get(\"/\")\ndef board_page(request: Request):\n    board = current_board(request)\n    return templates.TemplateResponse(\n        request,\n        \"board.html\",\n        {\"board\": board, \"columns\": range(1, COLUMNS + 1)},\n    )\n\n\n@app.post(\"/move\")\ndef move(request: Request, column: int = Form(ge=1, le=COLUMNS)):\n    board = current_board(request)\n    if not board.is_over and not board.is_full(column - 1):\n        board.drop(column - 1)\n    request.session[\"board\"] = board.to_session()\n    return RedirectResponse(url=\"/\", status_code=303)\n\n\n@app.post(\"/reset\")\ndef reset(request: Request):\n    request.session.pop(\"board\", None)\n    return RedirectResponse(url=\"/\", status_code=303)\n"
+    },
+    {
+      "id": "fastify",
+      "name": "Fastify",
+      "category": "Web",
+      "prism": "language-javascript",
+      "file": "frameworks/fastify/app.js",
+      "folder": "frameworks/fastify",
+      "note": "This is one representative file from the app. See {link} to browse the board logic, EJS view and the rest of the project.",
+      "linkText": "the full Fastify app on GitHub",
+      "code": "const path = require(\"node:path\");\n\nconst cookie = require(\"@fastify/cookie\");\nconst formbody = require(\"@fastify/formbody\");\nconst session = require(\"@fastify/session\");\nconst view = require(\"@fastify/view\");\nconst ejs = require(\"ejs\");\nconst fastify = require(\"fastify\")({ logger: false });\n\nconst {\n    ROWS,\n    COLUMNS,\n    createBoard,\n    currentPlayer,\n    isColumnFull,\n    drop,\n    winner,\n} = require(\"./board\");\n\nfastify.register(view, { engine: { ejs }, root: path.join(__dirname, \"views\") });\nfastify.register(formbody);\nfastify.register(cookie);\nfastify.register(session, {\n    secret: \"change-me-in-production-use-a-long-random-secret\",\n    cookie: { secure: false },\n});\n\nfunction currentGame(request) {\n    return request.session.board ?? { cells: createBoard(), moves: 0 };\n}\n\nfunction status(game) {\n    const champion = winner(game.cells);\n    if (champion) {\n        return `Player ${champion} wins!`;\n    }\n    if (game.moves === ROWS * COLUMNS) {\n        return \"It's a tie!\";\n    }\n    return `Player ${currentPlayer(game.moves)}, choose a column.`;\n}\n\nfastify.get(\"/\", (request, reply) => {\n    const game = currentGame(request);\n    return reply.view(\"board.ejs\", {\n        cells: [...game.cells].reverse(),\n        columns: Array.from({ length: COLUMNS }, (_, index) => index + 1),\n        status: status(game),\n        over: winner(game.cells) !== undefined || game.moves === ROWS * COLUMNS,\n    });\n});\n\nfastify.post(\"/move\", (request, reply) => {\n    const game = currentGame(request);\n    const column = Number.parseInt(request.body.column, 10);\n\n    if (column >= 1 && column <= COLUMNS && !isColumnFull(game.cells, column - 1)) {\n        game.cells = drop(game.cells, column - 1, currentPlayer(game.moves));\n        game.moves += 1;\n    }\n\n    request.session.board = game;\n    return reply.redirect(\"/\", 303);\n});\n\nfastify.post(\"/reset\", (request, reply) => {\n    delete request.session.board;\n    return reply.redirect(\"/\", 303);\n});\n\nconst start = async () => {\n    try {\n        await fastify.listen({ port: 3000 });\n    } catch (error) {\n        fastify.log.error(error);\n        process.exit(1);\n    }\n};\n\nstart();\n\nmodule.exports = fastify;\n"
+    },
+    {
+      "id": "fiber",
+      "name": "Fiber",
+      "category": "Web",
+      "prism": "language-go",
+      "file": "frameworks/fiber/main.go",
+      "folder": "frameworks/fiber",
+      "note": "This is one representative file from the app. See {link} to browse the board, templates and the rest of the project.",
+      "linkText": "the full Fiber app on GitHub",
+      "code": "package main\n\nimport (\n    \"strconv\"\n\n    \"github.com/gofiber/fiber/v2\"\n    \"github.com/gofiber/fiber/v2/middleware/session\"\n    \"github.com/gofiber/template/html/v2\"\n\n    \"connectfour/board\"\n)\n\nvar store = session.New()\n\nfunc main() {\n    engine := html.New(\"./templates\", \".html\")\n    app := fiber.New(fiber.Config{Views: engine})\n\n    app.Get(\"/\", boardPage)\n    app.Post(\"/move\", move)\n    app.Post(\"/reset\", reset)\n\n    app.Listen(\":3000\")\n}\n\nfunc boardPage(c *fiber.Ctx) error {\n    columns := make([]int, board.Columns)\n    for index := range columns {\n        columns[index] = index + 1\n    }\n    return c.Render(\"board\", fiber.Map{\n        \"board\":   currentBoard(c),\n        \"columns\": columns,\n    })\n}\n\nfunc move(c *fiber.Ctx) error {\n    game := currentBoard(c)\n    column, err := strconv.Atoi(c.FormValue(\"column\"))\n\n    if err == nil && column >= 1 && column <= board.Columns && !game.IsOver() && !game.IsFull(column-1) {\n        game.Drop(column - 1)\n    }\n\n    saveBoard(c, game)\n    return c.Redirect(\"/\", fiber.StatusSeeOther)\n}\n\nfunc reset(c *fiber.Ctx) error {\n    sess, err := store.Get(c)\n    if err != nil {\n        return err\n    }\n    sess.Delete(\"board\")\n    if err := sess.Save(); err != nil {\n        return err\n    }\n    return c.Redirect(\"/\", fiber.StatusSeeOther)\n}\n\nfunc currentBoard(c *fiber.Ctx) *board.ConnectFourBoard {\n    sess, err := store.Get(c)\n    if err != nil {\n        return board.New()\n    }\n    raw, _ := sess.Get(\"board\").(string)\n    return board.FromJSON(raw)\n}\n\nfunc saveBoard(c *fiber.Ctx, game *board.ConnectFourBoard) {\n    sess, err := store.Get(c)\n    if err != nil {\n        return\n    }\n    sess.Set(\"board\", game.ToJSON())\n    _ = sess.Save()\n}\n"
+    },
+    {
+      "id": "flask",
+      "name": "Flask",
+      "category": "Web",
+      "prism": "language-python",
+      "file": "frameworks/flask/app.py",
+      "folder": "frameworks/flask",
+      "note": "This is one representative file from the app. See {link} to browse the board, template and the rest of the project.",
+      "linkText": "the full Flask app on GitHub",
+      "code": "from flask import Flask, redirect, render_template, request, session, url_for\n\nfrom board import COLUMNS, ConnectFourBoard\n\napp = Flask(__name__)\napp.secret_key = \"change-me-in-production\"\n\n\ndef current_board():\n    return ConnectFourBoard.from_session(session.get(\"board\"))\n\n\n@app.get(\"/\")\ndef board_page():\n    board = current_board()\n    return render_template(\"board.html\", board=board, columns=range(1, COLUMNS + 1))\n\n\n@app.post(\"/move\")\ndef move():\n    board = current_board()\n    column = request.form.get(\"column\", type=int)\n    if column is not None and 1 <= column <= COLUMNS and not board.is_over:\n        if not board.is_full(column - 1):\n            board.drop(column - 1)\n    session[\"board\"] = board.to_session()\n    return redirect(url_for(\"board_page\"))\n\n\n@app.post(\"/reset\")\ndef reset():\n    session.pop(\"board\", None)\n    return redirect(url_for(\"board_page\"))\n"
+    },
+    {
+      "id": "flutter",
+      "name": "Flutter",
+      "category": "Mobile",
+      "prism": "language-dart",
+      "file": "frameworks/flutter/lib/connect_four.dart",
+      "folder": "frameworks/flutter",
+      "note": "This is one representative file from the app. See {link} to browse the app entry, board logic and the rest of the project.",
+      "linkText": "the full Flutter app on GitHub",
+      "code": "import 'package:flutter/material.dart';\n\nimport 'board.dart';\n\nclass ConnectFour extends StatefulWidget {\n  const ConnectFour({super.key});\n\n  @override\n  State<ConnectFour> createState() => _ConnectFourState();\n}\n\nclass _ConnectFourState extends State<ConnectFour> {\n  List<List<String>> _board = createBoard();\n  int _moves = 0;\n\n  String? get _champion => winner(_board);\n  bool get _over => _champion != null || _moves == rows * columns;\n\n  String get _status {\n    if (_champion != null) {\n      return 'Player $_champion wins!';\n    }\n    if (_over) {\n      return \"It's a tie!\";\n    }\n    return 'Player ${currentPlayer(_moves)}, choose a column.';\n  }\n\n  void _play(int column) {\n    if (_over || isColumnFull(_board, column)) {\n      return;\n    }\n    setState(() {\n      _board = drop(_board, column, currentPlayer(_moves));\n      _moves++;\n    });\n  }\n\n  void _reset() {\n    setState(() {\n      _board = createBoard();\n      _moves = 0;\n    });\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('Connect Four')),\n      body: Center(\n        child: Column(\n          mainAxisSize: MainAxisSize.min,\n          children: [\n            Text(_status, style: Theme.of(context).textTheme.titleMedium),\n            const SizedBox(height: 8),\n            for (final row in _board.reversed)\n              Row(\n                mainAxisSize: MainAxisSize.min,\n                children: [\n                  for (final cell in row)\n                    Text(cell, style: const TextStyle(fontSize: 20)),\n                ],\n              ),\n            const SizedBox(height: 8),\n            Row(\n              mainAxisSize: MainAxisSize.min,\n              children: [\n                for (var column = 0; column < columns; column++)\n                  IconButton(\n                    onPressed: _over || isColumnFull(_board, column)\n                        ? null\n                        : () => _play(column),\n                    icon: Text('${column + 1}'),\n                  ),\n              ],\n            ),\n            TextButton(onPressed: _reset, child: const Text('New game')),\n          ],\n        ),\n      ),\n    );\n  }\n}\n"
+    },
+    {
+      "id": "gin",
+      "name": "Gin",
+      "category": "Web",
+      "prism": "language-go",
+      "file": "frameworks/gin/main.go",
+      "folder": "frameworks/gin",
+      "note": "This is one representative file from the app. See {link} to browse the board, templates and the rest of the project.",
+      "linkText": "the full Gin app on GitHub",
+      "code": "package main\n\nimport (\n    \"net/http\"\n    \"strconv\"\n\n    \"github.com/gin-contrib/sessions\"\n    \"github.com/gin-contrib/sessions/cookie\"\n    \"github.com/gin-gonic/gin\"\n\n    \"connectfour/board\"\n)\n\nfunc main() {\n    router := gin.Default()\n    router.LoadHTMLGlob(\"templates/*.html\")\n\n    store := cookie.NewStore([]byte(\"change-me-in-production\"))\n    router.Use(sessions.Sessions(\"connectfour\", store))\n\n    router.GET(\"/\", boardPage)\n    router.POST(\"/move\", move)\n    router.POST(\"/reset\", reset)\n\n    router.Run(\":8080\")\n}\n\nfunc boardPage(c *gin.Context) {\n    columns := make([]int, board.Columns)\n    for index := range columns {\n        columns[index] = index + 1\n    }\n    c.HTML(http.StatusOK, \"board.html\", gin.H{\n        \"board\":   currentBoard(c),\n        \"columns\": columns,\n    })\n}\n\nfunc move(c *gin.Context) {\n    game := currentBoard(c)\n    column, err := strconv.Atoi(c.PostForm(\"column\"))\n\n    if err == nil && column >= 1 && column <= board.Columns && !game.IsOver() {\n        if !game.IsFull(column - 1) {\n            game.Drop(column - 1)\n        }\n    }\n\n    saveBoard(c, game)\n    c.Redirect(http.StatusSeeOther, \"/\")\n}\n\nfunc reset(c *gin.Context) {\n    session := sessions.Default(c)\n    session.Delete(\"board\")\n    session.Save()\n    c.Redirect(http.StatusSeeOther, \"/\")\n}\n\nfunc currentBoard(c *gin.Context) *board.ConnectFourBoard {\n    raw, _ := sessions.Default(c).Get(\"board\").(string)\n    return board.FromJSON(raw)\n}\n\nfunc saveBoard(c *gin.Context, game *board.ConnectFourBoard) {\n    session := sessions.Default(c)\n    session.Set(\"board\", game.ToJSON())\n    session.Save()\n}\n"
+    },
+    {
+      "id": "laravel",
+      "name": "Laravel",
+      "category": "Web",
+      "prism": "language-php",
+      "file": "frameworks/laravel/app/Http/Controllers/GameController.php",
+      "folder": "frameworks/laravel",
+      "note": "This is one representative file from the app. See {link} to browse the board, routes, Blade view and the rest of the project.",
+      "linkText": "the full Laravel app on GitHub",
+      "code": "<?php\n\nnamespace App\\Http\\Controllers;\n\nuse App\\Support\\ConnectFourBoard;\nuse Illuminate\\Http\\RedirectResponse;\nuse Illuminate\\Http\\Request;\nuse Illuminate\\View\\View;\n\nclass GameController extends Controller\n{\n    public function show(): View\n    {\n        return view('game.board', [\n            'board' => $this->board(),\n            'columns' => range(1, ConnectFourBoard::COLUMNS),\n        ]);\n    }\n\n    public function move(Request $request): RedirectResponse\n    {\n        $board = $this->board();\n        $column = (int) $request->input('column') - 1;\n\n        if ($column >= 0 && $column < ConnectFourBoard::COLUMNS\n            && ! $board->isOver() && ! $board->isFull($column)) {\n            $board->drop($column);\n        }\n\n        session(['board' => $board->toSession()]);\n\n        return redirect()->route('game.board');\n    }\n\n    public function reset(): RedirectResponse\n    {\n        session()->forget('board');\n\n        return redirect()->route('game.board');\n    }\n\n    private function board(): ConnectFourBoard\n    {\n        return ConnectFourBoard::fromSession(session('board'));\n    }\n}\n"
+    },
+    {
+      "id": "nestjs",
+      "name": "NestJS",
+      "category": "Web",
+      "prism": "language-typescript",
+      "file": "frameworks/nestjs/src/game/game.controller.ts",
+      "folder": "frameworks/nestjs",
+      "note": "This is one representative file from the app (a JSON REST API, so there is no HTML view). See {link} to browse the service, board logic, modules and the rest of the project.",
+      "linkText": "the full NestJS app on GitHub",
+      "code": "import { Body, Controller, Get, Post, Session } from \"@nestjs/common\";\n\nimport { GameService, GameState, GameView } from \"./game.service\";\n\n@Controller(\"game\")\nexport class GameController {\n    constructor(private readonly game: GameService) {}\n\n    @Get()\n    show(@Session() session: Record<string, unknown>): GameView {\n        return this.game.view(this.game.fromState(session.board as GameState));\n    }\n\n    @Post(\"move\")\n    move(\n        @Session() session: Record<string, unknown>,\n        @Body(\"column\") column: number,\n    ): GameView {\n        const state = this.game.play(this.game.fromState(session.board as GameState), Number(column));\n        session.board = state;\n        return this.game.view(state);\n    }\n\n    @Post(\"reset\")\n    reset(@Session() session: Record<string, unknown>): GameView {\n        delete session.board;\n        return this.game.view(this.game.fromState(undefined));\n    }\n}\n"
+    },
+    {
+      "id": "nextjs",
+      "name": "Next.js",
+      "category": "Web",
+      "prism": "language-jsx",
+      "file": "frameworks/nextjs/app/page.jsx",
+      "folder": "frameworks/nextjs",
+      "note": "This is one representative file from the app. See {link} to browse the layout, board logic and the rest of the project.",
+      "linkText": "the full Next.js app on GitHub",
+      "code": "\"use client\";\n\nimport { useState } from \"react\";\n\nimport {\n    COLUMNS,\n    ROWS,\n    createBoard,\n    currentPlayer,\n    drop,\n    isColumnFull,\n    winner,\n} from \"../lib/board\";\n\nexport default function ConnectFourPage() {\n    const [board, setBoard] = useState(createBoard);\n    const [moves, setMoves] = useState(0);\n\n    const champion = winner(board);\n    const over = Boolean(champion) || moves === ROWS * COLUMNS;\n\n    function play(column) {\n        if (over || isColumnFull(board, column)) {\n            return;\n        }\n        setBoard(drop(board, column, currentPlayer(moves)));\n        setMoves(moves + 1);\n    }\n\n    function reset() {\n        setBoard(createBoard());\n        setMoves(0);\n    }\n\n    return (\n        <main className=\"game\">\n            <h1>Connect Four</h1>\n\n            <p role=\"status\">\n                {champion\n                    ? `Player ${champion} wins!`\n                    : over\n                    ? \"It's a tie!\"\n                    : `Player ${currentPlayer(moves)}, choose a column.`}\n            </p>\n\n            <table className=\"board\">\n                <tbody>\n                    {[...board].reverse().map((cells, rowIndex) => (\n                        <tr key={rowIndex}>\n                            {cells.map((cell, columnIndex) => (\n                                <td key={columnIndex} className={`cell cell--${cell.toLowerCase()}`}>\n                                    {cell}\n                                </td>\n                            ))}\n                        </tr>\n                    ))}\n                </tbody>\n            </table>\n\n            <div className=\"columns\">\n                {Array.from({ length: COLUMNS }, (_, index) => (\n                    <button\n                        key={index}\n                        type=\"button\"\n                        onClick={() => play(index)}\n                        disabled={over || isColumnFull(board, index)}\n                    >\n                        {index + 1}\n                    </button>\n                ))}\n            </div>\n\n            <button type=\"button\" onClick={reset}>\n                New game\n            </button>\n        </main>\n    );\n}\n"
+    },
+    {
+      "id": "nuxt",
+      "name": "Nuxt",
+      "category": "Web",
+      "prism": "language-javascript",
+      "file": "frameworks/nuxt/composables/useConnectFour.js",
+      "folder": "frameworks/nuxt",
+      "note": "This is one representative file from the app - the composable (Prism has no Vue grammar, so the .vue files are not shown here). See {link} to browse the page, board logic and the rest of the project.",
+      "linkText": "the full Nuxt app on GitHub",
+      "code": "import { computed, ref } from \"vue\";\n\nimport {\n    COLUMNS,\n    ROWS,\n    createBoard,\n    currentPlayer,\n    drop,\n    isColumnFull,\n    winner,\n} from \"../utils/board\";\n\nexport function useConnectFour() {\n    const board = ref(createBoard());\n    const moves = ref(0);\n\n    const columns = Array.from({ length: COLUMNS }, (_, index) => index);\n    const champion = computed(() => winner(board.value));\n    const over = computed(() => champion.value !== null || moves.value === ROWS * COLUMNS);\n    const status = computed(() => {\n        if (champion.value) {\n            return `Player ${champion.value} wins!`;\n        }\n        if (over.value) {\n            return \"It's a tie!\";\n        }\n        return `Player ${currentPlayer(moves.value)}, choose a column.`;\n    });\n\n    function play(column) {\n        if (over.value || isColumnFull(board.value, column)) {\n            return;\n        }\n        board.value = drop(board.value, column, currentPlayer(moves.value));\n        moves.value += 1;\n    }\n\n    function reset() {\n        board.value = createBoard();\n        moves.value = 0;\n    }\n\n    return { board, over, status, columns, play, reset, isColumnFull };\n}\n"
+    },
+    {
+      "id": "phoenix",
+      "name": "Phoenix",
+      "category": "Web",
+      "prism": "language-elixir",
+      "file": "frameworks/phoenix/lib/connect_four_web/controllers/game_controller.ex",
+      "folder": "frameworks/phoenix",
+      "note": "This is one representative file from the app. See {link} to browse the game engine, router, HEEx template and the rest of the project.",
+      "linkText": "the full Phoenix app on GitHub",
+      "code": "defmodule ConnectFourWeb.GameController do\n  use ConnectFourWeb, :controller\n\n  alias ConnectFour.Game\n\n  def board(conn, _params) do\n    game = current_game(conn)\n    render(conn, :board, game: game, status: Game.status(game), columns: 1..Game.columns())\n  end\n\n  def move(conn, %{\"column\" => column}) do\n    game = current_game(conn)\n    value = String.to_integer(column)\n\n    game =\n      if value >= 1 and value <= Game.columns() and not Game.over?(game) and\n           not Game.full?(game, value - 1) do\n        Game.drop(game, value - 1)\n      else\n        game\n      end\n\n    conn\n    |> put_session(:board, Game.to_session(game))\n    |> redirect(to: ~p\"/\")\n  end\n\n  def reset(conn, _params) do\n    conn\n    |> delete_session(:board)\n    |> redirect(to: ~p\"/\")\n  end\n\n  defp current_game(conn) do\n    conn\n    |> get_session(:board)\n    |> Game.from_session()\n  end\nend\n"
+    },
+    {
+      "id": "react",
+      "name": "React",
+      "category": "Web",
+      "prism": "language-jsx",
+      "file": "frameworks/react/src/ConnectFour.jsx",
+      "folder": "frameworks/react",
+      "note": "This is one representative file from the app. See {link} to browse the board logic, entry point and the rest of the project.",
+      "linkText": "the full React app on GitHub",
+      "code": "import { useState } from \"react\";\n\nimport {\n    COLUMNS,\n    ROWS,\n    createBoard,\n    currentPlayer,\n    drop,\n    isColumnFull,\n    winner,\n} from \"./board\";\n\nexport default function ConnectFour() {\n    const [board, setBoard] = useState(createBoard);\n    const [moves, setMoves] = useState(0);\n\n    const champion = winner(board);\n    const over = Boolean(champion) || moves === ROWS * COLUMNS;\n\n    function play(column) {\n        if (over || isColumnFull(board, column)) {\n            return;\n        }\n        setBoard(drop(board, column, currentPlayer(moves)));\n        setMoves(moves + 1);\n    }\n\n    function reset() {\n        setBoard(createBoard());\n        setMoves(0);\n    }\n\n    return (\n        <section className=\"game\">\n            <h1>Connect Four</h1>\n\n            <p role=\"status\">\n                {champion\n                    ? `Player ${champion} wins!`\n                    : over\n                    ? \"It's a tie!\"\n                    : `Player ${currentPlayer(moves)}, choose a column.`}\n            </p>\n\n            <table className=\"board\">\n                <tbody>\n                    {[...board].reverse().map((cells, rowIndex) => (\n                        <tr key={rowIndex}>\n                            {cells.map((cell, columnIndex) => (\n                                <td key={columnIndex} className={`cell cell--${cell.toLowerCase()}`}>\n                                    {cell}\n                                </td>\n                            ))}\n                        </tr>\n                    ))}\n                </tbody>\n            </table>\n\n            <div className=\"columns\">\n                {Array.from({ length: COLUMNS }, (_, index) => (\n                    <button\n                        key={index}\n                        type=\"button\"\n                        onClick={() => play(index)}\n                        disabled={over || isColumnFull(board, index)}\n                    >\n                        {index + 1}\n                    </button>\n                ))}\n            </div>\n\n            <button type=\"button\" className=\"reset\" onClick={reset}>\n                New game\n            </button>\n        </section>\n    );\n}\n"
+    },
+    {
+      "id": "reactnative",
+      "name": "React Native",
+      "category": "Mobile",
+      "prism": "language-jsx",
+      "file": "frameworks/reactnative/src/ConnectFour.jsx",
+      "folder": "frameworks/reactnative",
+      "note": "This is one representative file from the app. See {link} to browse the app entry, board logic and the rest of the project.",
+      "linkText": "the full React Native app on GitHub",
+      "code": "import { useState } from \"react\";\nimport { Pressable, StyleSheet, Text, View } from \"react-native\";\n\nimport {\n    COLUMNS,\n    ROWS,\n    createBoard,\n    currentPlayer,\n    drop,\n    isColumnFull,\n    winner,\n} from \"./board\";\n\nexport default function ConnectFour() {\n    const [board, setBoard] = useState(createBoard);\n    const [moves, setMoves] = useState(0);\n\n    const champion = winner(board);\n    const over = Boolean(champion) || moves === ROWS * COLUMNS;\n\n    function play(column) {\n        if (over || isColumnFull(board, column)) {\n            return;\n        }\n        setBoard(drop(board, column, currentPlayer(moves)));\n        setMoves(moves + 1);\n    }\n\n    function reset() {\n        setBoard(createBoard());\n        setMoves(0);\n    }\n\n    return (\n        <View style={styles.game}>\n            <Text style={styles.title}>Connect Four</Text>\n\n            <Text style={styles.status}>\n                {champion\n                    ? `Player ${champion} wins!`\n                    : over\n                    ? \"It's a tie!\"\n                    : `Player ${currentPlayer(moves)}, choose a column.`}\n            </Text>\n\n            <View style={styles.board}>\n                {[...board].reverse().map((cells, rowIndex) => (\n                    <View key={rowIndex} style={styles.row}>\n                        {cells.map((cell, columnIndex) => (\n                            <Text key={columnIndex} style={styles.cell}>\n                                {cell}\n                            </Text>\n                        ))}\n                    </View>\n                ))}\n            </View>\n\n            <View style={styles.columns}>\n                {Array.from({ length: COLUMNS }, (_, index) => (\n                    <Pressable\n                        key={index}\n                        style={styles.button}\n                        disabled={over || isColumnFull(board, index)}\n                        onPress={() => play(index)}\n                    >\n                        <Text style={styles.buttonLabel}>{index + 1}</Text>\n                    </Pressable>\n                ))}\n            </View>\n\n            <Pressable style={styles.button} onPress={reset}>\n                <Text style={styles.buttonLabel}>New game</Text>\n            </Pressable>\n        </View>\n    );\n}\n\nconst styles = StyleSheet.create({\n    game: { alignItems: \"center\", flex: 1, justifyContent: \"center\" },\n    title: { fontSize: 24, fontWeight: \"bold\" },\n    status: { marginVertical: 8 },\n    board: { borderColor: \"#cbd3d0\", borderWidth: 1 },\n    row: { flexDirection: \"row\" },\n    cell: { fontSize: 20, padding: 4, textAlign: \"center\", width: 32 },\n    columns: { flexDirection: \"row\", marginVertical: 8 },\n    button: {\n        alignItems: \"center\",\n        backgroundColor: \"#eef1f0\",\n        borderRadius: 4,\n        marginHorizontal: 2,\n        paddingHorizontal: 12,\n        paddingVertical: 8,\n    },\n    buttonLabel: { fontSize: 16 },\n});\n"
+    },
+    {
       "id": "rubyonrails",
       "name": "Ruby on Rails",
       "category": "Web",
@@ -384,6 +582,50 @@ window.CONNECT_FOUR_DATA = {
       "note": "This is one representative file from the app. See {link} to browse the models, views, routes and the rest of the project.",
       "linkText": "the full Rails app on GitHub",
       "code": "class GamesController < ApplicationController\n    def show\n        @game = current_game\n    end\n\n    def create\n        game = current_game\n        column = params[:column].to_i - 1\n\n        if playable?(game, column)\n            game.drop(column)\n        else\n            flash.now[:alert] = \"Column #{params[:column]} is not available.\"\n        end\n\n        session[:game] = game.to_session\n        redirect_to root_path\n    end\n\n    def destroy\n        session[:game] = ConnectFourGame.new.to_session\n        redirect_to root_path\n    end\n\n    private\n\n    def current_game\n        ConnectFourGame.from_session(session[:game] || ConnectFourGame.new.to_session)\n    end\n\n    def playable?(game, column)\n        column.between?(0, ConnectFourGame::COLUMNS - 1) && !game.column_full?(column)\n    end\nend\n"
+    },
+    {
+      "id": "springboot",
+      "name": "Spring Boot",
+      "category": "Web",
+      "prism": "language-java",
+      "file": "frameworks/springboot/src/main/java/com/example/connectfour/GameController.java",
+      "folder": "frameworks/springboot",
+      "note": "This is one representative file from the app. See {link} to browse the board, application entry point, Thymeleaf template and the rest of the project.",
+      "linkText": "the full Spring Boot app on GitHub",
+      "code": "package com.example.connectfour;\n\nimport jakarta.servlet.http.HttpSession;\n\nimport org.springframework.stereotype.Controller;\nimport org.springframework.ui.Model;\nimport org.springframework.web.bind.annotation.GetMapping;\nimport org.springframework.web.bind.annotation.PostMapping;\nimport org.springframework.web.bind.annotation.RequestParam;\n\n@Controller\npublic class GameController {\n    private static final String SESSION_KEY = \"board\";\n\n    @GetMapping(\"/\")\n    public String board(HttpSession session, Model model) {\n        ConnectFourBoard board = currentBoard(session);\n        model.addAttribute(\"board\", board);\n        model.addAttribute(\"status\", status(board));\n        return \"board\";\n    }\n\n    @PostMapping(\"/move\")\n    public String move(@RequestParam int column, HttpSession session) {\n        ConnectFourBoard board = currentBoard(session);\n\n        if (column >= 1 && column <= ConnectFourBoard.COLUMNS && !board.isOver()\n                && !board.isFull(column - 1)) {\n            board.drop(column - 1);\n        }\n\n        session.setAttribute(SESSION_KEY, board);\n        return \"redirect:/\";\n    }\n\n    @PostMapping(\"/reset\")\n    public String reset(HttpSession session) {\n        session.removeAttribute(SESSION_KEY);\n        return \"redirect:/\";\n    }\n\n    private String status(ConnectFourBoard board) {\n        if (board.winner() != '.') {\n            return \"Player \" + board.winner() + \" wins!\";\n        }\n        if (board.isOver()) {\n            return \"It's a tie!\";\n        }\n        return \"Player \" + board.currentPlayer() + \", choose a column.\";\n    }\n\n    private ConnectFourBoard currentBoard(HttpSession session) {\n        Object stored = session.getAttribute(SESSION_KEY);\n        if (stored instanceof ConnectFourBoard board) {\n            return board;\n        }\n        return new ConnectFourBoard();\n    }\n}\n"
+    },
+    {
+      "id": "svelte",
+      "name": "Svelte",
+      "category": "Web",
+      "prism": "language-javascript",
+      "file": "frameworks/svelte/src/lib/store.js",
+      "folder": "frameworks/svelte",
+      "note": "This is one representative file from the app - the Svelte stores (Prism has no Svelte grammar, so the .svelte file is not shown here). See {link} to browse the component, board logic and the rest of the project.",
+      "linkText": "the full Svelte app on GitHub",
+      "code": "import { derived, writable } from \"svelte/store\";\n\nimport {\n    COLUMNS,\n    ROWS,\n    createBoard,\n    currentPlayer,\n    drop,\n    isColumnFull,\n    winner,\n} from \"./board\";\n\nconst initial = { board: createBoard(), moves: 0 };\n\nexport const game = writable(initial);\n\nexport const columns = Array.from({ length: COLUMNS }, (_, index) => index);\nexport const board = derived(game, ($game) => $game.board);\nexport const champion = derived(game, ($game) => winner($game.board));\nexport const over = derived(\n    game,\n    ($game) => winner($game.board) !== undefined || $game.moves === ROWS * COLUMNS\n);\nexport const status = derived(game, ($game) => {\n    const won = winner($game.board);\n    if (won) {\n        return `Player ${won} wins!`;\n    }\n    if ($game.moves === ROWS * COLUMNS) {\n        return \"It's a tie!\";\n    }\n    return `Player ${currentPlayer($game.moves)}, choose a column.`;\n});\n\nexport function play(column) {\n    game.update(($game) => {\n        if (winner($game.board) || isColumnFull($game.board, column)) {\n            return $game;\n        }\n        return {\n            board: drop($game.board, column, currentPlayer($game.moves)),\n            moves: $game.moves + 1,\n        };\n    });\n}\n\nexport function reset() {\n    game.set(initial);\n}\n"
+    },
+    {
+      "id": "symfony",
+      "name": "Symfony",
+      "category": "Web",
+      "prism": "language-php",
+      "file": "frameworks/symfony/src/Controller/GameController.php",
+      "folder": "frameworks/symfony",
+      "note": "This is one representative file from the app. See {link} to browse the board, Twig template, routes and the rest of the project.",
+      "linkText": "the full Symfony app on GitHub",
+      "code": "<?php\n\nnamespace App\\Controller;\n\nuse App\\Game\\ConnectFourBoard;\nuse Symfony\\Bundle\\FrameworkBundle\\Controller\\AbstractController;\nuse Symfony\\Component\\HttpFoundation\\Request;\nuse Symfony\\Component\\HttpFoundation\\Response;\nuse Symfony\\Component\\Routing\\Attribute\\Route;\n\nclass GameController extends AbstractController\n{\n    private const SESSION_KEY = 'board';\n\n    #[Route('/', name: 'game_board', methods: ['GET'])]\n    public function board(Request $request): Response\n    {\n        $board = $this->currentBoard($request);\n\n        return $this->render('game/board.html.twig', [\n            'board' => $board,\n            'status' => $this->status($board),\n            'columns' => range(1, ConnectFourBoard::COLUMNS),\n        ]);\n    }\n\n    #[Route('/move', name: 'game_move', methods: ['POST'])]\n    public function move(Request $request): Response\n    {\n        $board = $this->currentBoard($request);\n        $column = (int) $request->request->get('column');\n\n        if ($column >= 1 && $column <= ConnectFourBoard::COLUMNS\n            && ! $board->isOver() && ! $board->isFull($column - 1)) {\n            $board->drop($column - 1);\n        }\n\n        $request->getSession()->set(self::SESSION_KEY, $board->toArray());\n\n        return $this->redirectToRoute('game_board');\n    }\n\n    #[Route('/reset', name: 'game_reset', methods: ['POST'])]\n    public function reset(Request $request): Response\n    {\n        $request->getSession()->remove(self::SESSION_KEY);\n\n        return $this->redirectToRoute('game_board');\n    }\n\n    private function currentBoard(Request $request): ConnectFourBoard\n    {\n        return ConnectFourBoard::fromArray($request->getSession()->get(self::SESSION_KEY));\n    }\n\n    private function status(ConnectFourBoard $board): string\n    {\n        if ($board->winner() !== null) {\n            return sprintf('Player %s wins!', $board->winner());\n        }\n\n        if ($board->isOver()) {\n            return \"It's a tie!\";\n        }\n\n        return sprintf('Player %s, choose a column.', $board->currentPlayer());\n    }\n}\n"
+    },
+    {
+      "id": "vue",
+      "name": "Vue",
+      "category": "Web",
+      "prism": "language-javascript",
+      "file": "frameworks/vue/src/composables/useConnectFour.js",
+      "folder": "frameworks/vue",
+      "note": "This is one representative file from the app - the Composition API composable (Prism has no Vue grammar, so the .vue file is not shown here). See {link} to browse the single-file component, board logic and the rest of the project.",
+      "linkText": "the full Vue app on GitHub",
+      "code": "import { computed, ref } from \"vue\";\n\nimport {\n    COLUMNS,\n    ROWS,\n    createBoard,\n    currentPlayer,\n    drop,\n    isColumnFull,\n    winner,\n} from \"../board\";\n\nexport function useConnectFour() {\n    const board = ref(createBoard());\n    const moves = ref(0);\n\n    const columns = Array.from({ length: COLUMNS }, (_, index) => index);\n    const champion = computed(() => winner(board.value));\n    const over = computed(() => champion.value !== null || moves.value === ROWS * COLUMNS);\n    const status = computed(() => {\n        if (champion.value) {\n            return `Player ${champion.value} wins!`;\n        }\n        if (over.value) {\n            return \"It's a tie!\";\n        }\n        return `Player ${currentPlayer(moves.value)}, choose a column.`;\n    });\n\n    function play(column) {\n        if (over.value || isColumnFull(board.value, column)) {\n            return;\n        }\n        board.value = drop(board.value, column, currentPlayer(moves.value));\n        moves.value += 1;\n    }\n\n    function reset() {\n        board.value = createBoard();\n        moves.value = 0;\n    }\n\n    return { board, over, status, columns, play, reset, isColumnFull };\n}\n"
     }
   ]
 };

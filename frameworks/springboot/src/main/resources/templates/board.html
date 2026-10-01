@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>Connect Four</title>
+</head>
+<body>
+    <h1>Connect Four</h1>
+
+    <p role="status" th:text="${status}">status</p>
+
+    <table class="board">
+        <tr th:each="rowIndex : ${#numbers.sequence(5, 0)}">
+            <td th:each="cell : ${board.row(rowIndex)}" th:text="${cell}" class="cell">.</td>
+        </tr>
+    </table>
+
+    <form method="post" action="/move">
+        <button
+            th:each="column : ${#numbers.sequence(1, 7)}"
+            type="submit"
+            name="column"
+            th:value="${column}"
+            th:text="${column}"
+            th:disabled="${board.isOver()}">1</button>
+    </form>
+
+    <form method="post" action="/reset">
+        <button type="submit">New game</button>
+    </form>
+</body>
+</html>

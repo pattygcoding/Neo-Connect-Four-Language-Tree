@@ -1,0 +1,25 @@
+<section class="game">
+    <h1>Connect Four</h1>
+
+    <p role="status">{{ status }}</p>
+
+    <table class="board">
+        <tbody>
+            <tr *ngFor="let cells of rows()">
+                <td *ngFor="let cell of cells" class="cell" [ngClass]="'cell--' + cell">{{ cell }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="columns">
+        <button
+            type="button"
+            *ngFor="let column of columns"
+            (click)="play(column)"
+            [disabled]="over || isFull(column)">
+            {{ column + 1 }}
+        </button>
+    </div>
+
+    <button type="button" class="reset" (click)="reset()">New game</button>
+</section>

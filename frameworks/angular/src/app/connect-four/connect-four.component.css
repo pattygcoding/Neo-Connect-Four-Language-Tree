@@ -1,0 +1,16 @@
+.game {
+    font-family: system-ui, sans-serif;
+}
+
+.board .cell {
+    width: 2rem;
+    height: 2rem;
+    text-align: center;
+    border: 1px solid #cbd3d0;
+}
+
+.columns {
+    display: flex;
+    gap: 0.25rem;
+    margin-top: 0.5rem;
+}

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Connect Four</title>
+</head>
+<body>
+    <h1>Connect Four</h1>
+
+    <p role="status"><%= status %></p>
+
+    <table class="board">
+        <% cells.forEach((row) => { %>
+            <tr>
+                <% row.forEach((cell) => { %>
+                    <td class="cell"><%= cell %></td>
+                <% }); %>
+            </tr>
+        <% }); %>
+    </table>
+
+    <form method="post" action="/move">
+        <% columns.forEach((column) => { %>
+            <button type="submit" name="column" value="<%= column %>" <%= over ? "disabled" : "" %>><%= column %></button>
+        <% }); %>
+    </form>
+
+    <form method="post" action="/reset">
+        <button type="submit">New game</button>
+    </form>
+</body>
+</html>

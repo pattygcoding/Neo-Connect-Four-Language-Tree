@@ -112,7 +112,7 @@ SCENARIO_LABELS = {
 DEFAULT_PRISM = "language-clike"
 
 # Framework entries the dashboard lists under its "Frameworks" browse mode
-# (Ruby on Rails today; React, NestJS, Next, ... later).  A framework lives in
+# (Ruby on Rails, Django, Express, FastAPI, Fastify, Fiber, Flask, Flutter, Gin, Laravel, NestJS, Next.js, Nuxt, Phoenix, React, React Native, Angular, Vue, Svelte, Symfony, Spring Boot, Blazor, ASP.NET Core, and more).  A framework lives in
 # ``frameworks/<id>/`` and is described here rather than auto-detected, because
 # an app has no single ``connect_four.<ext>`` to discover:
 #
@@ -127,6 +127,189 @@ DEFAULT_PRISM = "language-clike"
 #   linkText  the anchor text that replaces ``{link}`` in ``note``
 # ---------------------------------------------------------------------------
 FRAMEWORK_INFO = {
+    "angular": {
+        "name": "Angular",
+        "prism": "language-typescript",
+        "category": "Web",
+        "file": "src/app/connect-four/connect-four.component.ts",
+        "folder": "frameworks/angular",
+        "note": "This is one representative file from the app. See {link} to "
+                "browse the board logic, template and the rest of the project.",
+        "linkText": "the full Angular app on GitHub",
+    },
+    "aspnetcore": {
+        "name": "ASP.NET Core",
+        "prism": "language-csharp",
+        "category": "Web",
+        "file": "Controllers/GameController.cs",
+        "folder": "frameworks/aspnetcore",
+        "note": "This is one representative file from the app. See {link} to "
+                "browse the board model, Razor view, host setup and the rest of the project.",
+        "linkText": "the full ASP.NET Core app on GitHub",
+    },
+    "blazor": {
+        "name": "Blazor",
+        "prism": "language-cshtml",
+        "category": "Web",
+        "file": "Components/Pages/ConnectFour.razor",
+        "folder": "frameworks/blazor",
+        "note": "This is one representative file from the app. See {link} to "
+                "browse the board logic and the rest of the project.",
+        "linkText": "the full Blazor app on GitHub",
+    },
+    "django": {
+        "name": "Django",
+        "prism": "language-python",
+        "category": "Web",
+        "file": "game/views.py",
+        "folder": "frameworks/django",
+        "note": "This is one representative file from the app. See {link} to "
+                "browse the board, forms, URLs, templates and the rest of the project.",
+        "linkText": "the full Django app on GitHub",
+    },
+    "expressjs": {
+        "name": "Express",
+        "prism": "language-javascript",
+        "category": "Web",
+        "file": "app.js",
+        "folder": "frameworks/expressjs",
+        "note": "This is one representative file from the app. See {link} to "
+                "browse the board logic, EJS view and the rest of the project.",
+        "linkText": "the full Express app on GitHub",
+    },
+    "fastapi": {
+        "name": "FastAPI",
+        "prism": "language-python",
+        "category": "Web",
+        "file": "app/main.py",
+        "folder": "frameworks/fastapi",
+        "note": "This is one representative file from the app. See {link} to "
+                "browse the board, schemas, templates and the rest of the project.",
+        "linkText": "the full FastAPI app on GitHub",
+    },
+    "fastify": {
+        "name": "Fastify",
+        "prism": "language-javascript",
+        "category": "Web",
+        "file": "app.js",
+        "folder": "frameworks/fastify",
+        "note": "This is one representative file from the app. See {link} to "
+                "browse the board logic, EJS view and the rest of the project.",
+        "linkText": "the full Fastify app on GitHub",
+    },
+    "fiber": {
+        "name": "Fiber",
+        "prism": "language-go",
+        "category": "Web",
+        "file": "main.go",
+        "folder": "frameworks/fiber",
+        "note": "This is one representative file from the app. See {link} to "
+                "browse the board, templates and the rest of the project.",
+        "linkText": "the full Fiber app on GitHub",
+    },
+    "flask": {
+        "name": "Flask",
+        "prism": "language-python",
+        "category": "Web",
+        "file": "app.py",
+        "folder": "frameworks/flask",
+        "note": "This is one representative file from the app. See {link} to "
+                "browse the board, template and the rest of the project.",
+        "linkText": "the full Flask app on GitHub",
+    },
+    "flutter": {
+        "name": "Flutter",
+        "prism": "language-dart",
+        "category": "Mobile",
+        "file": "lib/connect_four.dart",
+        "folder": "frameworks/flutter",
+        "note": "This is one representative file from the app. See {link} to "
+                "browse the app entry, board logic and the rest of the project.",
+        "linkText": "the full Flutter app on GitHub",
+    },
+    "gin": {
+        "name": "Gin",
+        "prism": "language-go",
+        "category": "Web",
+        "file": "main.go",
+        "folder": "frameworks/gin",
+        "note": "This is one representative file from the app. See {link} to "
+                "browse the board, templates and the rest of the project.",
+        "linkText": "the full Gin app on GitHub",
+    },
+    "laravel": {
+        "name": "Laravel",
+        "prism": "language-php",
+        "category": "Web",
+        "file": "app/Http/Controllers/GameController.php",
+        "folder": "frameworks/laravel",
+        "note": "This is one representative file from the app. See {link} to "
+                "browse the board, routes, Blade view and the rest of the project.",
+        "linkText": "the full Laravel app on GitHub",
+    },
+    "nestjs": {
+        "name": "NestJS",
+        "prism": "language-typescript",
+        "category": "Web",
+        "file": "src/game/game.controller.ts",
+        "folder": "frameworks/nestjs",
+        "note": "This is one representative file from the app (a JSON REST API, so "
+                "there is no HTML view). See {link} to browse the service, board "
+                "logic, modules and the rest of the project.",
+        "linkText": "the full NestJS app on GitHub",
+    },
+    "nextjs": {
+        "name": "Next.js",
+        "prism": "language-jsx",
+        "category": "Web",
+        "file": "app/page.jsx",
+        "folder": "frameworks/nextjs",
+        "note": "This is one representative file from the app. See {link} to "
+                "browse the layout, board logic and the rest of the project.",
+        "linkText": "the full Next.js app on GitHub",
+    },
+    "nuxt": {
+        "name": "Nuxt",
+        "prism": "language-javascript",
+        "category": "Web",
+        "file": "composables/useConnectFour.js",
+        "folder": "frameworks/nuxt",
+        "note": "This is one representative file from the app - the composable "
+                "(Prism has no Vue grammar, so the .vue files are not shown "
+                "here). See {link} to browse the page, board logic and the rest "
+                "of the project.",
+        "linkText": "the full Nuxt app on GitHub",
+    },
+    "phoenix": {
+        "name": "Phoenix",
+        "prism": "language-elixir",
+        "category": "Web",
+        "file": "lib/connect_four_web/controllers/game_controller.ex",
+        "folder": "frameworks/phoenix",
+        "note": "This is one representative file from the app. See {link} to "
+                "browse the game engine, router, HEEx template and the rest of the project.",
+        "linkText": "the full Phoenix app on GitHub",
+    },
+    "react": {
+        "name": "React",
+        "prism": "language-jsx",
+        "category": "Web",
+        "file": "src/ConnectFour.jsx",
+        "folder": "frameworks/react",
+        "note": "This is one representative file from the app. See {link} to "
+                "browse the board logic, entry point and the rest of the project.",
+        "linkText": "the full React app on GitHub",
+    },
+    "reactnative": {
+        "name": "React Native",
+        "prism": "language-jsx",
+        "category": "Mobile",
+        "file": "src/ConnectFour.jsx",
+        "folder": "frameworks/reactnative",
+        "note": "This is one representative file from the app. See {link} to "
+                "browse the app entry, board logic and the rest of the project.",
+        "linkText": "the full React Native app on GitHub",
+    },
     "rubyonrails": {
         "name": "Ruby on Rails",
         "prism": "language-ruby",
@@ -136,6 +319,51 @@ FRAMEWORK_INFO = {
         "note": "This is one representative file from the app. See {link} to "
                 "browse the models, views, routes and the rest of the project.",
         "linkText": "the full Rails app on GitHub",
+    },
+    "springboot": {
+        "name": "Spring Boot",
+        "prism": "language-java",
+        "category": "Web",
+        "file": "src/main/java/com/example/connectfour/GameController.java",
+        "folder": "frameworks/springboot",
+        "note": "This is one representative file from the app. See {link} to "
+                "browse the board, application entry point, Thymeleaf template "
+                "and the rest of the project.",
+        "linkText": "the full Spring Boot app on GitHub",
+    },
+    "svelte": {
+        "name": "Svelte",
+        "prism": "language-javascript",
+        "category": "Web",
+        "file": "src/lib/store.js",
+        "folder": "frameworks/svelte",
+        "note": "This is one representative file from the app - the Svelte stores "
+                "(Prism has no Svelte grammar, so the .svelte file is not shown "
+                "here). See {link} to browse the component, board logic and the "
+                "rest of the project.",
+        "linkText": "the full Svelte app on GitHub",
+    },
+    "symfony": {
+        "name": "Symfony",
+        "prism": "language-php",
+        "category": "Web",
+        "file": "src/Controller/GameController.php",
+        "folder": "frameworks/symfony",
+        "note": "This is one representative file from the app. See {link} to "
+                "browse the board, Twig template, routes and the rest of the project.",
+        "linkText": "the full Symfony app on GitHub",
+    },
+    "vue": {
+        "name": "Vue",
+        "prism": "language-javascript",
+        "category": "Web",
+        "file": "src/composables/useConnectFour.js",
+        "folder": "frameworks/vue",
+        "note": "This is one representative file from the app - the Composition API "
+                "composable (Prism has no Vue grammar, so the .vue file is not shown "
+                "here). See {link} to browse the single-file component, board logic "
+                "and the rest of the project.",
+        "linkText": "the full Vue app on GitHub",
     },
 }
 

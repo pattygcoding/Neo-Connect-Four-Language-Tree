@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Connect Four</title>
+</head>
+<body>
+    <h1>Connect Four</h1>
+
+    <p role="status">{{ status }}</p>
+
+    <table class="board">
+        {% for row in board.cells|reverse %}
+            <tr>
+                {% for cell in row %}
+                    <td class="cell">{{ cell }}</td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </table>
+
+    <form method="post" action="{{ path('game_move') }}">
+        {% for column in columns %}
+            <button type="submit" name="column" value="{{ column }}" {{ board.isOver ? 'disabled' : '' }}>{{ column }}</button>
+        {% endfor %}
+    </form>
+
+    <form method="post" action="{{ path('game_reset') }}">
+        <button type="submit">New game</button>
+    </form>
+</body>
+</html>

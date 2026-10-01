@@ -89,6 +89,10 @@ frameworks/**/*.pid
 frameworks/**/config/master.key
 frameworks/**/config/credentials/*.key
 
+# .NET (frameworks/blazor)
+frameworks/**/bin/
+frameworks/**/obj/
+
 # --------------------------------------------------------------------------
 # Editors and OS cruft
 # --------------------------------------------------------------------------

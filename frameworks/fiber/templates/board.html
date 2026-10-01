@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Connect Four</title>
+</head>
+<body>
+    <h1>Connect Four</h1>
+
+    {{ if .board.Winner }}
+        <p role="status">Player {{ .board.Winner }} wins!</p>
+    {{ else if .board.IsOver }}
+        <p role="status">It's a tie!</p>
+    {{ else }}
+        <p role="status">Player {{ .board.CurrentPlayer }}, choose a column.</p>
+    {{ end }}
+
+    <table class="board">
+        {{ range $row := .board.RowsTopDown }}
+            <tr>
+                {{ range $cell := $row }}
+                    <td class="cell">{{ $cell }}</td>
+                {{ end }}
+            </tr>
+        {{ end }}
+    </table>
+
+    <form method="post" action="/move">
+        {{ range $column := .columns }}
+            <button type="submit" name="column" value="{{ $column }}"
+                    {{ if $.board.IsOver }}disabled{{ end }}>{{ $column }}</button>
+        {{ end }}
+    </form>
+
+    <form method="post" action="/reset">
+        <button type="submit">New game</button>
+    </form>
+</body>
+</html>

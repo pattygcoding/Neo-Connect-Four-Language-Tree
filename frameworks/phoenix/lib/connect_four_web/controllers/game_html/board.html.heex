@@ -1,0 +1,28 @@
+<h1>Connect Four</h1>
+
+<p role="status"><%= @status %></p>
+
+<table class="board">
+  <%= for row <- Enum.reverse(@game.cells) do %>
+    <tr>
+      <%= for cell <- row do %>
+        <td class="cell"><%= cell %></td>
+      <% end %>
+    </tr>
+  <% end %>
+</table>
+
+<form action={~p"/move"} method="post">
+  <input type="hidden" name="_csrf_token" value={Plug.CSRFProtection.get_csrf_token()} />
+  <%= for column <- @columns do %>
+    <button type="submit" name="column" value={column} disabled={ConnectFour.Game.over?(@game)}>
+      <%= column %>
+    </button>
+  <% end %>
+</form>
+
+<form action={~p"/reset"} method="post">
+  <input type="hidden" name="_csrf_token" value={Plug.CSRFProtection.get_csrf_token()} />
+  <input type="hidden" name="_method" value="delete" />
+  <button type="submit">New game</button>
+</form>

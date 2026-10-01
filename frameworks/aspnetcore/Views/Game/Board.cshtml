@@ -1,0 +1,31 @@
+@model ConnectFour.Models.ConnectFourBoard
+@{
+    ViewData["Title"] = "Connect Four";
+}
+
+<h1>Connect Four</h1>
+
+<p role="status">@ViewData["Status"]</p>
+
+<table class="board">
+    @for (var row = ConnectFourBoard.Rows - 1; row >= 0; row--)
+    {
+        <tr>
+            @for (var column = 0; column < ConnectFourBoard.Columns; column++)
+            {
+                <td class="cell">@Model.Cell(row, column)</td>
+            }
+        </tr>
+    }
+</table>
+
+<form method="post" asp-action="Move">
+    @for (var column = 1; column <= ConnectFourBoard.Columns; column++)
+    {
+        <button type="submit" name="column" value="@column" disabled="@Model.IsOver">@column</button>
+    }
+</form>
+
+<form method="post" asp-action="Reset">
+    <button type="submit">New game</button>
+</form>

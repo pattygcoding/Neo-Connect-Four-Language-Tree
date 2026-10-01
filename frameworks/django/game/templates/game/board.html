@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Connect Four</title>
+</head>
+<body>
+    <h1>Connect Four</h1>
+
+    {% if board.winner %}
+        <p>Player {{ board.winner }} wins!</p>
+    {% elif board.is_over %}
+        <p>It's a tie!</p>
+    {% else %}
+        <p>Player {{ board.current_player }}, choose a column.</p>
+    {% endif %}
+
+    <table class="board">
+        {% for row in board.cells reversed %}
+            <tr>
+                {% for cell in row %}
+                    <td class="cell cell--{{ cell|lower }}">{{ cell }}</td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </table>
+
+    <form method="post" action="{% url 'game:move' %}">
+        {% csrf_token %}
+        {% for column in columns %}
+            <button type="submit" name="column" value="{{ column }}"
+                    {% if board.is_over %}disabled{% endif %}>{{ column }}</button>
+        {% endfor %}
+    </form>
+
+    <form method="post" action="{% url 'game:reset' %}">
+        {% csrf_token %}
+        <button type="submit">New game</button>
+    </form>
+</body>
+</html>

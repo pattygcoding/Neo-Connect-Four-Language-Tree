@@ -954,9 +954,97 @@ INFO = {
 #   skills     the chips on the banner
 # ---------------------------------------------------------------------------
 FRAMEWORK_BANNERS = {
+    "angular": {
+        "toolchain": "Node.js 18 or newer + Angular CLI",
+        "skills": ["Angular components + templates", "TypeScript models", "Structural directives"],
+    },
+    "aspnetcore": {
+        "toolchain": ".NET 8 or newer (ASP.NET Core MVC)",
+        "skills": ["MVC controllers + actions", "Session state", "Razor views (.cshtml)"],
+    },
+    "blazor": {
+        "toolchain": ".NET 8 or newer (ASP.NET Core Blazor)",
+        "skills": ["Razor components + @code", "@onclick handlers", "C# game state"],
+    },
+    "django": {
+        "toolchain": "Python 3.8 or newer + Django",
+        "skills": ["Django views + URLs", "Forms and CSRF", "Sessions for game state"],
+    },
+    "expressjs": {
+        "toolchain": "Node.js 18 or newer + Express",
+        "skills": ["Express routing + middleware", "express-session state", "EJS templates"],
+    },
+    "fastapi": {
+        "toolchain": "Python 3.8 or newer + FastAPI and Uvicorn",
+        "skills": ["FastAPI routing", "Pydantic validation", "Starlette sessions"],
+    },
+    "fastify": {
+        "toolchain": "Node.js 18 or newer + Fastify",
+        "skills": ["Fastify plugins + routes", "@fastify/session state", "EJS via @fastify/view"],
+    },
+    "fiber": {
+        "toolchain": "Go 1.20 or newer + the Fiber web framework",
+        "skills": ["Fiber routing + handlers", "Fiber session middleware", "html/template rendering"],
+    },
+    "flask": {
+        "toolchain": "Python 3.8 or newer + Flask",
+        "skills": ["Flask routing", "Signed-cookie sessions", "Jinja2 templates"],
+    },
+    "flutter": {
+        "toolchain": "Flutter SDK (Dart 3)",
+        "skills": ["StatefulWidget + setState", "MaterialApp / Scaffold", "Immutable board rebuilds"],
+    },
+    "gin": {
+        "toolchain": "Go 1.20 or newer + the Gin web framework",
+        "skills": ["Gin routing + handlers", "Cookie sessions", "html/template rendering"],
+    },
+    "laravel": {
+        "toolchain": "PHP 8.1 or newer + Composer and Laravel",
+        "skills": ["Laravel controllers + routes", "Sessions and CSRF", "Blade templates"],
+    },
+    "nestjs": {
+        "toolchain": "Node.js 18 or newer + NestJS (TypeScript)",
+        "skills": ["NestJS controllers + DI", "Modules and providers", "Session-backed JSON API"],
+    },
+    "nextjs": {
+        "toolchain": "Node.js 18 or newer + Next.js",
+        "skills": ["App Router file-based routing", "\"use client\" components", "Root layout metadata"],
+    },
+    "nuxt": {
+        "toolchain": "Node.js 18 or newer + Nuxt 3",
+        "skills": ["Nuxt auto-imports", "Composables + utils", "Vue SFCs + file-based routing"],
+    },
+    "phoenix": {
+        "toolchain": "Elixir 1.15 or newer (Erlang/OTP) + Phoenix",
+        "skills": ["Phoenix controllers + router", "Plug sessions", "HEEx templates"],
+    },
+    "react": {
+        "toolchain": "Node.js 18 or newer + React (Vite)",
+        "skills": ["Function components + hooks", "Immutable board updates", "JSX list rendering"],
+    },
+    "reactnative": {
+        "toolchain": "Node.js 18 or newer + React Native (Expo)",
+        "skills": ["React Native components", "Pressable + StyleSheet", "useState game state"],
+    },
     "rubyonrails": {
         "toolchain": "Ruby 3.0 or newer + the Rails gem",
         "skills": ["Rails MVC", "Sessions + post/redirect/get", "RESTful routes"],
+    },
+    "springboot": {
+        "toolchain": "Java 17 or newer + Spring Boot (Maven)",
+        "skills": ["Spring MVC controllers", "HttpSession state", "Thymeleaf templates"],
+    },
+    "svelte": {
+        "toolchain": "Node.js 18 or newer + Svelte (Vite)",
+        "skills": ["Svelte stores (writable/derived)", "Reactive $store markup", "Single-file components"],
+    },
+    "symfony": {
+        "toolchain": "PHP 8.1 or newer + Symfony (Composer)",
+        "skills": ["Symfony controllers + attributes", "HttpFoundation sessions", "Twig templates"],
+    },
+    "vue": {
+        "toolchain": "Node.js 18 or newer + Vue 3 (Vite)",
+        "skills": ["Composition API + composables", "ref / computed reactivity", "Single-file components"],
     },
 }
 
