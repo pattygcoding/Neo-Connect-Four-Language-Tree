@@ -1,2 +1,5 @@
 # This file disables Jekyll processing on GitHub Pages so the site is
-# served exactly as committed (index.html + dashboard-data.js).
+# served exactly as committed (index.html, 404.html + dashboard-data.js).
+# 404.html stands in for the rewrite rules Pages does not have: it turns a
+# deep link such as /ada into index.html?lang=ada and leaves the address bar
+# untouched, so the dashboard can restore the pretty path itself.

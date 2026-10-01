@@ -19,6 +19,8 @@ identical output**, so a single master test can verify them all at once.
 ```
 languages/
   c/connect_four.c          one C implementation
+  c/README.md               generated: how to build, run and install it
+  c/banner.svg              generated: that README's skills banner
   python/connect_four.py    one Python implementation
 tests/
   inputs/<scenario>.txt     scripted stdin for each scenario
@@ -26,7 +28,10 @@ tests/
   run_tests.py              master test runner
 tools/
   generate_dashboard.py     builds the static showcase data
+  generate_language_readmes.py  writes each language's README.md + banner.svg
+  serve.py                  local preview server (Pages-style 404.html fallback)
 index.html                  static showcase dashboard (no backend)
+404.html                    GitHub Pages deep-link fallback for /<language-id>
 dashboard-data.js           generated data consumed by index.html
 ```
 
@@ -108,8 +113,33 @@ by ASCII digits. Whitespace around the token is stripped.
 backend, no live compilers). It shows a sidebar of every implementation and
 a main panel with two tabs: **Source Code** and **Console Output**. It also
 has a language search box, category filters, and a selector for which
-pre-captured console scenario to display. Deep links are supported, e.g.
-`index.html?lang=go&scenario=tie&tab=output`.
+pre-captured console scenario to display.
+
+Every implementation has its own address, `/<language-id>` — `/ada`, `/c`,
+`/objectivec` — and the sidebar entries are real links, so they can be copied,
+bookmarked or opened in a new tab. The site root (`/`, or `index.html` without a
+`?lang=`) opens the C# implementation, the reference walkthrough; the id lives
+in `DEFAULT_LANG_ID` at the top of the script, and a fork that ships without C#
+falls back to the first language it does have. The console view carries its
+scenario, e.g. `/go?tab=output&scenario=tie`. The page keeps the address in step
+with the selection (including browser back/forward) using the History API, and
+falls back to the query-string shape when the browser refuses path writes — that
+is all `file://` allows, so `index.html?lang=go&tab=output&scenario=tie` still
+works there. `?lang=`, `?tab=` and `?scenario=` are read on load in both
+shapes, so older links keep working.
+
+Above the selected implementation the header links to that folder on GitHub,
+labelled `View languages/<id> on GitHub` behind a GitHub mark — its target is
+`<repository>/tree/<branch>/<source folder>`, built from the
+`repository`/`branch` the generator records (the git remote, else
+`GITHUB_REPOSITORY`, else the committed default), so it points at the right
+project for a clone or a fork while still reading as a label rather than a URL.
+
+The styling follows the author's portfolio site: a near-black navy canvas, a
+pale-mint accent, Inter for text and JetBrains Mono for the small uppercase
+tracking-wide labels. Those tokens (the Tailwind `ink`/`mint` palettes and a
+`.micro` label helper) are declared inline in `index.html`, so the page still
+needs no build step.
 
 Everything it shows is generated from the real repository by:
 
@@ -124,9 +154,17 @@ verified captures in `tests/expected/` as the console output, then writes
 `file://`. To serve it locally:
 
 ```sh
-python -m http.server
-# then open http://localhost:8000/
+python tools/serve.py            # then open http://localhost:8000/
 ```
+
+Use that rather than `python -m http.server`. The dashboard's addresses are
+pretty paths (`/csharp`, `/ada`), which are not files, and a bare file server
+answers them with its own 404 page — so *refreshing* one of those screens looks
+broken locally even though the deployed site is fine. `tools/serve.py` mirrors
+GitHub Pages instead: an unknown path is answered with the site's own
+`404.html` (404 status, shim included), and that shim sends the browser on to
+`index.html?lang=<id>`. Opening the dashboard straight from `file://` needs no
+server at all — it just uses the `?lang=` query shape.
 
 Any static host or GitHub Pages deployment works as-is; re-run the
 generator whenever you add a language.
@@ -139,6 +177,19 @@ is referenced with a relative path, and all third-party libraries load over
 `https` from CDNs. A `.nojekyll` file is included so Pages serves the files
 verbatim. Publish from the repository root (branch `main`, folder `/`) and
 the site is available at `https://<user>.github.io/<repo>/`.
+
+Pages has no rewrite rules, so the committed `404.html` stands in for them:
+it is served for any path it cannot find (with the address bar untouched)
+and rebuilds the request as `index.html?lang=<id>` — `/ada`, `/repo/ada` and
+a tolerated `/ada/output` all resolve, and the dashboard then puts the pretty
+`/ada` path back into the address bar. Anything else (a typo, a missing
+file) climbs one directory per attempt, so a junk link cannot redirect in
+circles and simply ends up on the default implementation (C#).
+
+Keep `404.html` **tracked in git**: it is the only thing that makes refreshing
+a pretty path (`/csharp`) work on Pages, and without it GitHub answers the
+refresh with its own 404 page. `tools/serve.py` reproduces that behaviour
+locally, so a refresh test there means something.
 
 ## Languages
 
@@ -193,6 +244,29 @@ changed. To play a compiled implementation directly, use the artifact under
 (`python`, `node`, `ruby`, `lua`). Avoid `dotnet run`, which recompiles on
 every launch — the built `.dll` starts in well under 0.1s.
 
+## Language folders
+
+Every `languages/<id>/` folder carries its own generated documentation:
+
+* **`README.md`** — the implementation in one line, its toolchain, how to install
+  that toolchain on Windows/macOS/Debian, the exact build and run commands, the
+  skills the implementation exercises, and where its verified output comes from.
+* **`banner.svg`** — the skills banner at the top of that README: the language
+  name, its toolchain and chips for its category and skills, drawn in the
+  dashboard's navy/mint palette. It is self-contained (no web fonts, no scripts,
+  no network) so it renders on GitHub, in a preview pane and offline.
+
+Both are written by:
+
+```sh
+python tools/generate_language_readmes.py
+```
+
+which takes display names and categories from `tools/generate_dashboard.py` and
+the build/run commands from `tests/run_tests.py`, so the documented commands
+cannot drift from the suite without a warning. Re-run it after adding a language
+or changing how one is built, rather than editing the generated files.
+
 ## Adding a language
 
 1. Create `languages/<name>/connect_four.<ext>` and implement the protocol
@@ -200,8 +274,11 @@ every launch — the built `.dll` starts in well under 0.1s.
 2. Register it in the `LANGUAGES` list in `tests/run_tests.py`
    (`name`, `source`, `build`, `run`).
 3. Run `python tests/run_tests.py` until it passes.
-4. Add a row to the language table above and refresh the showcase with
-   `python tools/generate_dashboard.py`.
+4. Add a row to the language table above, then refresh the generated files:
+   * `python tools/generate_dashboard.py` for the showcase data,
+   * `python tools/generate_language_readmes.py` for the folder's README and
+     banner (add a display entry to `LANGUAGE_INFO` in the dashboard generator
+     and a facts entry to `INFO` in the README generator).
 
 See `AGENTS.md` for instructions on automatically installing a language
 toolchain that is not yet present on the machine.

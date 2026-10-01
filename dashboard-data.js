@@ -1,8 +1,10 @@
 window.CONNECT_FOUR_DATA = {
   "meta": {
-    "generated": "2026-10-01 02:26 UTC",
+    "generated": "2026-10-01 03:51 UTC",
     "languageCount": 40,
-    "scenarioCount": 8
+    "scenarioCount": 8,
+    "repository": "https://github.com/pattygcoding/Neo-Connect-Four-Language-Tree",
+    "branch": "main"
   },
   "scenarios": [
     {

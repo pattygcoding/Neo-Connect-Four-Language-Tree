@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connect Four Multi-Language Showcase</title>
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: grid;
+            place-content: center;
+            justify-items: center;
+            gap: 0.75rem;
+            background: #05070c;
+            color: #8debc4;
+            font: 400 14px/1.6 ui-monospace, "JetBrains Mono", monospace;
+        }
+        a { color: #8debc4; }
+    </style>
+</head>
+<body>
+    <p>Opening the Connect Four multi-language showcase&hellip;</p>
+    <p><a id="fallback" href="./">Continue to the showcase</a></p>
+    <noscript><p>This link needs JavaScript; open the showcase root instead.</p></noscript>
+    <script>
+        // GitHub Pages serves this file for any path it cannot find, *without* changing
+        // the address bar — which is what makes the dashboard's own links (/ada, /c,
+        // /objectivec, plus a tolerated /ada/output) work when they are opened directly.
+        // The request is rebuilt as the query-string shape index.html reads on load, and
+        // the page then writes the pretty path back into the bar with the History API.
+        (function () {
+            var parts = window.location.pathname.replace(/\/+$/, "").split("/");
+            var last = parts.pop() || "";
+            var tab = last === "output" || last === "code" ? last : "";
+            if (tab) { last = parts.pop() || ""; }
+            // A language id is a bare slug (its directory name).  Anything else — a missing
+            // .html, a directory — is junk, so drop one more level and keep climbing
+            // towards the deployment root instead of bouncing back here for ever.
+            var slug = /^[a-z0-9][a-z0-9_-]*$/i.test(last) ? last : "";
+            if (!slug) { parts.pop(); }
+            // Anything else the link carried (?scenario=…, most importantly) has to survive
+            // the trip, so the dashboard can put the exact address back in the bar.
+            var params = new URLSearchParams(window.location.search || "");
+            params.delete("lang");
+            if (tab === "code") { params.delete("tab"); }
+            if (tab === "output") { params.set("tab", "output"); }
+            var query = params.toString();
+            var target = parts.join("/") + "/index.html";
+            if (slug) { target += "?lang=" + encodeURIComponent(slug); }
+            if (query) { target += (slug ? "&" : "?") + query; }
+            document.getElementById("fallback").href = target;
+            // Hard stops, so a path that cannot resolve (a typo above the deployment root)
+            // shows the link rather than redirecting in circles: at most four hops, and
+            // never re-request the address we are already on.  The dashboard clears the
+            // counter as soon as it loads, so the next bad link is free to try again.
+            var hops = 0;
+            try {
+                hops = Number(sessionStorage.getItem("cf-404") || "0") + 1;
+                sessionStorage.setItem("cf-404", String(hops));
+            } catch (error) { hops = 0; }
+            if (hops > 4 || target === window.location.pathname + window.location.search) { return; }
+            window.location.replace(target);
+        })();
+    </script>
+</body>
+</html>

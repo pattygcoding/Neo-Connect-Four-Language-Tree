@@ -5,9 +5,12 @@ This script reads the *real* repository contents and writes
 ``dashboard-data.js`` next to ``index.html``:
 
   * every implementation in ``languages/<name>/connect_four.<ext>`` becomes
-    a sidebar entry (source code included), and
+    a sidebar entry (source code included),
   * the verified console captures in ``tests/expected/<scenario>.txt`` become
-    the selectable "Console Output" views.
+    the selectable "Console Output" views, and
+  * the project URL (the git remote, else ``GITHUB_REPOSITORY``, else a
+    default) and branch are recorded so the dashboard can link each
+    implementation to its folder on GitHub.
 
 Because the data is emitted as a plain JavaScript object it can be loaded
 with a ``<script>`` tag, so the dashboard works both on a static host and
@@ -22,6 +25,8 @@ from __future__ import annotations
 
 import datetime
 import json
+import os
+import subprocess
 import sys
 from pathlib import Path
 
@@ -29,6 +34,10 @@ ROOT = Path(__file__).resolve().parent.parent
 LANGUAGES_DIR = ROOT / "languages"
 EXPECTED_DIR = ROOT / "tests" / "expected"
 OUTPUT_FILE = ROOT / "dashboard-data.js"
+
+# Fallbacks for the project link the dashboard shows above each implementation.
+DEFAULT_REPOSITORY = "https://github.com/pattygcoding/Neo-Connect-Four-Language-Tree"
+DEFAULT_BRANCH = "main"
 
 # ---------------------------------------------------------------------------
 # Display metadata per language directory.  Every entry is
@@ -102,6 +111,58 @@ DEFAULT_PRISM = "language-clike"
 def read_text(path: Path) -> str:
     """Read a text file and normalise its line endings to ``\\n``."""
     return path.read_text(encoding="utf-8").replace("\r\n", "\n").replace("\r", "\n")
+
+
+def git_output(*args: str) -> str:
+    """Run a read-only git command in the repository; "" when git is unavailable."""
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(ROOT), *args],
+            capture_output=True,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return ""
+    return result.stdout.strip() if result.returncode == 0 else ""
+
+
+def repository_url() -> str:
+    """The GitHub project the dashboard links to.
+
+    The clone's remote is the truth, then ``GITHUB_REPOSITORY`` (set inside
+    Actions), then the committed default.  ``git@``/``ssh://`` remotes are
+    normalised to https and a trailing ``.git`` is dropped, so
+    ``git@github.com:owner/repo.git`` becomes ``https://github.com/owner/repo``.
+    """
+    remote = git_output("config", "--get", "remote.origin.url") or os.environ.get(
+        "GITHUB_REPOSITORY", ""
+    )
+    if not remote:
+        return DEFAULT_REPOSITORY
+    if remote.startswith("git@"):
+        host, _, path = remote[len("git@"):].partition(":")
+        remote = "https://%s/%s" % (host, path)
+    elif remote.startswith("ssh://"):
+        remote = "https://" + remote[len("ssh://"):].replace("git@", "", 1)
+    if not remote.startswith("http"):
+        remote = "https://github.com/" + remote
+    if remote.endswith(".git"):
+        remote = remote[: -len(".git")]
+    return remote.rstrip("/") or DEFAULT_REPOSITORY
+
+
+def repository_branch() -> str:
+    """The branch the dashboard links into: HEAD's name, else Actions', else main.
+
+    A detached HEAD (a CI checkout) reports ``HEAD``, which is not a usable
+    ref, so ``GITHUB_REF_NAME`` takes over there.
+    """
+    branch = git_output("rev-parse", "--abbrev-ref", "HEAD")
+    if not branch or branch == "HEAD":
+        branch = os.environ.get("GITHUB_REF_NAME", "") or DEFAULT_BRANCH
+    return branch
 
 
 def is_source_text(path: Path) -> bool:
@@ -179,6 +240,10 @@ def build_payload() -> dict:
             ),
             "languageCount": len(languages),
             "scenarioCount": len(scenarios),
+            # The dashboard shows "<repository>/tree/<branch>/languages/<id>" above
+            # each implementation, so the project it lives in travels with the data.
+            "repository": repository_url(),
+            "branch": repository_branch(),
         },
         "scenarios": scenarios,
         "outputs": outputs,
