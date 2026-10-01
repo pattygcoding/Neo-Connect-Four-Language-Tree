@@ -1,0 +1,49 @@
+<% content_for :title, "Connect Four" %>
+
+<section class="game" data-controller="game" data-columns="<%= ConnectFourGame::COLUMNS %>">
+    <h1>Connect Four</h1>
+
+    <p class="status" role="status">
+        <% if @game.winner %>
+            Player <%= @game.winner %> wins!
+        <% elsif @game.full? %>
+            It's a tie!
+        <% else %>
+            Player <%= @game.current_player %>, choose a column.
+        <% end %>
+    </p>
+
+    <% if flash.now[:alert] %>
+        <p class="alert"><%= flash.now[:alert] %></p>
+    <% end %>
+
+    <table class="board">
+        <thead>
+            <tr>
+                <% (1..ConnectFourGame::COLUMNS).each do |column| %>
+                    <th scope="col"><%= column %></th>
+                <% end %>
+            </tr>
+        </thead>
+        <tbody>
+            <% @game.board.reverse_each do |row| %>
+                <tr>
+                    <% row.each do |cell| %>
+                        <td class="cell cell--<%= cell.downcase %>"><%= cell %></td>
+                    <% end %>
+                </tr>
+            <% end %>
+        </tbody>
+    </table>
+
+    <div class="columns">
+        <% (1..ConnectFourGame::COLUMNS).each do |column| %>
+            <%= button_to column,
+                          move_path(column: column),
+                          class: "drop",
+                          disabled: @game.finished? || @game.column_full?(column - 1) %>
+        <% end %>
+    </div>
+
+    <%= button_to "New game", reset_path, method: :delete, class: "reset" %>
+</section>

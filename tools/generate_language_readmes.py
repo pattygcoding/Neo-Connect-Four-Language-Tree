@@ -32,10 +32,11 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 LANGUAGES_DIR = ROOT / "languages"
+FRAMEWORKS_DIR = ROOT / "frameworks"
 RUNNER = ROOT / "tests" / "run_tests.py"
 
 sys.path.insert(0, str(ROOT / "tools"))
-from generate_dashboard import discover_languages  # noqa: E402  (needs the path above)
+from generate_dashboard import discover_languages, discover_frameworks  # noqa: E402  (needs the path above)
 
 # ---------------------------------------------------------------------------
 # Palette: the dark-theme variables declared in index.html (`:root`), which in
@@ -940,6 +941,26 @@ INFO = {
 }
 
 
+# ---------------------------------------------------------------------------
+# Framework banners.
+#
+# A framework ships no generated README - an app is many files, so its README is
+# written by hand - but every folder, language or framework, still carries a
+# banner.svg.  A framework has no runner entry to read a toolchain and skills
+# from, so they are curated here and drawn with the same banner_svg() as a
+# language, in the same palette.
+#
+#   toolchain  what the app is built and run with (the banner subtitle)
+#   skills     the chips on the banner
+# ---------------------------------------------------------------------------
+FRAMEWORK_BANNERS = {
+    "rubyonrails": {
+        "toolchain": "Ruby 3.0 or newer + the Rails gem",
+        "skills": ["Rails MVC", "Sessions + post/redirect/get", "RESTful routes"],
+    },
+}
+
+
 def write_text(path: Path, text: str) -> None:
     """Write UTF-8 with LF endings; Python would otherwise use os.linesep."""
     with open(path, "w", encoding="utf-8", newline="\n") as handle:
@@ -1014,7 +1035,26 @@ def main() -> int:
             warnings += drift_warnings(lang, info, runner)
     for name in sorted(set(INFO) - ids):
         warnings.append("%s: INFO entry has no languages/ folder" % name)
+
+    # Frameworks get a banner too (their README is hand-written, so no readme_md).
+    frameworks = discover_frameworks()
+    framework_banners = 0
+    for framework in frameworks:
+        facts = FRAMEWORK_BANNERS.get(framework["id"])
+        if facts is None:
+            warnings.append("%s: no FRAMEWORK_BANNERS entry, banner skipped" % framework["id"])
+            continue
+        write_text(
+            FRAMEWORKS_DIR / framework["id"] / "banner.svg",
+            banner_svg(framework["name"], facts["toolchain"], framework["category"], facts["skills"]),
+        )
+        framework_banners += 1
+    framework_ids = {framework["id"] for framework in frameworks}
+    for name in sorted(set(FRAMEWORK_BANNERS) - framework_ids):
+        warnings.append("%s: FRAMEWORK_BANNERS entry has no frameworks/ folder" % name)
+
     print("Wrote README.md and banner.svg for %d language(s)." % written)
+    print("Wrote banner.svg for %d framework(s)." % framework_banners)
     for warning in warnings:
         print("warning: %s" % warning)
     return 0 if written else 1

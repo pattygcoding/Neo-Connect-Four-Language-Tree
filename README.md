@@ -22,6 +22,8 @@ languages/
   c/README.md               generated: how to build, run and install it
   c/banner.svg              generated: that README's skills banner
   python/connect_four.py    one Python implementation
+frameworks/
+  rubyonrails/              a multi-file Rails app (shown one file at a time)
 tests/
   inputs/<scenario>.txt     scripted stdin for each scenario
   expected/<scenario>.txt   golden stdout for each scenario
@@ -271,6 +273,22 @@ changed. To play a compiled implementation directly, use the artifact under
 (`python`, `node`, `ruby`, `lua`). Avoid `dotnet run`, which recompiles on
 every launch — the built `.dll` starts in well under 0.1s.
 
+## Frameworks
+
+Not every showcase here is a single console program. The `frameworks/` tree
+holds a richer, multi-file project built in a real web framework; the dashboard
+shows **one representative file** from each and links the whole project on
+GitHub, with a note above the code explaining just that.
+
+| Framework     | Project                   | Representative file                                           | Run               |
+|---------------|---------------------------|--------------------------------------------------------------|-------------------|
+| Ruby on Rails | `frameworks/rubyonrails/` | `frameworks/rubyonrails/app/controllers/games_controller.rb` | `bin/rails server` |
+
+A framework app serves HTML rather than the byte-for-byte console protocol, so
+frameworks are deliberately **outside** the golden test suite (`tests/`). Each
+one carries its own README, and the dashboard's **Frameworks** browse mode
+renders it without the console-capture tab.
+
 ## Language folders
 
 Every `languages/<id>/` folder carries its own generated documentation:
@@ -309,3 +327,20 @@ or changing how one is built, rather than editing the generated files.
 
 See `AGENTS.md` for instructions on automatically installing a language
 toolchain that is not yet present on the machine.
+
+## Adding a framework
+
+A framework lives under `frameworks/<name>/` instead of `languages/<name>/`
+because an app is many files, not one `connect_four.<ext>`:
+
+1. Create `frameworks/<name>/` with the real project files (model, controller,
+   view, routes, and so on).
+2. Add an entry to `FRAMEWORK_INFO` in `tools/generate_dashboard.py`: the
+   display name, Prism class, category, the one representative `file` to show,
+   the `folder` to link on GitHub, and the `note`/`linkText` banner above the
+   code (put a `{link}` placeholder where the "view the whole project" link
+   goes).
+3. Add a `frameworks/<name>/README.md` explaining prerequisites, how to run it
+   and the skills it demonstrates.
+4. Run `python tools/generate_dashboard.py` and add a row to the Frameworks
+   table above.

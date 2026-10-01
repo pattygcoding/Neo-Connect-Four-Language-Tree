@@ -6,6 +6,9 @@ This script reads the *real* repository contents and writes
 
   * every implementation in ``languages/<name>/connect_four.<ext>`` becomes
     a sidebar entry (source code included),
+  * every framework in ``frameworks/<name>/`` becomes an entry in the
+    ``frameworks`` list (the dashboard's "Frameworks" browse mode), using the
+    same shape as a language plus the ``folder``/``note``/``linkText`` fields,
   * the verified console captures in ``tests/expected/<scenario>.txt`` become
     the selectable "Console Output" views, and
   * the project URL (the git remote, else ``GITHUB_REPOSITORY``, else a
@@ -32,6 +35,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 LANGUAGES_DIR = ROOT / "languages"
+FRAMEWORKS_DIR = ROOT / "frameworks"
 EXPECTED_DIR = ROOT / "tests" / "expected"
 OUTPUT_FILE = ROOT / "dashboard-data.js"
 
@@ -106,6 +110,34 @@ SCENARIO_LABELS = {
 }
 
 DEFAULT_PRISM = "language-clike"
+
+# Framework entries the dashboard lists under its "Frameworks" browse mode
+# (Ruby on Rails today; React, NestJS, Next, ... later).  A framework lives in
+# ``frameworks/<id>/`` and is described here rather than auto-detected, because
+# an app has no single ``connect_four.<ext>`` to discover:
+#
+#   name      display name shown in the sidebar and header
+#   prism     Prism grammar class for syntax highlighting
+#   category  the badge and the sidebar's category filter
+#   file      the one representative file to show, relative to the framework dir
+#   folder    the path linked on GitHub (defaults to ``frameworks/<id>``)
+#   note      a sentence for the banner above the code; ``{link}`` marks where
+#             the "view the whole project" link is injected (unlike a language,
+#             a framework app is many files, so this points at the rest of it)
+#   linkText  the anchor text that replaces ``{link}`` in ``note``
+# ---------------------------------------------------------------------------
+FRAMEWORK_INFO = {
+    "rubyonrails": {
+        "name": "Ruby on Rails",
+        "prism": "language-ruby",
+        "category": "Web",
+        "file": "app/controllers/games_controller.rb",
+        "folder": "frameworks/rubyonrails",
+        "note": "This is one representative file from the app. See {link} to "
+                "browse the models, views, routes and the rest of the project.",
+        "linkText": "the full Rails app on GitHub",
+    },
+}
 
 
 def read_text(path: Path) -> str:
@@ -211,6 +243,44 @@ def discover_languages() -> list[dict]:
     return found
 
 
+def discover_frameworks() -> list[dict]:
+    """Build the framework entries from ``frameworks/<id>/`` and ``FRAMEWORK_INFO``.
+
+    A framework app is many files, so unlike a language there is nothing to
+    glob; the metadata pins the one representative file to show and the folder
+    to link on GitHub.  A directory missing its metadata, or missing that file,
+    is skipped rather than guessed at.
+    """
+    found = []
+    if not FRAMEWORKS_DIR.is_dir():
+        return found
+    for directory in sorted(FRAMEWORKS_DIR.iterdir()):
+        if not directory.is_dir():
+            continue
+        key = directory.name.lower()
+        meta = FRAMEWORK_INFO.get(key)
+        if meta is None:
+            continue
+        highlight = directory / meta["file"]
+        if not is_source_text(highlight):
+            continue
+        found.append(
+            {
+                "id": key,
+                "name": meta["name"],
+                "category": meta["category"],
+                "prism": meta["prism"],
+                "file": highlight.relative_to(ROOT).as_posix(),
+                "folder": meta.get("folder", "frameworks/%s" % key),
+                "note": meta.get("note", ""),
+                "linkText": meta.get("linkText", ""),
+                "code": read_text(highlight),
+            }
+        )
+    found.sort(key=lambda item: item["name"].lower())
+    return found
+
+
 def discover_scenarios() -> tuple[list[dict], dict[str, str]]:
     """Return (scenario list, {scenario id -> console output})."""
     scenarios = []
@@ -232,6 +302,7 @@ def discover_scenarios() -> tuple[list[dict], dict[str, str]]:
 
 def build_payload() -> dict:
     languages = discover_languages()
+    frameworks = discover_frameworks()
     scenarios, outputs = discover_scenarios()
     return {
         "meta": {
@@ -239,6 +310,7 @@ def build_payload() -> dict:
                 "%Y-%m-%d %H:%M UTC"
             ),
             "languageCount": len(languages),
+            "frameworkCount": len(frameworks),
             "scenarioCount": len(scenarios),
             # The dashboard shows "<repository>/tree/<branch>/languages/<id>" above
             # each implementation, so the project it lives in travels with the data.
@@ -248,6 +320,7 @@ def build_payload() -> dict:
         "scenarios": scenarios,
         "outputs": outputs,
         "languages": languages,
+        "frameworks": frameworks,
     }
 
 
@@ -258,10 +331,11 @@ def main() -> int:
         "window.CONNECT_FOUR_DATA = " + body + ";\n", encoding="utf-8"
     )
     print(
-        "Wrote %s (%d language(s), %d scenario(s))"
+        "Wrote %s (%d language(s), %d framework(s), %d scenario(s))"
         % (
             OUTPUT_FILE.name,
             payload["meta"]["languageCount"],
+            payload["meta"]["frameworkCount"],
             payload["meta"]["scenarioCount"],
         )
     )
