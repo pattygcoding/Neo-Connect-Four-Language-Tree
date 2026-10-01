@@ -235,7 +235,7 @@ def build_payload() -> dict:
     scenarios, outputs = discover_scenarios()
     return {
         "meta": {
-            "generated": datetime.datetime.now(datetime.timezone.utc).strftime(
+            "updated": datetime.datetime.now(datetime.timezone.utc).strftime(
                 "%Y-%m-%d %H:%M UTC"
             ),
             "languageCount": len(languages),

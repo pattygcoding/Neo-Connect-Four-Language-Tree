@@ -270,7 +270,7 @@
         </main>
     </div>
 
-    <!-- Data (generated from the real repository) -->
+    <!-- Data (read straight from the real repository) -->
     <script src="dashboard-data.js"></script>
     <!-- Prism.js core + autoloader (loads a grammar on demand for any language) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" data-manual></script>
@@ -512,7 +512,7 @@
                 if (window.Prism) { Prism.highlightElement(el.codeBlock); }
 
                 // Point the header's GitHub link at this implementation's folder in the
-                // repository the data was generated from, labelled with that folder.
+                // repository this data came from, labelled with that folder.
                 var repository = (DATA.meta && DATA.meta.repository) || "";
                 if (repository) {
                     var folder = repoFolder(lang);
@@ -612,7 +612,7 @@
                 var meta = DATA.meta || {};
                 el.metaLine.innerText = (meta.languageCount || DATA.languages.length) +
                     " languages \u00b7 " + (meta.scenarioCount || 0) + " captures \u00b7 updated " +
-                    (meta.generated || "n/a");
+                    (meta.updated || meta.generated || "n/a");
 
                 (DATA.scenarios || []).forEach(function (scenario) {
                     var option = document.createElement("option");
