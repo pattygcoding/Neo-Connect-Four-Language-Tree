@@ -50,6 +50,14 @@
             if (slug) { target += "?lang=" + encodeURIComponent(slug); }
             if (query) { target += (slug ? "&" : "?") + query; }
             document.getElementById("fallback").href = target;
+            // Same favicon as the dashboard.  It has to be built from the path we just
+            // climbed (a plain relative href would resolve against a deep junk path),
+            // so the icon shows while this page is on screen.
+            var icon = document.createElement("link");
+            icon.rel = "icon";
+            icon.type = "image/png";
+            icon.href = parts.join("/") + "/logo.png";
+            document.head.appendChild(icon);
             // Hard stops, so a path that cannot resolve (a typo above the deployment root)
             // shows the link rather than redirecting in circles: at most four hops, and
             // never re-request the address we are already on.  The dashboard clears the

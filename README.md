@@ -32,6 +32,7 @@ tools/
   serve.py                  local preview server (Pages-style 404.html fallback)
 index.html                  static showcase dashboard (no backend)
 404.html                    GitHub Pages deep-link fallback for /<language-id>
+logo.png                    site favicon, used by the dashboard and the 404 shim
 dashboard-data.js           generated data consumed by index.html
 ```
 
