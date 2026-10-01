@@ -831,6 +831,14 @@ LANGUAGES = [
         "cwd": str(BUILD_DIR),
     },
     {
+        "name": "groovy",
+        "source": _src("groovy", "connect_four.groovy"),
+        "artifact": None,
+        "build": None,
+        "run": ["groovy", _src("groovy", "connect_four.groovy")],
+        "cwd": str(BUILD_DIR),
+    },
+    {
         "name": "perl",
         "source": _src("perl", "connect_four.pl"),
         "artifact": None,

@@ -253,6 +253,7 @@ locally, so a refresh test there means something.
 | F#         | `languages/fsharp/connect_four.fs`     | `dotnet` (.NET 8) |
 | Fortran    | `languages/fortran/connect_four.f90`   | `gfortran`        |
 | Go         | `languages/go/connect_four.go`         | `go`              |
+| Groovy     | `languages/groovy/connect_four.groovy` | `groovy`          |
 | Haskell    | `languages/haskell/connect_four.hs`    | `ghc`             |
 | Java       | `languages/java/connect_four.java`     | `javac`/`java`    |
 | JavaScript | `languages/javascript/connect_four.js` | `node`            |

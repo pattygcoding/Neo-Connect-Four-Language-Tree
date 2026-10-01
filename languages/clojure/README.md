@@ -2,7 +2,7 @@
 
 # Clojure Implementation
 
-Clojure with immutable vectors for the board and recursion for the game loop - one of 40 implementations of the same console protocol in the
+Clojure with immutable vectors for the board and recursion for the game loop - one of 41 implementations of the same console protocol in the
 [Neo-Connect-Four-Language-Tree](../../README.md) repository. Every
 implementation reads the same stdin and prints byte-for-byte identical
 output, so a single master test verifies them all at once.

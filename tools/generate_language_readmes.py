@@ -528,6 +528,23 @@ INFO = {
         "skills": ["bufio.Scanner", "strconv.ParseInt", "strings.TrimSpace"],
         "notes": [],
     },
+    "groovy": {
+        "tagline": "Groovy as a JVM script, with a List<List> board and a saturating parse",
+        "toolchain": "groovy 4 or newer (with a JDK on PATH)",
+        "detect": "groovy --version",
+        "install": {
+            "Windows": "scoop install groovy",
+            "macOS": "brew install groovy",
+            "Debian/Ubuntu": "apt-get install groovy",
+        },
+        "build": [],
+        "run": ["groovy languages/groovy/connect_four.groovy"],
+        "skills": ["Groovy script methods + @Field", "BufferedReader line input", "List<List> board"],
+        "notes": [
+            "Groovy is a JVM language, so it needs a JDK on `PATH`; on Windows `scoop install groovy` puts a `groovy.cmd` shim there, which the runner resolves like the other `.cmd` toolchains.",
+            "`@Field` promotes the script's constants and the shared `BufferedReader` to fields so the helper methods can see them - a plain script-level local is not visible to a method. The parse saturates at `Long.MAX_VALUE` like the other implementations.",
+        ],
+    },
     "haskell": {
         "tagline": "Haskell with a pure board renderer and a small IO loop",
         "toolchain": "ghc (9.4 or newer; only the base package is used)",
