@@ -175,7 +175,7 @@
             <p class="micro text-fg-dim">CF / Language Tree / 01</p>
             <h1 class="mt-3 text-2xl font-semibold tracking-tight text-fg-strong">Connect <span class="text-accent">Four</span></h1>
             <p class="mt-1 text-xs text-fg-muted">Multi-language implementation library</p>
-            <p id="meta-line" class="micro mt-3 text-accent/80">&nbsp;</p>
+            <p id="meta-line" class="micro mt-3 text-accent/80 whitespace-pre-line">&nbsp;</p>
         </div>
         <div class="p-3 border-b border-line/5">
             <input id="search" type="search" placeholder="Search languages..."
@@ -610,8 +610,8 @@
                     return;
                 }
                 var meta = DATA.meta || {};
-                el.metaLine.innerText = (meta.languageCount || DATA.languages.length) +
-                    " languages \u00b7 " + (meta.scenarioCount || 0) + " captures \u00b7 updated " +
+                el.metaLine.textContent = (meta.languageCount || DATA.languages.length) +
+                    " languages \u00b7 " + (meta.scenarioCount || 0) + " captures\nupdated " +
                     (meta.updated || meta.generated || "n/a");
 
                 (DATA.scenarios || []).forEach(function (scenario) {
