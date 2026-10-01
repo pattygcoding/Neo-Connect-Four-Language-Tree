@@ -1,8 +1,8 @@
 window.CONNECT_FOUR_DATA = {
   "meta": {
-    "updated": "2026-10-01 05:16 UTC",
+    "updated": "2026-10-01 05:23 UTC",
     "languageCount": 40,
-    "frameworkCount": 23,
+    "frameworkCount": 24,
     "scenarioCount": 8,
     "repository": "https://github.com/pattygcoding/Neo-Connect-Four-Language-Tree",
     "branch": "main"
@@ -374,6 +374,17 @@ window.CONNECT_FOUR_DATA = {
     }
   ],
   "frameworks": [
+    {
+      "id": "maui",
+      "name": ".NET MAUI",
+      "category": "Mobile",
+      "prism": "language-csharp",
+      "file": "frameworks/maui/MainPage.xaml.cs",
+      "folder": "frameworks/maui",
+      "note": "This is one representative file from the app - the page code-behind (Prism has no XAML grammar, so MainPage.xaml is not shown here). See {link} to browse the XAML view, board logic and the rest of the project.",
+      "linkText": "the full .NET MAUI app on GitHub",
+      "code": "namespace ConnectFour;\n\npublic partial class MainPage : ContentPage\n{\n    private ConnectFourBoard _board = new();\n\n    public MainPage()\n    {\n        InitializeComponent();\n        Render();\n    }\n\n    private void OnColumnClicked(object sender, EventArgs e)\n    {\n        if (sender is not Button button || !int.TryParse(button.Text, out var column))\n        {\n            return;\n        }\n\n        if (!_board.IsOver && !_board.IsFull(column - 1))\n        {\n            _board.Drop(column - 1);\n        }\n\n        Render();\n    }\n\n    private void OnResetClicked(object sender, EventArgs e)\n    {\n        _board = new ConnectFourBoard();\n        Render();\n    }\n\n    private void Render()\n    {\n        StatusLabel.Text = Status();\n        BoardGrid.Children.Clear();\n\n        for (var row = ConnectFourBoard.Rows - 1; row >= 0; row--)\n        {\n            for (var column = 0; column < ConnectFourBoard.Columns; column++)\n            {\n                BoardGrid.Add(\n                    new Label\n                    {\n                        Text = _board.Cell(row, column).ToString(),\n                        HorizontalTextAlignment = TextAlignment.Center,\n                        VerticalTextAlignment = TextAlignment.Center,\n                    },\n                    column,\n                    ConnectFourBoard.Rows - 1 - row);\n            }\n        }\n    }\n\n    private string Status() => _board.Winner() != '.'\n        ? $\"Player {_board.Winner()} wins!\"\n        : _board.IsOver\n            ? \"It's a tie!\"\n            : $\"Player {_board.CurrentPlayer}, choose a column.\";\n}\n"
+    },
     {
       "id": "angular",
       "name": "Angular",

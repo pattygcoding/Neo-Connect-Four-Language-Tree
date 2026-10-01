@@ -296,6 +296,7 @@ GitHub, with a note above the code explaining just that.
 
 | Framework     | Project                   | Representative file                                           | Run                   |
 |---------------|---------------------------|--------------------------------------------------------------|-----------------------|
+| .NET MAUI     | `frameworks/maui/`        | `frameworks/maui/MainPage.xaml.cs`                           | `dotnet build -t:Run` |
 | Angular       | `frameworks/angular/`     | `frameworks/angular/src/app/connect-four/connect-four.component.ts` | `ng serve`      |
 | ASP.NET Core  | `frameworks/aspnetcore/`  | `frameworks/aspnetcore/Controllers/GameController.cs`        | `dotnet run`          |
 | Blazor        | `frameworks/blazor/`      | `frameworks/blazor/Components/Pages/ConnectFour.razor`       | `dotnet run`          |

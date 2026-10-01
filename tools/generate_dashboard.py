@@ -112,7 +112,7 @@ SCENARIO_LABELS = {
 DEFAULT_PRISM = "language-clike"
 
 # Framework entries the dashboard lists under its "Frameworks" browse mode
-# (Ruby on Rails, Django, Express, FastAPI, Fastify, Fiber, Flask, Flutter, Gin, Laravel, NestJS, Next.js, Nuxt, Phoenix, React, React Native, Angular, Vue, Svelte, Symfony, Spring Boot, Blazor, ASP.NET Core, and more).  A framework lives in
+# (.NET MAUI, Ruby on Rails, Django, Express, FastAPI, Fastify, Fiber, Flask, Flutter, Gin, Laravel, NestJS, Next.js, Nuxt, Phoenix, React, React Native, Angular, Vue, Svelte, Symfony, Spring Boot, Blazor, ASP.NET Core, and more).  A framework lives in
 # ``frameworks/<id>/`` and is described here rather than auto-detected, because
 # an app has no single ``connect_four.<ext>`` to discover:
 #
@@ -127,6 +127,18 @@ DEFAULT_PRISM = "language-clike"
 #   linkText  the anchor text that replaces ``{link}`` in ``note``
 # ---------------------------------------------------------------------------
 FRAMEWORK_INFO = {
+    "maui": {
+        "name": ".NET MAUI",
+        "prism": "language-csharp",
+        "category": "Mobile",
+        "file": "MainPage.xaml.cs",
+        "folder": "frameworks/maui",
+        "note": "This is one representative file from the app - the page code-behind "
+                "(Prism has no XAML grammar, so MainPage.xaml is not shown here). "
+                "See {link} to browse the XAML view, board logic and the rest of "
+                "the project.",
+        "linkText": "the full .NET MAUI app on GitHub",
+    },
     "angular": {
         "name": "Angular",
         "prism": "language-typescript",

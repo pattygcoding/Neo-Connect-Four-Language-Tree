@@ -954,6 +954,10 @@ INFO = {
 #   skills     the chips on the banner
 # ---------------------------------------------------------------------------
 FRAMEWORK_BANNERS = {
+    "maui": {
+        "toolchain": ".NET 8 or newer + the MAUI workload",
+        "skills": ["MAUI pages + XAML", "Grid built from code-behind", "Cross-platform C# UI"],
+    },
     "angular": {
         "toolchain": "Node.js 18 or newer + Angular CLI",
         "skills": ["Angular components + templates", "TypeScript models", "Structural directives"],
