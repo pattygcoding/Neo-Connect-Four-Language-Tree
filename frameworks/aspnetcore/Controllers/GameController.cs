@@ -1,3 +1,5 @@
+using System.Linq;
+
 using ConnectFour.Models;
 
 using Microsoft.AspNetCore.Mvc;
@@ -21,8 +23,7 @@ public class GameController : Controller
     {
         var board = CurrentBoard();
 
-        if (column >= 1 && column <= ConnectFourBoard.Columns && !board.IsOver
-            && !board.IsFull(column - 1))
+        if (!board.IsOver && PlayableColumns(board).Contains(column))
         {
             board.Drop(column - 1);
         }
@@ -47,6 +48,11 @@ public class GameController : Controller
 
     private void Store(ConnectFourBoard board) =>
         HttpContext.Session.SetString(SessionKey, board.Serialize());
+
+    private static IEnumerable<int> PlayableColumns(ConnectFourBoard board) =>
+        from index in ConnectFourBoard.ColumnIndexes
+        where !board.IsFull(index)
+        select index + 1;
 
     private static string Status(ConnectFourBoard board) =>
         board.Winner() != '.' ? $"Player {board.Winner()} wins!"

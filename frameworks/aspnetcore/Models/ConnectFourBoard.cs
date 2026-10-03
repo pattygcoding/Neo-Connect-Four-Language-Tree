@@ -1,45 +1,43 @@
 using System.Globalization;
-using System.Text;
+using System.Linq;
 
-namespace ConnectFour;
+namespace ConnectFour.Models;
 
 public class ConnectFourBoard
 {
     public const int Rows = 6;
     public const int Columns = 7;
     private const char Empty = '.';
+    private const int LineLength = 4;
     private static readonly char[] Players = { 'X', 'O' };
     private static readonly (int Row, int Column)[] Directions = { (0, 1), (1, 0), (1, 1), (1, -1) };
+
+    // Every (row, column) pair, row-major, so the rules below can be written as queries.
+    private static readonly (int Row, int Column)[] Positions =
+        (from row in Enumerable.Range(0, Rows)
+         from column in Enumerable.Range(0, Columns)
+         select (row, column)).ToArray();
 
     private readonly char[,] _cells = new char[Rows, Columns];
     private int _moves;
 
     public ConnectFourBoard()
     {
-        for (var row = 0; row < Rows; row++)
+        foreach (var (row, column) in Positions)
         {
-            for (var column = 0; column < Columns; column++)
-            {
-                _cells[row, column] = Empty;
-            }
+            _cells[row, column] = Empty;
         }
     }
+
+    public static IEnumerable<int> TopDownRows => Enumerable.Range(0, Rows).Reverse();
+
+    public static IEnumerable<int> ColumnIndexes => Enumerable.Range(0, Columns);
 
     public char CurrentPlayer => Players[_moves % Players.Length];
 
     public bool IsOver => Winner() != Empty || _moves == Rows * Columns;
 
-    public char Winner()
-    {
-        foreach (var player in Players)
-        {
-            if (HasLine(player))
-            {
-                return player;
-            }
-        }
-        return Empty;
-    }
+    public char Winner() => Players.FirstOrDefault(HasLine, Empty);
 
     public bool IsFull(int column) => LowestEmptyRow(column) < 0;
 
@@ -57,18 +55,8 @@ public class ConnectFourBoard
 
     public char Cell(int row, int column) => _cells[row, column];
 
-    public string Serialize()
-    {
-        var cells = new StringBuilder(Rows * Columns);
-        for (var row = 0; row < Rows; row++)
-        {
-            for (var column = 0; column < Columns; column++)
-            {
-                cells.Append(_cells[row, column]);
-            }
-        }
-        return string.Format(CultureInfo.InvariantCulture, "{0}:{1}", _moves, cells);
-    }
+    public string Serialize() =>
+        string.Format(CultureInfo.InvariantCulture, "{0}:{1}", _moves, new string(_cells.Cast<char>().ToArray()));
 
     public static ConnectFourBoard Deserialize(string state)
     {
@@ -80,49 +68,23 @@ public class ConnectFourBoard
         }
 
         board._moves = int.Parse(state[..separator], CultureInfo.InvariantCulture);
-        var cells = state[(separator + 1)..];
-        for (var index = 0; index < cells.Length && index < Rows * Columns; index++)
+        foreach (var (cell, (row, column)) in state[(separator + 1)..].Zip(Positions))
         {
-            board._cells[index / Columns, index % Columns] = cells[index];
+            board._cells[row, column] = cell;
         }
         return board;
     }
 
-    private int LowestEmptyRow(int column)
-    {
-        for (var row = 0; row < Rows; row++)
-        {
-            if (_cells[row, column] == Empty)
-            {
-                return row;
-            }
-        }
-        return -1;
-    }
+    private int LowestEmptyRow(int column) =>
+        Enumerable.Range(0, Rows)
+            .Where(row => _cells[row, column] == Empty)
+            .DefaultIfEmpty(-1)
+            .First();
 
-    private bool HasLine(char player)
-    {
-        for (var row = 0; row < Rows; row++)
-        {
-            for (var column = 0; column < Columns; column++)
-            {
-                if (_cells[row, column] != player)
-                {
-                    continue;
-                }
-                foreach (var (rowStep, columnStep) in Directions)
-                {
-                    if (Matches(row + rowStep, column + columnStep, player)
-                        && Matches(row + rowStep * 2, column + columnStep * 2, player)
-                        && Matches(row + rowStep * 3, column + columnStep * 3, player))
-                    {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
+    private bool HasLine(char player) =>
+        Positions.Any(position => _cells[position.Row, position.Column] == player
+            && Directions.Any(direction => Enumerable.Range(1, LineLength - 1).All(step =>
+                Matches(position.Row + direction.Row * step, position.Column + direction.Column * step, player))));
 
     private bool Matches(int row, int column, char player) =>
         row >= 0 && row < Rows && column >= 0 && column < Columns && _cells[row, column] == player;

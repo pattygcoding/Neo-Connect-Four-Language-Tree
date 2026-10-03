@@ -1071,7 +1071,7 @@ FRAMEWORK_BANNERS = {
     },
     "aspnetcore": {
         "toolchain": ".NET 8 or newer (ASP.NET Core MVC)",
-        "skills": ["MVC controllers + actions", "Session state", "Razor views (.cshtml)"],
+        "skills": ["MVC controllers + actions", "LINQ board queries", "Razor views (.cshtml)"],
     },
     "blazor": {
         "toolchain": ".NET 8 or newer (ASP.NET Core Blazor)",

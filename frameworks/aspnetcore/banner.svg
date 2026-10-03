@@ -52,8 +52,8 @@
     <text x="71" y="194" font-family="'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace" font-size="13" fill="#8debc4">Web</text>
     <rect x="120" y="172" width="232" height="34" rx="17" fill="#0a0e15" stroke="#26303f" stroke-width="1"/>
     <text x="135" y="194" font-family="'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace" font-size="13" fill="#c3cad3">MVC controllers + actions</text>
-    <rect x="362" y="172" width="135" height="34" rx="17" fill="#0a0e15" stroke="#26303f" stroke-width="1"/>
-    <text x="377" y="194" font-family="'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace" font-size="13" fill="#c3cad3">Session state</text>
-    <rect x="506" y="172" width="199" height="34" rx="17" fill="#0a0e15" stroke="#26303f" stroke-width="1"/>
-    <text x="521" y="194" font-family="'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace" font-size="13" fill="#c3cad3">Razor views (.cshtml)</text>
+    <rect x="362" y="172" width="175" height="34" rx="17" fill="#0a0e15" stroke="#26303f" stroke-width="1"/>
+    <text x="377" y="194" font-family="'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace" font-size="13" fill="#c3cad3">LINQ board queries</text>
+    <rect x="547" y="172" width="199" height="34" rx="17" fill="#0a0e15" stroke="#26303f" stroke-width="1"/>
+    <text x="562" y="194" font-family="'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace" font-size="13" fill="#c3cad3">Razor views (.cshtml)</text>
 </svg>

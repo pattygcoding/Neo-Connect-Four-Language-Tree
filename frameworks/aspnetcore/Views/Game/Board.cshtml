@@ -1,4 +1,5 @@
-@model ConnectFour.Models.ConnectFourBoard
+@using ConnectFour.Models
+@model ConnectFourBoard
 @{
     ViewData["Title"] = "Connect Four";
 }
@@ -8,10 +9,10 @@
 <p role="status">@ViewData["Status"]</p>
 
 <table class="board">
-    @for (var row = ConnectFourBoard.Rows - 1; row >= 0; row--)
+    @foreach (var row in ConnectFourBoard.TopDownRows)
     {
         <tr>
-            @for (var column = 0; column < ConnectFourBoard.Columns; column++)
+            @foreach (var column in ConnectFourBoard.ColumnIndexes)
             {
                 <td class="cell">@Model.Cell(row, column)</td>
             }
@@ -20,7 +21,7 @@
 </table>
 
 <form method="post" asp-action="Move">
-    @for (var column = 1; column <= ConnectFourBoard.Columns; column++)
+    @foreach (var column in ConnectFourBoard.ColumnIndexes.Select(index => index + 1))
     {
         <button type="submit" name="column" value="@column" disabled="@Model.IsOver">@column</button>
     }
