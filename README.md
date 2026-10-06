@@ -249,6 +249,7 @@ locally, so a refresh test there means something.
 | C++        | `languages/cpp/connect_four.cpp`       | `g++` (C++17)     |
 | Clojure    | `languages/clojure/connect_four.clj`   | `clojure`         |
 | COBOL      | `languages/cobol/connect_four.cob`     | `cobc` (GnuCOBOL) |
+| D          | `languages/d/connect_four.d`           | `dmd`             |
 | Dart       | `languages/dart/connect_four.dart`     | `dart`            |
 | Elm        | `languages/elm/connect_four.elm`       | `elm` + `node`    |
 | Elixir     | `languages/elixir/connect_four.ex`     | `elixir`          |
@@ -258,6 +259,7 @@ locally, so a refresh test there means something.
 | Go         | `languages/go/connect_four.go`         | `go`              |
 | Groovy     | `languages/groovy/connect_four.groovy` | `groovy`          |
 | Haskell    | `languages/haskell/connect_four.hs`    | `ghc`             |
+| Haxe       | `languages/haxe/connect_four.hx`       | `haxe`            |
 | HTML/CSS   | `languages/htmlcss/connect_four.html`  | browser (no build) |
 | Java       | `languages/java/connect_four.java`     | `javac`/`java`    |
 | JavaScript | `languages/javascript/connect_four.js` | `node`            |

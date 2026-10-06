@@ -257,6 +257,22 @@ def _elm_project() -> Path:
     return project
 
 
+def _haxe_project() -> Path:
+    """Project directory for the Haxe build, created and populated on demand.
+
+    Haxe requires a type's file name to match its name, and it rejects a type
+    name that does not start with an uppercase letter, so the implementation
+    cannot live in ``connect_four.hx`` as a class of the same name.  The one
+    source file in ``languages/haxe/`` is therefore copied here as
+    ``ConnectFour.hx`` - the class it declares - and compiled from there;
+    nothing in the repository is generated or modified.
+    """
+    project = BUILD_DIR / "haxe"
+    project.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(LANG_DIR / "haxe" / "connect_four.hx", project / "ConnectFour.hx")
+    return project
+
+
 def fpc_tool() -> str:
     """Path to the Free Pascal compiler.
 
@@ -385,6 +401,72 @@ def v_tool() -> str:
             if candidate.exists():
                 return str(candidate)
     return "v"
+
+
+def haxe_tool() -> str:
+    """Path to the Haxe compiler.
+
+    Haxe is installed here through winget, which does not update the ``PATH`` of
+    an already-running shell, so the stock Windows installer layout is checked
+    too.
+    """
+    resolved = shutil.which("haxe")
+    if resolved:
+        return resolved
+    if os.name == "nt":
+        candidates = [
+            Path(r"C:\HaxeToolkit\haxe\haxe.exe"),
+            Path(r"C:\Program Files\HaxeToolkit\haxe\haxe.exe"),
+        ]
+        for candidate in candidates:
+            if candidate.exists():
+                return str(candidate)
+    return "haxe"
+
+
+def haxe_env() -> dict:
+    """Env overrides so the Haxe entry finds the compiler.
+
+    ``haxe.exe`` locates its standard library relative to itself, so only its
+    own directory needs to precede the inherited ``PATH``.
+    """
+    tool = haxe_tool()
+    if os.path.isfile(tool):
+        return {"PATH": str(Path(tool).parent) + os.pathsep + os.environ.get("PATH", "")}
+    return {}
+
+
+def dmd_tool() -> str:
+    """Path to the DMD compiler.
+
+    DMD is installed here through winget, which does not update the ``PATH`` of
+    an already-running shell, so the stock Windows layout is checked too.
+    """
+    resolved = shutil.which("dmd")
+    if resolved:
+        return resolved
+    if os.name == "nt":
+        candidates = [
+            Path(r"C:\D\dmd2\windows\bin\dmd.exe"),
+            Path(r"C:\Program Files\dmd2\windows\bin\dmd.exe"),
+        ]
+        for candidate in candidates:
+            if candidate.exists():
+                return str(candidate)
+    return "dmd"
+
+
+def dmd_env() -> dict:
+    """Env overrides so the D entry builds and, more importantly, runs.
+
+    The Windows DMD package links its programs against ``msvcr120.dll``, which
+    ships beside ``dmd.exe`` rather than in ``System32``; that directory must
+    therefore be on ``PATH`` for the built program to start.
+    """
+    tool = dmd_tool()
+    if os.path.isfile(tool):
+        return {"PATH": str(Path(tool).parent) + os.pathsep + os.environ.get("PATH", "")}
+    return {}
 
 
 def tiger_tool() -> str:
@@ -887,6 +969,27 @@ LANGUAGES = [
         "run": [_exe("connect_four_cobol")],
         "env": gnucobol_env(),
     },
+    {
+        "name": "haxe",
+        "source": _src("haxe", "connect_four.hx"),
+        "artifact": str(_haxe_project() / "ConnectFour.hx"),
+        "build": None,
+        "run": [haxe_tool(), "-cp", str(_haxe_project()), "-main", "ConnectFour",
+                "--interp"],
+        "env": haxe_env(),
+    },
+    {
+        "name": "d",
+        "source": _src("d", "connect_four.d"),
+        "artifact": _exe("connect_four_d"),
+        "build": [dmd_tool(),
+                  "-of=" + _exe("connect_four_d"),
+                  "-od=" + str(BUILD_DIR),
+                  _src("d", "connect_four.d")],
+        "run": [_exe("connect_four_d")],
+        "env": dmd_env(),
+    },
+
 ]
 
 # --------------------------------------------------------------------------

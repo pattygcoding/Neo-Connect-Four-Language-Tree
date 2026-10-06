@@ -2,7 +2,7 @@
 
 # Nim Implementation
 
-Nim compiled through its C backend, with checked arithmetic - one of 42 implementations of the same console protocol in the
+Nim compiled through its C backend, with checked arithmetic - one of 44 implementations of the same console protocol in the
 [Neo-Connect-Four-Language-Tree](../../README.md) repository. Every
 implementation reads the same stdin and prints byte-for-byte identical
 output, so a single master test verifies them all at once.

@@ -2,7 +2,7 @@
 
 # Haskell Implementation
 
-Haskell with a pure board renderer and a small IO loop - one of 42 implementations of the same console protocol in the
+Haskell with a pure board renderer and a small IO loop - one of 44 implementations of the same console protocol in the
 [Neo-Connect-Four-Language-Tree](../../README.md) repository. Every
 implementation reads the same stdin and prints byte-for-byte identical
 output, so a single master test verifies them all at once.

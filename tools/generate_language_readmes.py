@@ -472,6 +472,24 @@ INFO = {
             "Avoid `dotnet run`, which recompiles on every launch - the built `.dll` starts in well under 0.1s.",
         ],
     },
+    "d": {
+        "tagline": "Static arrays, string slices and a saturating parse from the standard library",
+        "toolchain": "dmd, the reference D compiler (2.100 or newer)",
+        "detect": "dmd --version",
+        "install": {
+            "Windows": "winget install Dlang.DMD (or choco install dmd)",
+            "macOS": "brew install dmd",
+            "Debian/Ubuntu": "apt-get install dmd (or the official install.sh)",
+        },
+        "build": ["dmd -of=tests/build/connect_four_d.exe -od=tests/build languages/d/connect_four.d"],
+        "run": ["./tests/build/connect_four_d"],
+        "binary": True,
+        "skills": ["char[6][7] static array board", "readln + std.string.strip", "Saturating numeric parse"],
+        "notes": [
+            "DMD is installed here through winget, which does not update the `PATH` of an already-running shell, so the runner adds its `bin` directory. That same directory must be on `PATH` at run time, because the Windows package links programs against `msvcr120.dll`, which ships beside `dmd.exe` rather than in `System32`.",
+            "On Windows `dmd` builds a 32-bit executable by default (it runs fine on x64); `-od` keeps the object file in `tests/build`, so nothing is written next to the source.",
+        ],
+    },
     "dart": {
         "tagline": "Dart 3, AOT-compiled into a standalone executable",
         "toolchain": "dart (SDK 3 or newer)",
@@ -616,6 +634,24 @@ INFO = {
         "interactive": True,
         "skills": ["CSS grid board + radial-gradient discs", "DOM events + hover preview", "Win detection in vanilla JavaScript"],
         "notes": [],
+    },
+    "haxe": {
+        "tagline": "One class run on Haxe's own eval VM, with end of input caught as an exception",
+        "toolchain": "haxe 4 or newer (the eval interpreter needs nothing else)",
+        "detect": "haxe --version",
+        "install": {
+            "Windows": "winget install HaxeFoundation.Haxe (or scoop install haxe)",
+            "macOS": "brew install haxe",
+            "Debian/Ubuntu": "apt-get install haxe",
+        },
+        "build": [],
+        "run": ["haxe -cp tests/build/haxe -main ConnectFour --interp"],
+        "solo_file": False,
+        "skills": ["Class + static main", "haxe.io.Eof as end of input", "StringBuf rendering"],
+        "notes": [
+            "Haxe requires a type's file name to match its name and forbids a lowercase type name, so the implementation cannot live in `connect_four.hx` as a class of the same name. The runner's `_haxe_project()` copies it to `tests/build/haxe/ConnectFour.hx` - the class it declares - and compiles from there; nothing in `languages/` is generated.",
+            "The `--interp` eval target runs the program on the compiler's built-in VM, so no Neko or Node runtime is needed. `Sys.stdin().readLine()` *throws* `haxe.io.Eof` at end of input instead of returning null, which is how the program tells a closed stream apart from an empty line.",
+        ],
     },
     "haskell": {
         "tagline": "Haskell with a pure board renderer and a small IO loop",

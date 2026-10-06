@@ -68,6 +68,7 @@ LANGUAGE_INFO = {
     "go": ("Go", "language-go", "Systems"),
     "groovy": ("Groovy", "language-groovy", "JVM/.NET"),
     "haskell": ("Haskell", "language-haskell", "Functional"),
+    "haxe": ("Haxe", "language-haxe", "Systems"),
     "htmlcss": ("HTML/CSS", "language-markup", "Web"),
     "java": ("Java", "language-java", "JVM/.NET"),
     "javascript": ("JavaScript", "language-javascript", "Web"),
