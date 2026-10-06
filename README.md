@@ -349,6 +349,7 @@ GitHub, with a note above the code explaining just that.
 | Flutter       | `frameworks/flutter/`     | `frameworks/flutter/lib/connect_four.dart`                   | `flutter run`         |
 | Fyne          | `frameworks/fyne/`        | `frameworks/fyne/main.go`                                    | `go run .`            |
 | Gin           | `frameworks/gin/`         | `frameworks/gin/main.go`                                     | `go run .`            |
+| Gradle        | `frameworks/gradle/`      | `frameworks/gradle/build.gradle.kts`                         | `gradle test`         |
 | GraphQL       | `frameworks/graphql/`     | `frameworks/graphql/schema.graphql`                          | `python server.py`    |
 | Handlebars    | `frameworks/handlebars/`  | `frameworks/handlebars/templates/board.hbs`                  | `npm start`           |
 | HTMX          | `frameworks/htmx/`        | `frameworks/htmx/server.js`                                  | `node server.js`      |
@@ -364,6 +365,7 @@ GitHub, with a note above the code explaining just that.
 | Laravel       | `frameworks/laravel/`     | `frameworks/laravel/app/Http/Controllers/GameController.php` | `php artisan serve`   |
 | Lit           | `frameworks/lit/`         | `frameworks/lit/src/connect-four.ts`                         | `npm run dev`         |
 | MariaDB       | `frameworks/mariadb/`     | `frameworks/mariadb/schema.sql`                              | `mariadb < schema.sql` |
+| Maven         | `frameworks/maven/`       | `frameworks/maven/pom.xml`                                   | `mvn test`            |
 | Minimax AI    | `frameworks/minimax/`     | `frameworks/minimax/minimax.py`                              | `python play.py`      |
 | MongoDB (NoSQL) | `frameworks/mongodb/`   | `frameworks/mongodb/schema.js`                               | `mongosh --file schema.js` |
 | MySQL         | `frameworks/mysql/`       | `frameworks/mysql/schema.sql`                                | `mysql < schema.sql`  |

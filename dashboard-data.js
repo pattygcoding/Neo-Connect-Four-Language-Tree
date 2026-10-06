@@ -1,8 +1,8 @@
 window.CONNECT_FOUR_DATA = {
   "meta": {
-    "updated": "2026-10-06 04:45 UTC",
+    "updated": "2026-10-06 05:03 UTC",
     "languageCount": 45,
-    "frameworkCount": 88,
+    "frameworkCount": 90,
     "scenarioCount": 8,
     "repository": "https://github.com/pattygcoding/Neo-Connect-Four-Language-Tree",
     "branch": "main"
@@ -822,6 +822,22 @@ window.CONNECT_FOUR_DATA = {
       "code": "package main\n\nimport (\n    \"net/http\"\n    \"strconv\"\n\n    \"github.com/gin-contrib/sessions\"\n    \"github.com/gin-contrib/sessions/cookie\"\n    \"github.com/gin-gonic/gin\"\n\n    \"connectfour/board\"\n)\n\nfunc main() {\n    router := gin.Default()\n    router.LoadHTMLGlob(\"templates/*.html\")\n\n    store := cookie.NewStore([]byte(\"change-me-in-production\"))\n    router.Use(sessions.Sessions(\"connectfour\", store))\n\n    router.GET(\"/\", boardPage)\n    router.POST(\"/move\", move)\n    router.POST(\"/reset\", reset)\n\n    router.Run(\":8080\")\n}\n\nfunc boardPage(c *gin.Context) {\n    columns := make([]int, board.Columns)\n    for index := range columns {\n        columns[index] = index + 1\n    }\n    c.HTML(http.StatusOK, \"board.html\", gin.H{\n        \"board\":   currentBoard(c),\n        \"columns\": columns,\n    })\n}\n\nfunc move(c *gin.Context) {\n    game := currentBoard(c)\n    column, err := strconv.Atoi(c.PostForm(\"column\"))\n\n    if err == nil && column >= 1 && column <= board.Columns && !game.IsOver() {\n        if !game.IsFull(column - 1) {\n            game.Drop(column - 1)\n        }\n    }\n\n    saveBoard(c, game)\n    c.Redirect(http.StatusSeeOther, \"/\")\n}\n\nfunc reset(c *gin.Context) {\n    session := sessions.Default(c)\n    session.Delete(\"board\")\n    session.Save()\n    c.Redirect(http.StatusSeeOther, \"/\")\n}\n\nfunc currentBoard(c *gin.Context) *board.ConnectFourBoard {\n    raw, _ := sessions.Default(c).Get(\"board\").(string)\n    return board.FromJSON(raw)\n}\n\nfunc saveBoard(c *gin.Context, game *board.ConnectFourBoard) {\n    session := sessions.Default(c)\n    session.Set(\"board\", game.ToJSON())\n    session.Save()\n}\n"
     },
     {
+      "id": "gradle",
+      "name": "Gradle",
+      "category": "Build",
+      "prism": "language-kotlin",
+      "file": "frameworks/gradle/build.gradle.kts",
+      "folder": "frameworks/gradle",
+      "note": "This is the representative file - the Kotlin-DSL build script with the JUnit BOM, Java toolchain and test task. See {link} to browse the Java board, the tests and the Maven twin.",
+      "linkText": "the full Gradle project on GitHub",
+      "stack": "",
+      "languages": [
+        "Kotlin",
+        "Java"
+      ],
+      "code": "plugins {\n    application\n}\n\ngroup = \"com.example\"\nversion = \"0.1.0\"\n\nrepositories {\n    mavenCentral()\n}\n\ndependencies {\n    testImplementation(platform(\"org.junit:junit-bom:5.10.2\"))\n    testImplementation(\"org.junit.jupiter:junit-jupiter\")\n    testRuntimeOnly(\"org.junit.platform:junit-platform-launcher\")\n}\n\njava {\n    toolchain {\n        languageVersion = JavaLanguageVersion.of(17)\n    }\n}\n\napplication {\n    mainClass = \"com.example.connectfour.Main\"\n}\n\ntasks.test {\n    useJUnitPlatform()\n}\n"
+    },
+    {
       "id": "graphql",
       "name": "GraphQL",
       "category": "API",
@@ -1045,6 +1061,22 @@ window.CONNECT_FOUR_DATA = {
         "SQL"
       ],
       "code": "CREATE SEQUENCE IF NOT EXISTS game_seq START WITH 1 INCREMENT BY 1;\n\nCREATE TABLE IF NOT EXISTS games (\n    game_id    BIGINT NOT NULL DEFAULT NEXTVAL(game_seq),\n    player     VARCHAR(64) NOT NULL,\n    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n    PRIMARY KEY (game_id)\n);\n\nCREATE TABLE IF NOT EXISTS moves (\n    move_id       BIGINT NOT NULL AUTO_INCREMENT,\n    game_id       BIGINT NOT NULL,\n    turn_no       INT NOT NULL,\n    player        CHAR(1) NOT NULL,\n    column_number TINYINT NOT NULL,\n    PRIMARY KEY (move_id),\n    CONSTRAINT fk_moves_games FOREIGN KEY (game_id) REFERENCES games (game_id) ON DELETE CASCADE,\n    CONSTRAINT uq_moves_turn UNIQUE (game_id, turn_no),\n    CONSTRAINT ck_moves_player CHECK (player IN ('X', 'O')),\n    CONSTRAINT ck_moves_column CHECK (column_number BETWEEN 1 AND 7)\n);\n\nCREATE INDEX IF NOT EXISTS ix_moves_game_column ON moves (game_id, column_number, turn_no);\n\nCREATE OR REPLACE VIEW cells AS\n    SELECT\n        game_id,\n        column_number AS x,\n        player,\n        ROW_NUMBER() OVER (PARTITION BY game_id, column_number ORDER BY turn_no) AS y\n    FROM moves;\n"
+    },
+    {
+      "id": "maven",
+      "name": "Maven",
+      "category": "Build",
+      "prism": "language-markup",
+      "file": "frameworks/maven/pom.xml",
+      "folder": "frameworks/maven",
+      "note": "This is the representative file - the POM with its coordinates, test-scoped JUnit 5 dependency and compiler/surefire/exec/jar plugins. See {link} to browse the Java board, the tests and the Gradle twin.",
+      "linkText": "the full Maven project on GitHub",
+      "stack": "",
+      "languages": [
+        "XML",
+        "Java"
+      ],
+      "code": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\n         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n         xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd\">\n    <modelVersion>4.0.0</modelVersion>\n\n    <groupId>com.example</groupId>\n    <artifactId>connect-four</artifactId>\n    <version>0.1.0</version>\n    <packaging>jar</packaging>\n\n    <name>Connect Four</name>\n    <description>A Connect Four game built, tested and packaged with Maven.</description>\n\n    <properties>\n        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>\n        <maven.compiler.release>17</maven.compiler.release>\n        <junit.version>5.10.2</junit.version>\n    </properties>\n\n    <dependencies>\n        <dependency>\n            <groupId>org.junit.jupiter</groupId>\n            <artifactId>junit-jupiter</artifactId>\n            <version>${junit.version}</version>\n            <scope>test</scope>\n        </dependency>\n    </dependencies>\n\n    <build>\n        <finalName>connect-four</finalName>\n        <plugins>\n            <plugin>\n                <groupId>org.apache.maven.plugins</groupId>\n                <artifactId>maven-compiler-plugin</artifactId>\n                <version>3.13.0</version>\n            </plugin>\n\n            <plugin>\n                <groupId>org.apache.maven.plugins</groupId>\n                <artifactId>maven-surefire-plugin</artifactId>\n                <version>3.2.5</version>\n            </plugin>\n\n            <plugin>\n                <groupId>org.codehaus.mojo</groupId>\n                <artifactId>exec-maven-plugin</artifactId>\n                <version>3.2.0</version>\n                <configuration>\n                    <mainClass>com.example.connectfour.Main</mainClass>\n                </configuration>\n            </plugin>\n\n            <plugin>\n                <groupId>org.apache.maven.plugins</groupId>\n                <artifactId>maven-jar-plugin</artifactId>\n                <version>3.4.1</version>\n                <configuration>\n                    <archive>\n                        <manifest>\n                            <mainClass>com.example.connectfour.Main</mainClass>\n                        </manifest>\n                    </archive>\n                </configuration>\n            </plugin>\n        </plugins>\n    </build>\n</project>\n"
     },
     {
       "id": "minimax",
@@ -1775,6 +1807,7 @@ window.CONNECT_FOUR_DATA = {
     "SurrealQL": ".surql",
     "Swift": ".swift",
     "TypeScript": ".ts",
-    "VB.NET": ".vb"
+    "VB.NET": ".vb",
+    "XML": ".xml"
   }
 };

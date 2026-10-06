@@ -1449,6 +1449,14 @@ FRAMEWORK_BANNERS = {
         "toolchain": "Python 3.9 or newer + Selenium 4 and pytest",
         "skills": ["WebDriver + Chrome headless Options", "Page Object Model + By locators", "pytest fixtures with teardown"],
     },
+    "maven": {
+        "toolchain": "JDK 17 or newer + Maven 3.9",
+        "skills": ["POM: coordinates, deps, plugins", "test scope + Surefire", "compile -> test -> package lifecycle"],
+    },
+    "gradle": {
+        "toolchain": "JDK 17 or newer + Gradle 8 (Kotlin DSL)",
+        "skills": ["Kotlin-DSL build script", "Dependency configurations + JUnit BOM", "Toolchains + the task graph"],
+    },
 }
 
 

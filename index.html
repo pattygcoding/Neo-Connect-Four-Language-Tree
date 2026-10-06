@@ -831,6 +831,9 @@
                     item.onclick = function () {
                         closeMenus();
                         api.onPick(option.value);
+                        // Rebuild straight away so the button echoes the choice and the
+                        // menu marks it as selected the next time it opens.
+                        fillDropdown(api, options, option.value);
                     };
                     api.menu.appendChild(item);
                     if (option.value === current) { currentLabel = option.label; }

@@ -1104,6 +1104,29 @@ FRAMEWORK_INFO = {
                 "to browse the Page Object, the driver fixtures and the rest of the project.",
         "linkText": "the full Selenium suite on GitHub",
     },
+    "gradle": {
+        "name": "Gradle",
+        "prism": "language-kotlin",
+        "category": "Build",
+        "file": "build.gradle.kts",
+        "folder": "frameworks/gradle",
+        "note": "This is the representative file - the Kotlin-DSL build script with "
+                "the JUnit BOM, Java toolchain and test task. See {link} to browse the "
+                "Java board, the tests and the Maven twin.",
+        "linkText": "the full Gradle project on GitHub",
+    },
+    "maven": {
+        "name": "Maven",
+        "prism": "language-markup",
+        "category": "Build",
+        "file": "pom.xml",
+        "folder": "frameworks/maven",
+        "note": "This is the representative file - the POM with its coordinates, "
+                "test-scoped JUnit 5 dependency and compiler/surefire/exec/jar "
+                "plugins. See {link} to browse the Java board, the tests and the "
+                "Gradle twin.",
+        "linkText": "the full Maven project on GitHub",
+    },
 }
 
 # ---------------------------------------------------------------------------
@@ -1255,6 +1278,8 @@ FRAMEWORK_LANGUAGES = {
     "vuebootstrap": ["JavaScript"],
     "wpf": ["C#"],
     "wpfvb": ["VB.NET"],
+    "maven": ["XML", "Java"],
+    "gradle": ["Kotlin", "Java"],
 }
 
 # The short file-extension tag the dashboard shows for a language, so a
@@ -1282,6 +1307,7 @@ LANGUAGE_EXTENSIONS = {
     "Swift": ".swift",
     "TypeScript": ".ts",
     "VB.NET": ".vb",
+    "XML": ".xml",
 }
 
 
