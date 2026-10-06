@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+    .board-disc {
+        @apply h-10 w-10 rounded-full;
+    }
+}

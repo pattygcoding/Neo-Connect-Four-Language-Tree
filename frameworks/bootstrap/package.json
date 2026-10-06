@@ -1,0 +1,10 @@
+{
+    "name": "connect-four-bootstrap",
+    "private": true,
+    "scripts": {
+        "start": "npx serve ."
+    },
+    "dependencies": {
+        "bootstrap": "^5.3.3"
+    }
+}

@@ -1,0 +1,10 @@
+{
+    "name": "connect-four-handlebars",
+    "private": true,
+    "scripts": {
+        "start": "node server.js"
+    },
+    "dependencies": {
+        "handlebars": "^4.7.8"
+    }
+}

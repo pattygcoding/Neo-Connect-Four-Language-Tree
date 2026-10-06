@@ -1,0 +1,11 @@
+[package]
+name = "connect-four-axum"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+axum = "0.7"
+minijinja = { version = "2", features = ["loader"] }
+serde = { version = "1", features = ["derive"] }
+tokio = { version = "1", features = ["full"] }
+tower-sessions = "0.12"

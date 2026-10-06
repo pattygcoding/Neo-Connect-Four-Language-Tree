@@ -1,0 +1,32 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-title>Connect Four</ion-title>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+    <ion-text class="ion-text-center">
+        <h2>{{ status }}</h2>
+    </ion-text>
+
+    <table class="board">
+        <tr *ngFor="let row of board.rowsTopDown">
+            <td *ngFor="let cell of row" [ngClass]="'cell cell--' + cell.toLowerCase()">{{ cell }}</td>
+        </tr>
+    </table>
+
+    <ion-grid>
+        <ion-row class="ion-justify-content-center">
+            <ion-col size="auto" *ngFor="let column of columns">
+                <ion-button
+                    [disabled]="board.isOver || isFull(column)"
+                    (click)="play(column)"
+                >
+                    {{ column + 1 }}
+                </ion-button>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+
+    <ion-button expand="block" fill="outline" (click)="reset()">New game</ion-button>
+</ion-content>

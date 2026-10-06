@@ -1,0 +1,7 @@
+{
+    "name": "connect-four-jquery",
+    "private": true,
+    "scripts": {
+        "start": "npx serve ."
+    }
+}

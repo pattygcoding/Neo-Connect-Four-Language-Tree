@@ -1,0 +1,32 @@
+@use "variables" as v;
+
+@mixin disc($color, $text: inherit) {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background: $color;
+    color: $text;
+    text-align: center;
+    font-weight: 600;
+}
+
+.board {
+    background: v.$board;
+    border-radius: v.$radius;
+    padding: 0.5rem;
+    border-spacing: 0.25rem;
+
+    .cell {
+        @include disc(v.$slot);
+
+        @each $name, $color in v.$discs {
+            &.cell--#{$name} {
+                @include disc($color);
+            }
+        }
+
+        &.cell--o {
+            color: v.$slot;
+        }
+    }
+}

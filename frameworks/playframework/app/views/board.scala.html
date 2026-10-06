@@ -1,0 +1,44 @@
+@(board: models.ConnectFourBoard, columns: Range)
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Connect Four</title>
+    </head>
+    <body>
+        <h1>Connect Four</h1>
+
+        @board.winner match {
+            case Some(player) => {
+                <p>Player @player wins!</p>
+            }
+            case None => {
+                @if(board.isOver) {
+                    <p>It's a tie!</p>
+                } else {
+                    <p>Player @board.currentPlayer, choose a column.</p>
+                }
+            }
+        }
+
+        <table class="board">
+        @for(row <- board.rowsTopDown) {
+            <tr>
+            @for(cell <- row) {
+                <td class="cell cell--@cell.toLowerCase">@cell</td>
+            }
+            </tr>
+        }
+        </table>
+
+        <form method="post" action="@routes.GameController.move">
+        @for(column <- columns) {
+            <button type="submit" name="column" value="@column" @if(board.isOver) { disabled }>@column</button>
+        }
+        </form>
+
+        <form method="post" action="@routes.GameController.reset">
+            <button type="submit">New game</button>
+        </form>
+    </body>
+</html>

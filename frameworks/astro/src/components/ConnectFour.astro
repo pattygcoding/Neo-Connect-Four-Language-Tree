@@ -1,0 +1,84 @@
+---
+import { COLUMNS, ROWS } from "../lib/board";
+---
+
+<section class="game" data-rows={ROWS} data-columns={COLUMNS}>
+    <h1>Connect Four</h1>
+    <p data-status role="status"></p>
+    <table class="board"><tbody data-board></tbody></table>
+    <div class="columns" data-columns></div>
+    <button type="button" data-reset>New game</button>
+</section>
+
+<script>
+    import {
+        COLUMNS,
+        ROWS,
+        createBoard,
+        currentPlayer,
+        drop,
+        isColumnFull,
+        winner,
+    } from "../lib/board";
+
+    const root = document.querySelector("section.game");
+    const boardEl = root.querySelector("[data-board]");
+    const columnsEl = root.querySelector("[data-columns]");
+    const statusEl = root.querySelector("[data-status]");
+    const resetEl = root.querySelector("[data-reset]");
+
+    let board = createBoard();
+    let moves = 0;
+
+    function render() {
+        const champion = winner(board);
+        const over = Boolean(champion) || moves === ROWS * COLUMNS;
+
+        statusEl.textContent = champion
+            ? `Player ${champion} wins!`
+            : over
+            ? "It's a tie!"
+            : `Player ${currentPlayer(moves)}, choose a column.`;
+
+        boardEl.innerHTML = "";
+        for (let row = ROWS - 1; row >= 0; row -= 1) {
+            const tr = document.createElement("tr");
+            for (let column = 0; column < COLUMNS; column += 1) {
+                const cell = board[row][column];
+                const td = document.createElement("td");
+                td.className = `cell cell--${cell.toLowerCase()}`;
+                td.textContent = cell;
+                tr.append(td);
+            }
+            boardEl.append(tr);
+        }
+
+        columnsEl.replaceChildren();
+        for (let column = 0; column < COLUMNS; column += 1) {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.textContent = String(column + 1);
+            button.disabled = over || isColumnFull(board, column);
+            button.addEventListener("click", () => play(column));
+            columnsEl.append(button);
+        }
+    }
+
+    function play(column) {
+        if (winner(board) || moves === ROWS * COLUMNS || isColumnFull(board, column)) {
+            return;
+        }
+        board = drop(board, column, currentPlayer(moves));
+        moves += 1;
+        render();
+    }
+
+    function reset() {
+        board = createBoard();
+        moves = 0;
+        render();
+    }
+
+    resetEl.addEventListener("click", reset);
+    render();
+</script>

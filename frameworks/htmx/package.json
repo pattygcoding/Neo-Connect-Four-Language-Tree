@@ -1,0 +1,7 @@
+{
+    "name": "connect-four-htmx",
+    "private": true,
+    "scripts": {
+        "start": "node server.js"
+    }
+}

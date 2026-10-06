@@ -1,0 +1,28 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "sqlite"
+    url      = env("DATABASE_URL")
+}
+
+model Game {
+    id        Int      @id @default(autoincrement())
+    player    String
+    moves     Move[]
+    createdAt DateTime @default(now())
+
+    @@map("games")
+}
+
+model Move {
+    id     Int    @id @default(autoincrement())
+    gameId Int
+    player String
+    column Int
+    game   Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+    @@index([gameId])
+    @@map("moves")
+}

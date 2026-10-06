@@ -1,0 +1,11 @@
+{
+    "name": "connect-four-scss",
+    "private": true,
+    "scripts": {
+        "build": "sass scss/main.scss dist/main.css",
+        "watch": "sass --watch scss/main.scss dist/main.css"
+    },
+    "devDependencies": {
+        "sass": "^1.77.0"
+    }
+}

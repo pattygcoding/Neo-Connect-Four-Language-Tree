@@ -48,12 +48,12 @@
     <text x="56" y="110" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="46" font-weight="700" fill="#f2f5f3">C#</text>
     <rect x="56" y="126" width="56" height="3" rx="1.5" fill="#8debc4"/>
     <text x="56" y="152" font-family="'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace" font-size="14" fill="#8a93a0">dotnet (.NET 8 SDK)</text>
-    <rect x="56" y="172" width="94" height="34" rx="17" fill="#12291f" stroke="#3d7c64" stroke-width="1"/>
-    <text x="71" y="194" font-family="'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace" font-size="13" fill="#8debc4">JVM/.NET</text>
-    <rect x="160" y="172" width="78" height="34" rx="17" fill="#0a0e15" stroke="#26303f" stroke-width="1"/>
-    <text x="175" y="194" font-family="'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace" font-size="13" fill="#c3cad3">.NET 8</text>
-    <rect x="249" y="172" width="240" height="34" rx="17" fill="#0a0e15" stroke="#26303f" stroke-width="1"/>
-    <text x="264" y="194" font-family="'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace" font-size="13" fill="#c3cad3">StreamReader + Console.Out</text>
-    <rect x="498" y="172" width="215" height="34" rx="17" fill="#0a0e15" stroke="#26303f" stroke-width="1"/>
-    <text x="513" y="194" font-family="'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace" font-size="13" fill="#c3cad3">StringBuilder rendering</text>
+    <rect x="56" y="172" width="62" height="34" rx="17" fill="#12291f" stroke="#3d7c64" stroke-width="1"/>
+    <text x="71" y="194" font-family="'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace" font-size="13" fill="#8debc4">.NET</text>
+    <rect x="128" y="172" width="78" height="34" rx="17" fill="#0a0e15" stroke="#26303f" stroke-width="1"/>
+    <text x="143" y="194" font-family="'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace" font-size="13" fill="#c3cad3">.NET 8</text>
+    <rect x="217" y="172" width="240" height="34" rx="17" fill="#0a0e15" stroke="#26303f" stroke-width="1"/>
+    <text x="232" y="194" font-family="'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace" font-size="13" fill="#c3cad3">StreamReader + Console.Out</text>
+    <rect x="466" y="172" width="215" height="34" rx="17" fill="#0a0e15" stroke="#26303f" stroke-width="1"/>
+    <text x="481" y="194" font-family="'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace" font-size="13" fill="#c3cad3">StringBuilder rendering</text>
 </svg>

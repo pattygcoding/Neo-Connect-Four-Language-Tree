@@ -1229,6 +1229,226 @@ FRAMEWORK_BANNERS = {
         "toolchain": "Node.js 18 or newer + Vue 3 (Vite)",
         "skills": ["Composition API + composables", "ref / computed reactivity", "Single-file components"],
     },
+    "adonisjs": {
+        "toolchain": "Node.js 20 or newer + AdonisJS 6",
+        "skills": ["Controllers + routing", "Sessions and post/redirect/get", "Edge templates"],
+    },
+    "alpinejs": {
+        "toolchain": "Any static server (Alpine loads from a CDN)",
+        "skills": ["x-data / x-for / x-text directives", "Alpine.data components", "No build tooling"],
+    },
+    "astro": {
+        "toolchain": "Node.js 18 or newer + Astro 5",
+        "skills": ["Astro components + pages", "Islands hydration", "Typed src/lib modules"],
+    },
+    "avalonia": {
+        "toolchain": ".NET 8 or newer (Avalonia 11)",
+        "skills": ["AXAML views + code-behind", "A control tree built in C#", "Cross-platform .NET desktop"],
+    },
+    "axum": {
+        "toolchain": "Rust 1.75 or newer + Cargo",
+        "skills": ["Axum routing + State", "tower-sessions cookies", "MiniJinja templates"],
+    },
+    "echo": {
+        "toolchain": "Go 1.21 or newer + Echo v4",
+        "skills": ["Echo routing + handlers", "Cookie sessions", "html/template rendering"],
+    },
+    "electron": {
+        "toolchain": "Node.js 18 or newer + Electron",
+        "skills": ["Main / preload / renderer split", "contextBridge + contextIsolation", "A standalone desktop app"],
+    },
+    "htmx": {
+        "toolchain": "Node.js 18 or newer (standard library server)",
+        "skills": ["hx-post / hx-target / hx-swap", "Server-rendered HTML fragments", "A minimal node:http server"],
+    },
+    "ionic": {
+        "toolchain": "Node.js 18 or newer + Ionic CLI",
+        "skills": ["Ionic UI components (ion-grid/ion-button)", "Angular components + templates", "One codebase, many platforms"],
+    },
+    "javafx": {
+        "toolchain": "JDK 17 or newer + Maven (JavaFX 21)",
+        "skills": ["Application / Scene / scene graph", "VBox + GridPane layout", "Event-driven node rebuilds"],
+    },
+    "jetpackcompose": {
+        "toolchain": "Android SDK + JDK 17 (Compose, Material 3)",
+        "skills": ["Composable UI + recomposition", "mutableStateOf + ViewModel", "Material 3 theming"],
+    },
+    "koa": {
+        "toolchain": "Node.js 18 or newer + Koa 2",
+        "skills": ["Koa middleware composition", "@koa/router + koa-bodyparser", "Cookie sessions"],
+    },
+    "ktor": {
+        "toolchain": "JDK 17 or newer + Ktor 2 (Gradle)",
+        "skills": ["Ktor routing + Sessions plugin", "kotlinx.html DSL", "Idiomatic Kotlin"],
+    },
+    "langchain": {
+        "toolchain": "Python 3.9 or newer + langchain-core and langchain-openai",
+        "skills": ["LCEL prompt | model | parser chains", "ChatPromptTemplate", "LLM calls around app state"],
+    },
+    "ollama": {
+        "toolchain": "Python 3.9 or newer + the Ollama server",
+        "skills": ["Local LLM calls with ollama.chat", "Constrained-answer prompt parsing", "An interactive game loop"],
+    },
+    "playframework": {
+        "toolchain": "JDK 17 or newer + sbt (Play 2.9)",
+        "skills": ["Play controllers + routing", "Immutable case-class state", "Twirl templates"],
+    },
+    "playwright": {
+        "toolchain": "Node.js 18 or newer + Playwright",
+        "skills": ["Config + webServer auto-start", "Role-based locators + assertions", "End-to-end win/tie tests"],
+    },
+    "postgresql": {
+        "toolchain": "PostgreSQL 14 or newer (psql)",
+        "skills": ["Normalised schema + constraints", "Window functions + board view", "Win detection as a self-join"],
+    },
+    "prisma": {
+        "toolchain": "Node.js 18 or newer + Prisma 5",
+        "skills": ["Prisma schema with relations", "Generated client + nested writes", "Replaying moves into state"],
+    },
+    "pyside6": {
+        "toolchain": "Python 3.8 or newer with PySide6",
+        "skills": ["Qt layouts (QVBox/QGrid)", "Signals, slots and callbacks", "Model/view separation"],
+    },
+    "qwik": {
+        "toolchain": "Node.js 18 or newer + Qwik 1",
+        "skills": ["component$ + useSignal", "Lazy onClick$ handlers", "Resumable serialisable state"],
+    },
+    "quarkus": {
+        "toolchain": "JDK 17 or newer + Maven (Quarkus 3)",
+        "skills": ["JAX-RS resources + CDI scopes", "Qute templating", "Post/redirect/get forms"],
+    },
+    "redis": {
+        "toolchain": "Redis server + Python 3.9 (Flask, redis-py)",
+        "skills": ["Redis GET/SET/DEL session store", "JSON game state", "Flask routing + cookies"],
+    },
+    "redux": {
+        "toolchain": "Node.js 18 or newer + Redux Toolkit (Vite)",
+        "skills": ["createSlice + Immer reducers", "useSelector / useDispatch", "Selectors for derived state"],
+    },
+    "remix": {
+        "toolchain": "Node.js 20 or newer + React Router v7",
+        "skills": ["Loaders, actions and <Form>", "Cookie session storage", "Server-side rendering"],
+    },
+    "sanic": {
+        "toolchain": "Python 3.9 or newer + Sanic and Jinja2",
+        "skills": ["Async request handlers", "sanic-session state", "Jinja2 templates"],
+    },
+    "solidjs": {
+        "toolchain": "Node.js 18 or newer + SolidJS (Vite)",
+        "skills": ["createSignal fine-grained reactivity", "<For> control flow", "No-virtual-DOM rendering"],
+    },
+    "swiftui": {
+        "toolchain": "Xcode 15 / Swift 5.9 (Apple platforms)",
+        "skills": ["View composition + ForEach", "@State and value semantics", "Declarative layout"],
+    },
+    "tailwindcss": {
+        "toolchain": "Node.js 18 or newer + Tailwind CSS 3",
+        "skills": ["Utility-first styling + variants", "tailwind.config.js theme extension", "Component layer + purge"],
+    },
+    "tanstackquery": {
+        "toolchain": "Node.js 18 or newer + TanStack Query 5",
+        "skills": ["useQuery / useMutation", "Cache invalidation", "Server state vs UI state"],
+    },
+    "tauri": {
+        "toolchain": "Rust 1.75 or newer + Node.js + a platform webview",
+        "skills": ["Tauri commands + managed state", "Rust <-> JS IPC with serde", "A lightweight desktop shell"],
+    },
+    "trpc": {
+        "toolchain": "Node.js 18 or newer + tRPC and Zod",
+        "skills": ["Procedures + Zod input schemas", "End-to-end type inference", "React Query integration"],
+    },
+    "vapor": {
+        "toolchain": "Swift 5.9 or newer + Vapor 4",
+        "skills": ["Vapor routing + sessions", "Content decoding + value types", "Rendered HTML responses"],
+    },
+    "tsql": {
+        "toolchain": "SQL Server 2016 or newer (sqlcmd / Azure Data Studio)",
+        "skills": ["Tables, constraints and indexes", "ROW_NUMBER + STRING_AGG", "Stored procedures with THROW"],
+    },
+    "jquery": {
+        "toolchain": "Any static server (jQuery loads from a CDN)",
+        "skills": ["Selectors + DOM construction", "Delegated events with .on()", "Chained jQuery methods"],
+    },
+    "scss": {
+        "toolchain": "Node.js 18 or newer + Dart Sass",
+        "skills": ["@use modules + partials", "Variables, maps and @each", "Mixins and nesting"],
+    },
+    "ember": {
+        "toolchain": "Node.js 18 or newer + the Ember CLI (Octane)",
+        "skills": ["Glimmer components + @tracked", "Handlebars {{#each}} + {{on}}", "Ember CLI app structure"],
+    },
+    "lit": {
+        "toolchain": "Node.js 18 or newer + Lit 3",
+        "skills": ["Web Components with LitElement", "@state + html/css tagged templates", "Shadow-DOM bindings"],
+    },
+    "handlebars": {
+        "toolchain": "Node.js 18 or newer + Handlebars",
+        "skills": ["{{#each}} + {{> partial}}", "Custom helpers + isolated env", "Server-side rendering"],
+    },
+    "cassandra": {
+        "toolchain": "Apache Cassandra 4 or newer (cqlsh)",
+        "skills": ["Keyspace + partition/clustering keys", "List columns + timeuuid ordering", "LWT, TTL, materialized views"],
+    },
+    "oracle": {
+        "toolchain": "Oracle Database 12c+ (SQL*Plus / SQLcl)",
+        "skills": ["NUMBER IDENTITY keys + VARCHAR2", "Window-function view", "INSERT ALL multi-table insert"],
+    },
+    "plsql": {
+        "toolchain": "Oracle Database 12c+ (SQL*Plus / SQLcl)",
+        "skills": ["Packages (spec + body)", "Cursors + SELECT INTO + exceptions", "RAISE_APPLICATION_ERROR validation"],
+    },
+    "sqlite": {
+        "toolchain": "SQLite 3.37 or newer (sqlite3 shell)",
+        "skills": ["STRICT tables + CHECK constraints", "INSERT ... RETURNING", "Recursive CTEs + json_group_array"],
+    },
+    "mariadb": {
+        "toolchain": "MariaDB 10.5 or newer (mariadb client)",
+        "skills": ["CREATE SEQUENCE + INSERT RETURNING", "Recursive CTEs + GROUP_CONCAT", "Window-function run detection"],
+    },
+    "db2": {
+        "toolchain": "IBM Db2 11.5 or newer (db2 CLP)",
+        "skills": ["GENERATED ALWAYS AS IDENTITY", "VALUES-derived grid + CROSS JOIN", "LISTAGG ... WITHIN GROUP"],
+    },
+    "questdb": {
+        "toolchain": "QuestDB 7 or newer (Web Console / pgwire)",
+        "skills": ["Designated timestamp + PARTITION BY", "SYMBOL columns + WAL", "LATEST ON, SAMPLE BY, ASOF JOIN"],
+    },
+    "duckdb": {
+        "toolchain": "DuckDB 0.10 or newer (duckdb CLI)",
+        "skills": ["SEQUENCE defaults + constraints", "range() + list() aggregation", "PIVOT + window run detection"],
+    },
+    "surrealdb": {
+        "toolchain": "SurrealDB 2 or newer (surreal CLI)",
+        "skills": ["SCHEMAFULL tables + ASSERT rules", "record<game> links + indexes", "LET variables + live queries"],
+    },
+    "firebird": {
+        "toolchain": "Firebird 4 or newer (isql)",
+        "skills": ["Identity keys + constraints", "PSQL procedures + EXCEPTIONs", "Selectable procedures + LIST()"],
+    },
+    "clickhouse": {
+        "toolchain": "ClickHouse 23 or newer (clickhouse-client)",
+        "skills": ["MergeTree engines + sorting keys", "LowCardinality + argMax/groupArray", "SummingMergeTree materialized view"],
+    },
+    "preact": {
+        "toolchain": "Node.js 18 or newer + Preact (Vite)",
+        "skills": ["Preact components + preact/hooks", "JSX with class + keys", "Immutable state updates"],
+    },
+    "bootstrap": {
+        "toolchain": "Any static server (Bootstrap 5 loads from a CDN)",
+        "skills": ["Grid, navbar, card, alert components", "Contextual text-bg-* utilities", "Dark theme + JS bundle"],
+    },
+    "reactbootstrap": {
+        "toolchain": "Node.js 18 or newer + React-Bootstrap 2",
+        "skills": ["React-Bootstrap components + props", "Alert/Badge/ButtonGroup composition", "React state + derived status"],
+    },
+    "vuebootstrap": {
+        "toolchain": "Node.js 18 or newer + BootstrapVue (Vue 3)",
+        "skills": ["Composition API composables", "BootstrapVue components + props", "Single-file components"],
+    },
+    "selenium": {
+        "toolchain": "Python 3.9 or newer + Selenium 4 and pytest",
+        "skills": ["WebDriver + Chrome headless Options", "Page Object Model + By locators", "pytest fixtures with teardown"],
+    },
 }
 
 

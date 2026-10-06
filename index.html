@@ -163,6 +163,40 @@
             line-height: 1.4;
         }
         pre code { white-space: pre; }
+        /* A language's blue file-extension tag, e.g. ".ts" / ".cs".  Declared
+           outside .micro so it can opt out of the uppercase/wide tracking. */
+        .lang-tag {
+            font-family: "JetBrains Mono", ui-monospace, monospace;
+            font-size: 10px;
+            letter-spacing: 0.02em;
+            text-transform: none;
+            padding: 1px 6px;
+            border-radius: 9999px;
+            color: #7dd3fc;
+            background: rgba(56, 189, 248, 0.15);
+            border: 1px solid rgba(56, 189, 248, 0.35);
+        }
+        html[data-theme="light"] .lang-tag {
+            color: #0369a1;
+            background: rgba(14, 165, 233, 0.12);
+            border-color: rgba(14, 165, 233, 0.4);
+        }
+        /* The filter menus cap their height and scroll, so the 20-odd languages
+           never run off the screen. */
+        .menu-scroll {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(148, 163, 184, 0.4) transparent;
+        }
+        .menu-scroll::-webkit-scrollbar {
+            width: 8px;
+        }
+        .menu-scroll::-webkit-scrollbar-thumb {
+            background: rgba(148, 163, 184, 0.4);
+            border-radius: 4px;
+        }
+        .menu-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
         /* Prism's theme styles the <pre> it highlights (adding its own padding, margin,
            background, overflow and border-radius, plus a Consolas font and a 1.5
            line-height).  Strip that so the dashboard palette, the gutter and the code
@@ -220,11 +254,50 @@
                         class="flex-1 micro px-3 py-1.5 rounded-full transition text-fg-muted hover:text-fg">Frameworks</button>
             </div>
         </div>
-        <div class="p-3 border-b border-line/5">
+        <div class="p-3 border-b border-line/5 space-y-2">
             <input id="search" type="search" placeholder="Search languages..."
                    class="w-full bg-ink-950 border border-line/10 rounded-md px-3 py-2 text-sm text-fg
                           placeholder-hint focus:outline-none focus:border-accent/60 focus:ring-1 focus:ring-accent/20 transition" />
-            <div id="category-filters" class="flex flex-wrap gap-1.5 mt-3"></div>
+            <div class="flex items-center gap-2">
+                <p class="micro text-fg-dim shrink-0 w-[4.75rem]">Category</p>
+                <div class="relative flex-1 min-w-0">
+                    <button type="button" id="category-filter" aria-haspopup="listbox" aria-expanded="false"
+                            class="w-full flex items-center justify-between gap-2 micro bg-ink-950 border border-line/10 rounded-md px-2 py-1.5 text-fg-soft hover:border-line/20 focus:outline-none focus:border-accent/60 transition">
+                        <span class="truncate" data-label>All categories</span>
+                        <svg class="shrink-0 opacity-60" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+                    </button>
+                    <div data-menu role="listbox"
+                         class="hidden absolute left-0 right-0 z-50 mt-1 py-1 max-h-56 overflow-y-auto menu-scroll rounded-md bg-ink-900 border border-line/10 shadow-xl"></div>
+                </div>
+            </div>
+            <div id="stack-facet" class="hidden">
+                <div class="flex items-center gap-2">
+                    <p class="micro text-fg-dim shrink-0 w-[4.75rem]">Stack</p>
+                    <div class="relative flex-1 min-w-0">
+                        <button type="button" id="stack-filter" aria-haspopup="listbox" aria-expanded="false"
+                                class="w-full flex items-center justify-between gap-2 micro bg-ink-950 border border-line/10 rounded-md px-2 py-1.5 text-fg-soft hover:border-line/20 focus:outline-none focus:border-accent/60 transition">
+                            <span class="truncate" data-label>All stacks</span>
+                            <svg class="shrink-0 opacity-60" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+                        </button>
+                        <div data-menu role="listbox"
+                             class="hidden absolute left-0 right-0 z-50 mt-1 py-1 max-h-56 overflow-y-auto menu-scroll rounded-md bg-ink-900 border border-line/10 shadow-xl"></div>
+                    </div>
+                </div>
+            </div>
+            <div id="language-facet" class="hidden">
+                <div class="flex items-center gap-2">
+                    <p class="micro text-fg-dim shrink-0 w-[4.75rem]">Language</p>
+                    <div class="relative flex-1 min-w-0">
+                        <button type="button" id="language-filter" aria-haspopup="listbox" aria-expanded="false"
+                                class="w-full flex items-center justify-between gap-2 micro bg-ink-950 border border-line/10 rounded-md px-2 py-1.5 text-fg-soft hover:border-line/20 focus:outline-none focus:border-accent/60 transition">
+                            <span class="truncate" data-label>All languages</span>
+                            <svg class="shrink-0 opacity-60" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+                        </button>
+                        <div data-menu role="listbox"
+                             class="hidden absolute left-0 right-0 z-50 mt-1 py-1 max-h-56 overflow-y-auto menu-scroll rounded-md bg-ink-900 border border-line/10 shadow-xl"></div>
+                    </div>
+                </div>
+            </div>
         </div>
         <nav id="language-list" class="overflow-y-auto flex-1 p-2 space-y-1">
             <!-- Populated via JavaScript -->
@@ -252,6 +325,7 @@
                     </span>
                     <span id="selected-repo-label" class="truncate min-w-0">&nbsp;</span>
                 </a>
+                <div id="selected-langs" class="mt-2 flex flex-wrap gap-1.5 hidden"></div>
                 </div>
             </div>
             <div class="flex items-center gap-3">
@@ -347,7 +421,7 @@
             "use strict";
 
             var DATA = window.CONNECT_FOUR_DATA;
-            var state = { langId: null, tab: "code", scenarioId: null, query: "", category: "All", mode: "languages" };
+            var state = { langId: null, tab: "code", scenarioId: null, query: "", category: "All", stack: "All", language: "All", mode: "languages" };
 
             // ---- URLs ------------------------------------------------------------------
             // Every implementation is addressable on its own path: /ada, /c, /objectivec.
@@ -505,7 +579,9 @@
 
             var el = {
                 list: document.getElementById("language-list"),
-                filters: document.getElementById("category-filters"),
+                stackFacet: document.getElementById("stack-facet"),
+                languageFacet: document.getElementById("language-facet"),
+                selectedLangs: document.getElementById("selected-langs"),
                 search: document.getElementById("search"),
                 title: document.getElementById("selected-title"),
                 file: document.getElementById("selected-file"),
@@ -536,6 +612,21 @@
                 menuBtn: document.getElementById("menu-btn")
             };
 
+            // The three filter dropdowns, wired once here so their handlers exist
+            // before syncMode() renders them.
+            el.categoryFilter = makeDropdown("category-filter", function (value) {
+                state.category = value;
+                renderSidebar();
+            });
+            el.stackFilter = makeDropdown("stack-filter", function (value) {
+                state.stack = value;
+                renderSidebar();
+            });
+            el.languageFilter = makeDropdown("language-filter", function (value) {
+                state.language = value;
+                renderSidebar();
+            });
+
             // The sidebar is a slide-in drawer below `lg` (toggled by the header's
             // menu button) and a plain static column above it.  The `-translate-x-full`
             // class is the closed state; `lg:translate-x-0` keeps it on screen there.
@@ -560,12 +651,21 @@
                 return languages();
             }
 
+            // The extra facets (Stack, Language) only make sense for the framework
+            // tree, so in Languages mode they are ignored and their chip rows hidden.
             function activeItems() {
                 var q = state.query.trim().toLowerCase();
+                var facetsApply = state.mode === "frameworks";
                 return modeItems().filter(function (item) {
                     var matchesCategory = state.category === "All" || item.category === state.category;
-                    var haystack = (item.name + " " + item.id + " " + (item.category || "")).toLowerCase();
-                    return matchesCategory && (q === "" || haystack.indexOf(q) !== -1);
+                    var matchesStack = !facetsApply || state.stack === "All" || item.stack === state.stack;
+                    var names = item.languages || [];
+                    var matchesLanguage = !facetsApply || state.language === "All" || names.indexOf(state.language) !== -1;
+                    var haystack = (
+                        item.name + " " + item.id + " " + (item.category || "") + " " +
+                        (item.stack || "") + " " + names.join(" ")
+                    ).toLowerCase();
+                    return matchesCategory && matchesStack && matchesLanguage && (q === "" || haystack.indexOf(q) !== -1);
                 });
             }
 
@@ -582,11 +682,13 @@
                 if (mode === state.mode) { return; }
                 state.mode = mode;
                 state.category = "All";
+                state.stack = "All";
+                state.language = "All";
                 state.query = "";
                 el.search.value = "";
                 el.search.placeholder = mode === "frameworks" ? "Search frameworks..." : "Search languages...";
                 renderModeToggle();
-                renderCategoryFilters();
+                renderFilters();
                 // Select something from the new list so the detail panel matches it,
                 // keeping the current selection only if it lives in both lists.
                 var items = modeItems();
@@ -609,9 +711,11 @@
                 if (mode === state.mode) { return; }
                 state.mode = mode;
                 state.category = "All";
+                state.stack = "All";
+                state.language = "All";
                 el.search.placeholder = mode === "frameworks" ? "Search frameworks..." : "Search languages...";
                 renderModeToggle();
-                renderCategoryFilters();
+                renderFilters();
             }
 
             function renderSidebar() {
@@ -638,12 +742,32 @@
                                 : "text-fg-soft hover:bg-line/5 border border-transparent");
                     if (active) { link.setAttribute("aria-current", "page"); }
                     var label = document.createElement("span");
+                    label.className = "truncate";
                     label.innerText = lang.name;
+                    // Badges: the category, an FE/BE/FS stack badge for a Web
+                    // framework, and the blue file-extension tag(s) it is written in.
+                    var badges = document.createElement("span");
+                    badges.className = "flex items-center gap-1 shrink-0";
                     var badge = document.createElement("span");
                     badge.className = "micro px-1.5 py-0.5 rounded border border-line/10 text-fg-dim";
                     badge.innerText = lang.category || "Other";
+                    badges.appendChild(badge);
+                    if (lang.stack) {
+                        var stackBadge = document.createElement("span");
+                        stackBadge.className = "micro px-1.5 py-0.5 rounded border border-accent/30 text-accent/90";
+                        stackBadge.innerText = STACK_TAG[lang.stack] || lang.stack;
+                        stackBadge.title = STACK_LABEL[lang.stack] || lang.stack;
+                        badges.appendChild(stackBadge);
+                    }
+                    (lang.languages || []).forEach(function (name) {
+                        var tag = document.createElement("span");
+                        tag.className = "lang-tag";
+                        tag.innerText = languageTag(name);
+                        tag.title = name;
+                        badges.appendChild(tag);
+                    });
                     link.appendChild(label);
-                    link.appendChild(badge);
+                    link.appendChild(badges);
                     link.onclick = function (event) {
                         if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
                             return;   // let the browser navigate (new tab, new window, ...)
@@ -655,24 +779,136 @@
                 });
             }
 
-            function renderCategoryFilters() {
-                var categories = ["All"];
-                modeItems().forEach(function (lang) {
-                    if (lang.category && categories.indexOf(lang.category) === -1) {
-                        categories.push(lang.category);
+            // ---- Filter dropdowns ---------------------------------------------------
+            // A native <select> popup is drawn by the OS, so its height cannot be
+            // capped and the 20-odd languages would run off the screen.  These are
+            // buttons with a height-capped, scrollable menu instead (see .menu-scroll).
+            function makeDropdown(id, onPick) {
+                var button = document.getElementById(id);
+                var menu = button.parentNode.querySelector("[data-menu]");
+                var api = {
+                    button: button,
+                    menu: menu,
+                    label: button.querySelector("[data-label]"),
+                    onPick: onPick,
+                };
+
+                button.addEventListener("click", function (event) {
+                    event.stopPropagation();
+                    var opening = menu.classList.contains("hidden");
+                    closeMenus();
+                    if (opening) {
+                        menu.classList.remove("hidden");
+                        button.setAttribute("aria-expanded", "true");
                     }
                 });
-                el.filters.innerHTML = "";
-                categories.forEach(function (cat) {
-                    var chip = document.createElement("button");
-                    var active = cat === state.category;
-                    chip.className = "micro px-2.5 py-1 rounded-full border transition " +
-                        (active ? "bg-mint-400 text-on-accent border-mint-400"
-                                : "bg-ink-950 text-fg-muted border-line/10 hover:text-fg hover:border-line/20");
-                    chip.innerText = cat;
-                    chip.onclick = function () { state.category = cat; renderCategoryFilters(); renderSidebar(); };
-                    el.filters.appendChild(chip);
+                // Keep clicks inside the menu from reaching the document handler.
+                menu.addEventListener("click", function (event) { event.stopPropagation(); });
+                return api;
+            }
+
+            function closeMenus() {
+                [el.categoryFilter, el.stackFilter, el.languageFilter].forEach(function (api) {
+                    if (!api) { return; }
+                    api.menu.classList.add("hidden");
+                    api.button.setAttribute("aria-expanded", "false");
                 });
+            }
+
+            // Rebuild one menu, marking the current choice, and echo it on the button
+            // as a readable label.  The value stays the stable key state compares on.
+            function fillDropdown(api, options, current) {
+                api.menu.innerHTML = "";
+                var currentLabel = "";
+                options.forEach(function (option) {
+                    var item = document.createElement("button");
+                    item.type = "button";
+                    item.setAttribute("role", "option");
+                    item.setAttribute("aria-selected", option.value === current ? "true" : "false");
+                    item.className = "w-full flex items-center gap-2 text-left px-2.5 py-1.5 micro transition " +
+                        (option.value === current ? "text-accent bg-accent/10" : "text-fg-soft hover:bg-line/5");
+                    item.innerText = option.label;
+                    item.onclick = function () {
+                        closeMenus();
+                        api.onPick(option.value);
+                    };
+                    api.menu.appendChild(item);
+                    if (option.value === current) { currentLabel = option.label; }
+                });
+                api.label.innerText = currentLabel || (options[0] ? options[0].label : "");
+            }
+
+            // Fixed reading order for the Stack facet, with the short badge (FE/BE/
+            // FS) used in the sidebar and the fuller label used in the dropdown.
+            var STACK_ORDER = ["Frontend", "Backend", "Full stack"];
+            var STACK_TAG = { "Frontend": "FE", "Backend": "BE", "Full stack": "FS" };
+            var STACK_LABEL = {
+                "Frontend": "Frontend (FE)",
+                "Backend": "Backend (BE)",
+                "Full stack": "Full Stack (FS)",
+            };
+
+            // A language's short file-extension tag (".ts", ".cs") - how the language
+            // tags and the Language dropdown identify it.
+            function languageTag(name) {
+                var map = (DATA && DATA.languageExtensions) || {};
+                return map[name] || name;
+            }
+
+            // Draw the three facet dropdowns.  Stack and Language are revealed only
+            // for the Frameworks tree (a language has no stack of its own), and each
+            // list offers exactly the values present in it.
+            function renderFilters() {
+                var frameworksMode = state.mode === "frameworks";
+                el.stackFacet.classList.toggle("hidden", !frameworksMode);
+                el.languageFacet.classList.toggle("hidden", !frameworksMode);
+
+                var categories = [];
+                modeItems().forEach(function (item) {
+                    if (item.category && categories.indexOf(item.category) === -1) {
+                        categories.push(item.category);
+                    }
+                });
+                fillDropdown(
+                    el.categoryFilter,
+                    [{ value: "All", label: "All categories" }].concat(
+                        categories.map(function (name) { return { value: name, label: name }; }),
+                    ),
+                    state.category,
+                );
+
+                var stacks = {};
+                modeItems().forEach(function (item) {
+                    if (item.stack) { stacks[item.stack] = true; }
+                });
+                var stackOptions = [{ value: "All", label: "All stacks" }];
+                STACK_ORDER.forEach(function (name) {
+                    if (stacks[name]) {
+                        stackOptions.push({ value: name, label: STACK_LABEL[name] || name });
+                    }
+                });
+                fillDropdown(el.stackFilter, stackOptions, state.stack);
+
+                // Languages read most-used first (so C#, JavaScript, Python, ... lead)
+                // and then alphabetically, with how many frameworks use each.
+                var counts = {};
+                modeItems().forEach(function (item) {
+                    (item.languages || []).forEach(function (name) {
+                        counts[name] = (counts[name] || 0) + 1;
+                    });
+                });
+                var languages = Object.keys(counts).sort(function (a, b) {
+                    return counts[b] - counts[a] || a.localeCompare(b);
+                });
+                fillDropdown(
+                    el.languageFilter,
+                    [{ value: "All", label: "All languages" }].concat(
+                        languages.map(function (name) {
+                            return { value: name, label: name + " (" + counts[name] + ")" };
+                        }),
+                    ),
+                    state.language,
+                );
             }
 
             function selectLanguage(id) {
@@ -762,6 +998,24 @@
                     el.repoLink.classList.remove("hidden");
                 } else {
                     el.repoLink.classList.add("hidden");
+                }
+
+                // Language tags for a framework: the blue file-extension of each
+                // language it is written in (hover for the full name), so opening
+                // Blazor visibly ties back to the C# language entry.
+                el.selectedLangs.innerHTML = "";
+                var writtenIn = lang.languages || [];
+                if (framework && writtenIn.length) {
+                    writtenIn.forEach(function (name) {
+                        var chip = document.createElement("span");
+                        chip.className = "lang-tag";
+                        chip.innerText = languageTag(name);
+                        chip.title = name;
+                        el.selectedLangs.appendChild(chip);
+                    });
+                    el.selectedLangs.classList.remove("hidden");
+                } else {
+                    el.selectedLangs.classList.add("hidden");
                 }
 
                 renderCodeNote(lang, url);
@@ -914,14 +1168,17 @@
                 // (a language tap closes it too, via selectLanguage).
                 el.backdrop.addEventListener("click", function () { setSidebar(false); });
                 document.addEventListener("keydown", function (event) {
-                    if (event.key === "Escape") { setSidebar(false); }
+                    if (event.key === "Escape") {
+                        closeMenus();
+                        setSidebar(false);
+                    }
                 });
 
                 // Mirror the address into the view; the address is only written at the
                 // end (a tab taken from the URL must not add a history entry).
                 applyingHistory = true;
                 renderModeToggle();
-                renderCategoryFilters();
+                renderFilters();
                 renderSidebar();
                 updateCode();
                 applyScenario(target.scenarioId);

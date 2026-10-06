@@ -1,0 +1,31 @@
+<section class="game">
+    <h1>Connect Four</h1>
+
+    <p role="status">{{this.status}}</p>
+
+    <table class="board">
+        <tbody>
+            {{#each this.rows as |row|}}
+                <tr>
+                    {{#each row as |cell|}}
+                        <td class="cell cell--{{cell.tone}}">{{cell.value}}</td>
+                    {{/each}}
+                </tr>
+            {{/each}}
+        </tbody>
+    </table>
+
+    <div class="columns">
+        {{#each this.columns as |column|}}
+            <button
+                type="button"
+                disabled={{column.disabled}}
+                {{on "click" (fn this.play column.index)}}
+            >
+                {{column.label}}
+            </button>
+        {{/each}}
+    </div>
+
+    <button type="button" {{on "click" this.reset}}>New game</button>
+</section>

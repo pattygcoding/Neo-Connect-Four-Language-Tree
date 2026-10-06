@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Connect Four - Handlebars</title>
+    </head>
+    <body>
+        <h1>Connect Four</h1>
+
+        <p role="status">{{status}}</p>
+
+        <table class="board">
+            <tbody>
+                {{#each rows}}
+                    <tr>
+                        {{#each this}}
+                            {{> cell}}
+                        {{/each}}
+                    </tr>
+                {{/each}}
+            </tbody>
+        </table>
+
+        <form method="post" action="/move">
+            {{#each columns}}
+                <button type="submit" name="column" value="{{label}}" {{disabledAttr disabled}}>{{label}}</button>
+            {{/each}}
+        </form>
+
+        <form method="post" action="/reset">
+            <button type="submit">New game</button>
+        </form>
+    </body>
+</html>

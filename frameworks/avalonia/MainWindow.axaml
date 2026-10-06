@@ -1,0 +1,19 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="ConnectFour.MainWindow"
+        Title="Connect Four"
+        Width="480"
+        Height="580">
+    <StackPanel Margin="16" Spacing="12">
+        <TextBlock Text="Connect Four"
+                   FontSize="24"
+                   FontWeight="Bold"
+                   HorizontalAlignment="Center" />
+        <TextBlock Name="StatusText" HorizontalAlignment="Center" />
+        <StackPanel Name="BoardHost" HorizontalAlignment="Center" />
+        <StackPanel Name="ColumnsHost" HorizontalAlignment="Center" />
+        <Button Name="ResetButton"
+                Content="New game"
+                HorizontalAlignment="Center" />
+    </StackPanel>
+</Window>

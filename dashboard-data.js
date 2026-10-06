@@ -1,8 +1,8 @@
 window.CONNECT_FOUR_DATA = {
   "meta": {
-    "updated": "2026-10-06 02:42 UTC",
+    "updated": "2026-10-06 04:45 UTC",
     "languageCount": 45,
-    "frameworkCount": 33,
+    "frameworkCount": 88,
     "scenarioCount": 8,
     "repository": "https://github.com/pattygcoding/Neo-Connect-Four-Language-Tree",
     "branch": "main"
@@ -87,7 +87,7 @@ window.CONNECT_FOUR_DATA = {
     {
       "id": "csharp",
       "name": "C#",
-      "category": "JVM/.NET",
+      "category": ".NET",
       "prism": "language-csharp",
       "file": "languages/csharp/connect_four.cs",
       "code": "using System;\nusing System.IO;\nusing System.Text;\n\ninternal static class ConnectFour\n{\n    private const int Rows = 6;\n    private const int Cols = 7;\n    private const char Empty = '.';\n    private static readonly char[] Players = { 'X', 'O' };\n    private const string Header =\n        \"=== Connect Four ===\\n\" +\n        \"Get four of your pieces in a row to win. Columns are numbered 1-7.\\n\";\n    private static readonly string Border = MakeBorder();\n    private static readonly string Labels = MakeLabels();\n\n    private static string MakeBorder()\n    {\n        var b = new StringBuilder();\n        b.Append('+');\n        for (int i = 0; i < Cols * 2 - 1; i++)\n        {\n            b.Append('-');\n        }\n        b.Append('+');\n        return b.ToString();\n    }\n\n    private static string MakeLabels()\n    {\n        var b = new StringBuilder();\n        b.Append(' ');\n        for (int c = 1; c <= Cols; c++)\n        {\n            if (c > 1)\n            {\n                b.Append(' ');\n            }\n            b.Append((char)('0' + c));\n        }\n        return b.ToString();\n    }\n\n    private static string Render(char[,] board)\n    {\n        var b = new StringBuilder();\n        b.Append(Labels).Append('\\n');\n        b.Append(Border).Append('\\n');\n        for (int r = Rows - 1; r >= 0; r--)\n        {\n            b.Append('|');\n            for (int c = 0; c < Cols; c++)\n            {\n                if (c > 0)\n                {\n                    b.Append(' ');\n                }\n                b.Append(board[r, c]);\n            }\n            b.Append(\"|\\n\");\n        }\n        b.Append(Border);\n        return b.ToString();\n    }\n\n    private static int LowestEmptyRow(char[,] board, int col)\n    {\n        for (int r = 0; r < Rows; r++)\n        {\n            if (board[r, col] == Empty)\n            {\n                return r;\n            }\n        }\n        return -1;\n    }\n\n    private static bool HasFour(char[,] board, char p)\n    {\n        for (int r = 0; r < Rows; r++)\n        {\n            for (int c = 0; c + 3 < Cols; c++)\n            {\n                if (board[r, c] == p && board[r, c + 1] == p\n                    && board[r, c + 2] == p && board[r, c + 3] == p)\n                {\n                    return true;\n                }\n            }\n        }\n        for (int r = 0; r + 3 < Rows; r++)\n        {\n            for (int c = 0; c < Cols; c++)\n            {\n                if (board[r, c] == p && board[r + 1, c] == p\n                    && board[r + 2, c] == p && board[r + 3, c] == p)\n                {\n                    return true;\n                }\n            }\n        }\n        for (int r = 0; r + 3 < Rows; r++)\n        {\n            for (int c = 0; c + 3 < Cols; c++)\n            {\n                if (board[r, c] == p && board[r + 1, c + 1] == p\n                    && board[r + 2, c + 2] == p && board[r + 3, c + 3] == p)\n                {\n                    return true;\n                }\n            }\n        }\n        for (int r = 3; r < Rows; r++)\n        {\n            for (int c = 0; c + 3 < Cols; c++)\n            {\n                if (board[r, c] == p && board[r - 1, c + 1] == p\n                    && board[r - 2, c + 2] == p && board[r - 3, c + 3] == p)\n                {\n                    return true;\n                }\n            }\n        }\n        return false;\n    }\n\n    private static bool IsWholeNumber(string token)\n    {\n        string t = token;\n        if (t.StartsWith(\"+\", StringComparison.Ordinal)\n            || t.StartsWith(\"-\", StringComparison.Ordinal))\n        {\n            t = t.Substring(1);\n        }\n        if (t.Length == 0)\n        {\n            return false;\n        }\n        foreach (char ch in t)\n        {\n            if (ch < '0' || ch > '9')\n            {\n                return false;\n            }\n        }\n        return true;\n    }\n\n    private static int AskColumn(char[,] board, char player)\n    {\n        TextWriter output = Console.Out;\n        TextReader input = Console.In;\n        while (true)\n        {\n            output.Write(\"Player \" + player + \", choose a column (1-7): \");\n            output.Flush();\n            string raw = input.ReadLine();\n            if (raw == null)\n            {\n                output.Write(\"\\nInput closed. Goodbye.\\n\");\n                return -1;\n            }\n            string token = raw.Trim();\n            string message;\n            if (token.Length == 0)\n            {\n                message = \"Invalid input: no column entered.\";\n            }\n            else if (!IsWholeNumber(token))\n            {\n                message = \"Invalid input: \\\"\" + token + \"\\\" is not a whole number.\";\n            }\n            else\n            {\n                long value;\n                if (!long.TryParse(token, out value))\n                {\n                    value = long.MaxValue;\n                }\n                if (value < 1 || value > Cols)\n                {\n                    message = \"Invalid input: \\\"\" + token + \"\\\" is out of range (1-7).\";\n                }\n                else if (LowestEmptyRow(board, (int)value - 1) < 0)\n                {\n                    message = \"Column \" + value + \" is full.\";\n                }\n                else\n                {\n                    return (int)value - 1;\n                }\n            }\n            output.Write(\"\\n\" + message + \"\\n\");\n            output.Flush();\n        }\n    }\n\n    private static void Main()\n    {\n        var board = new char[Rows, Cols];\n        for (int r = 0; r < Rows; r++)\n        {\n            for (int c = 0; c < Cols; c++)\n            {\n                board[r, c] = Empty;\n            }\n        }\n        Console.Out.Write(Header + \"\\n\" + Render(board) + \"\\n\");\n        Console.Out.Flush();\n\n        int moves = 0;\n        int playerIndex = 0;\n        while (true)\n        {\n            char player = Players[playerIndex];\n            int column = AskColumn(board, player);\n            if (column < 0)\n            {\n                return;\n            }\n            board[LowestEmptyRow(board, column), column] = player;\n            moves++;\n            Console.Out.Write(\"\\n\" + Render(board) + \"\\n\");\n            if (HasFour(board, player))\n            {\n                Console.Out.Write(\"Player \" + player + \" wins!\\n\");\n                return;\n            }\n            if (moves == Rows * Cols)\n            {\n                Console.Out.Write(\"It's a tie!\\n\");\n                return;\n            }\n            playerIndex = 1 - playerIndex;\n        }\n    }\n}\n"
@@ -159,7 +159,7 @@ window.CONNECT_FOUR_DATA = {
     {
       "id": "fsharp",
       "name": "F#",
-      "category": "JVM/.NET",
+      "category": ".NET",
       "prism": "language-fsharp",
       "file": "languages/fsharp/connect_four.fs",
       "code": "module ConnectFour\n\nopen System\nopen System.Text\n\nlet rows = 6\nlet cols = 7\nlet empty = '.'\nlet players = [| 'X'; 'O' |]\nlet border = \"+\" + String('-', cols * 2 - 1) + \"+\"\nlet labels = \" \" + String.concat \" \" [ for c in 1 .. cols -> string c ]\nlet header =\n    \"=== Connect Four ===\\n\" +\n    \"Get four of your pieces in a row to win. Columns are numbered 1-7.\\n\"\n\nlet newBoard () : char[][] =\n    Array.init rows (fun _ -> Array.create cols empty)\n\nlet render (board: char[][]) =\n    let sb = StringBuilder()\n    sb.Append(labels).Append('\\n') |> ignore\n    sb.Append(border).Append('\\n') |> ignore\n    for r in (rows - 1) .. -1 .. 0 do\n        sb.Append('|') |> ignore\n        for c in 0 .. (cols - 1) do\n            if c > 0 then\n                sb.Append(' ') |> ignore\n            sb.Append(board.[r].[c]) |> ignore\n        sb.Append(\"|\\n\") |> ignore\n    sb.Append(border) |> ignore\n    sb.ToString()\n\nlet lowestEmptyRow (board: char[][]) (col: int) =\n    let mutable row = -1\n    let mutable r = 0\n    while row < 0 && r < rows do\n        if board.[r].[col] = empty then\n            row <- r\n        r <- r + 1\n    row\n\nlet hasFour (board: char[][]) (player: char) =\n    let at r c = board.[r].[c] = player\n    let mutable found = false\n    for r in 0 .. (rows - 1) do\n        for c in 0 .. (cols - 4) do\n            if at r c && at r (c + 1) && at r (c + 2) && at r (c + 3) then\n                found <- true\n    for r in 0 .. (rows - 4) do\n        for c in 0 .. (cols - 1) do\n            if at r c && at (r + 1) c && at (r + 2) c && at (r + 3) c then\n                found <- true\n    for r in 0 .. (rows - 4) do\n        for c in 0 .. (cols - 4) do\n            if at r c && at (r + 1) (c + 1) && at (r + 2) (c + 2) && at (r + 3) (c + 3) then\n                found <- true\n    for r in 3 .. (rows - 1) do\n        for c in 0 .. (cols - 4) do\n            if at r c && at (r - 1) (c + 1) && at (r - 2) (c + 2) && at (r - 3) (c + 3) then\n                found <- true\n    found\n\nlet isWholeNumber (token: string) =\n    let body =\n        if token.StartsWith(\"+\") || token.StartsWith(\"-\") then token.Substring(1)\n        else token\n    body.Length > 0 && (body |> Seq.forall (fun ch -> ch >= '0' && ch <= '9'))\n\nlet askColumn (board: char[][]) (player: char) =\n    let rec loop () =\n        Console.Out.Write(\"Player \" + string player + \", choose a column (1-7): \")\n        Console.Out.Flush()\n        let raw = Console.In.ReadLine()\n        if isNull raw then\n            Console.Out.Write(\"\\nInput closed. Goodbye.\\n\")\n            Console.Out.Flush()\n            -1\n        else\n            let token = raw.Trim()\n            let mutable message = \"\"\n            let mutable column = -1\n            if token.Length = 0 then\n                message <- \"Invalid input: no column entered.\"\n            elif not (isWholeNumber token) then\n                message <- \"Invalid input: \\\"\" + token + \"\\\" is not a whole number.\"\n            else\n                let mutable value = 0L\n                if not (Int64.TryParse(token, &value)) then\n                    value <- Int64.MaxValue\n                if value < 1L || value > int64 cols then\n                    message <- \"Invalid input: \\\"\" + token + \"\\\" is out of range (1-7).\"\n                elif lowestEmptyRow board (int value - 1) < 0 then\n                    message <- \"Column \" + string value + \" is full.\"\n                else\n                    column <- int value - 1\n            if column >= 0 then\n                column\n            else\n                Console.Out.Write(\"\\n\" + message + \"\\n\")\n                Console.Out.Flush()\n                loop ()\n    loop ()\n\n[<EntryPoint>]\nlet main _ =\n    let board = newBoard ()\n    Console.Out.Write(header + \"\\n\" + render board + \"\\n\")\n    Console.Out.Flush()\n    let mutable moves = 0\n    let mutable playerIndex = 0\n    let mutable finished = false\n    while not finished do\n        let player = players.[playerIndex]\n        let column = askColumn board player\n        if column < 0 then\n            finished <- true\n        else\n            board.[lowestEmptyRow board column].[column] <- player\n            moves <- moves + 1\n            Console.Out.Write(\"\\n\" + render board + \"\\n\")\n            if hasFour board player then\n                Console.Out.Write(\"Player \" + string player + \" wins!\\n\")\n                Console.Out.Flush()\n                finished <- true\n            elif moves = rows * cols then\n                Console.Out.Write(\"It's a tie!\\n\")\n                Console.Out.Flush()\n                finished <- true\n            else\n                playerIndex <- 1 - playerIndex\n    0\n"
@@ -183,7 +183,7 @@ window.CONNECT_FOUR_DATA = {
     {
       "id": "groovy",
       "name": "Groovy",
-      "category": "JVM/.NET",
+      "category": "JVM",
       "prism": "language-groovy",
       "file": "languages/groovy/connect_four.groovy",
       "code": "import groovy.transform.Field\n\n@Field final int ROWS = 6\n@Field final int COLS = 7\n@Field final String EMPTY = \".\"\n@Field final List<String> PLAYERS = [\"X\", \"O\"]\n@Field final String BORDER = \"+\" + (\"-\" * (COLS * 2 - 1)) + \"+\"\n@Field final String LABELS = \" \" + (1..COLS).join(\" \")\n@Field final String HEADER = \"=== Connect Four ===\\n\" +\n        \"Get four of your pieces in a row to win. Columns are numbered 1-7.\\n\"\n@Field final BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))\n\nList<List<String>> newBoard() {\n    return (1..ROWS).collect { (1..COLS).collect { EMPTY } }\n}\n\nString render(List<List<String>> board) {\n    List<String> lines = [LABELS, BORDER]\n    for (int row = ROWS - 1; row >= 0; row--) {\n        lines << \"|\" + board[row].join(\" \") + \"|\"\n    }\n    lines << BORDER\n    return lines.join(\"\\n\")\n}\n\nint lowestEmptyRow(List<List<String>> board, int column) {\n    for (int row = 0; row < ROWS; row++) {\n        if (board[row][column] == EMPTY) {\n            return row\n        }\n    }\n    return -1\n}\n\nboolean hasFour(List<List<String>> board, String player) {\n    for (int row = 0; row < ROWS; row++) {\n        for (int col = 0; col <= COLS - 4; col++) {\n            if ((0..3).every { board[row][col + it] == player }) {\n                return true\n            }\n        }\n    }\n    for (int row = 0; row <= ROWS - 4; row++) {\n        for (int col = 0; col < COLS; col++) {\n            if ((0..3).every { board[row + it][col] == player }) {\n                return true\n            }\n        }\n    }\n    for (int row = 0; row <= ROWS - 4; row++) {\n        for (int col = 0; col <= COLS - 4; col++) {\n            if ((0..3).every { board[row + it][col + it] == player }) {\n                return true\n            }\n        }\n    }\n    for (int row = 3; row < ROWS; row++) {\n        for (int col = 0; col <= COLS - 4; col++) {\n            if ((0..3).every { board[row - it][col + it] == player }) {\n                return true\n            }\n        }\n    }\n    return false\n}\n\nboolean isWholeNumber(String token) {\n    String body = (token.startsWith(\"+\") || token.startsWith(\"-\")) ? token.substring(1) : token\n    return !body.isEmpty() && body.matches(\"[0-9]+\")\n}\n\nlong parseValue(String token) {\n    boolean negative = token.startsWith(\"-\")\n    String body = (token.startsWith(\"+\") || token.startsWith(\"-\")) ? token.substring(1) : token\n    long value = 0L\n    for (int index = 0; index < body.length(); index++) {\n        int digit = body.charAt(index) - (int) '0'\n        if (value > (Long.MAX_VALUE - digit) / 10) {\n            value = Long.MAX_VALUE\n            break\n        }\n        value = value * 10 + digit\n    }\n    return negative ? -value : value\n}\n\nvoid write(String text) {\n    System.out.print(text)\n}\n\nInteger askColumn(List<List<String>> board, String player) {\n    while (true) {\n        write(\"Player \" + player + \", choose a column (1-7): \")\n        System.out.flush()\n        String line = reader.readLine()\n        if (line == null) {\n            write(\"\\nInput closed. Goodbye.\\n\")\n            System.out.flush()\n            return null\n        }\n        String token = line.trim()\n        String message\n        if (token.isEmpty()) {\n            message = \"Invalid input: no column entered.\"\n        } else if (!isWholeNumber(token)) {\n            message = 'Invalid input: \"' + token + '\" is not a whole number.'\n        } else {\n            long value = parseValue(token)\n            if (value < 1 || value > COLS) {\n                message = 'Invalid input: \"' + token + '\" is out of range (1-7).'\n            } else if (lowestEmptyRow(board, ((int) value) - 1) == -1) {\n                message = \"Column \" + value + \" is full.\"\n            } else {\n                return ((int) value) - 1\n            }\n        }\n        write(\"\\n\" + message + \"\\n\")\n        System.out.flush()\n    }\n}\n\nList<List<String>> board = newBoard()\nwrite(HEADER + \"\\n\" + render(board) + \"\\n\")\nSystem.out.flush()\nint moves = 0\nint playerIndex = 0\nwhile (true) {\n    String player = PLAYERS[playerIndex]\n    Integer column = askColumn(board, player)\n    if (column == null) {\n        return\n    }\n    board[lowestEmptyRow(board, column)][column] = player\n    moves++\n    write(\"\\n\" + render(board) + \"\\n\")\n    System.out.flush()\n    if (hasFour(board, player)) {\n        write(\"Player \" + player + \" wins!\\n\")\n        System.out.flush()\n        return\n    }\n    if (moves == ROWS * COLS) {\n        write(\"It's a tie!\\n\")\n        System.out.flush()\n        return\n    }\n    playerIndex = 1 - playerIndex\n}\n"
@@ -220,7 +220,7 @@ window.CONNECT_FOUR_DATA = {
     {
       "id": "java",
       "name": "Java",
-      "category": "JVM/.NET",
+      "category": "JVM",
       "prism": "language-java",
       "file": "languages/java/connect_four.java",
       "code": "import java.io.BufferedReader;\nimport java.io.IOException;\nimport java.io.InputStreamReader;\n\npublic class connect_four {\n    static final int ROWS = 6;\n    static final int COLS = 7;\n    static final char EMPTY = '.';\n    static final char[] PLAYERS = { 'X', 'O' };\n    static final String HEADER =\n        \"=== Connect Four ===\\n\" +\n        \"Get four of your pieces in a row to win. Columns are numbered 1-7.\\n\";\n    static final String BORDER = makeBorder();\n    static final String LABELS = makeLabels();\n    static final BufferedReader READER =\n        new BufferedReader(new InputStreamReader(System.in));\n\n    static String makeBorder() {\n        StringBuilder b = new StringBuilder();\n        b.append('+');\n        for (int i = 0; i < COLS * 2 - 1; i++) {\n            b.append('-');\n        }\n        b.append('+');\n        return b.toString();\n    }\n\n    static String makeLabels() {\n        StringBuilder b = new StringBuilder();\n        b.append(' ');\n        for (int c = 1; c <= COLS; c++) {\n            if (c > 1) {\n                b.append(' ');\n            }\n            b.append((char) ('0' + c));\n        }\n        return b.toString();\n    }\n\n    static String render(char[][] board) {\n        StringBuilder b = new StringBuilder();\n        b.append(LABELS).append('\\n');\n        b.append(BORDER).append('\\n');\n        for (int r = ROWS - 1; r >= 0; r--) {\n            b.append('|');\n            for (int c = 0; c < COLS; c++) {\n                if (c > 0) {\n                    b.append(' ');\n                }\n                b.append(board[r][c]);\n            }\n            b.append(\"|\\n\");\n        }\n        b.append(BORDER);\n        return b.toString();\n    }\n\n    static int lowestEmptyRow(char[][] board, int col) {\n        for (int r = 0; r < ROWS; r++) {\n            if (board[r][col] == EMPTY) {\n                return r;\n            }\n        }\n        return -1;\n    }\n\n    static boolean hasFour(char[][] board, char p) {\n        for (int r = 0; r < ROWS; r++) {\n            for (int c = 0; c + 3 < COLS; c++) {\n                if (board[r][c] == p && board[r][c + 1] == p\n                    && board[r][c + 2] == p && board[r][c + 3] == p) {\n                    return true;\n                }\n            }\n        }\n        for (int r = 0; r + 3 < ROWS; r++) {\n            for (int c = 0; c < COLS; c++) {\n                if (board[r][c] == p && board[r + 1][c] == p\n                    && board[r + 2][c] == p && board[r + 3][c] == p) {\n                    return true;\n                }\n            }\n        }\n        for (int r = 0; r + 3 < ROWS; r++) {\n            for (int c = 0; c + 3 < COLS; c++) {\n                if (board[r][c] == p && board[r + 1][c + 1] == p\n                    && board[r + 2][c + 2] == p && board[r + 3][c + 3] == p) {\n                    return true;\n                }\n            }\n        }\n        for (int r = 3; r < ROWS; r++) {\n            for (int c = 0; c + 3 < COLS; c++) {\n                if (board[r][c] == p && board[r - 1][c + 1] == p\n                    && board[r - 2][c + 2] == p && board[r - 3][c + 3] == p) {\n                    return true;\n                }\n            }\n        }\n        return false;\n    }\n\n    static boolean isWholeNumber(String token) {\n        String t = token;\n        if (t.startsWith(\"+\") || t.startsWith(\"-\")) {\n            t = t.substring(1);\n        }\n        if (t.isEmpty()) {\n            return false;\n        }\n        for (int i = 0; i < t.length(); i++) {\n            char ch = t.charAt(i);\n            if (ch < '0' || ch > '9') {\n                return false;\n            }\n        }\n        return true;\n    }\n\n    static int askColumn(char[][] board, char player) throws IOException {\n        while (true) {\n            System.out.print(\"Player \" + player + \", choose a column (1-7): \");\n            System.out.flush();\n            String raw = READER.readLine();\n            if (raw == null) {\n                System.out.print(\"\\nInput closed. Goodbye.\\n\");\n                return -1;\n            }\n            String token = raw.trim();\n            String message;\n            if (token.isEmpty()) {\n                message = \"Invalid input: no column entered.\";\n            } else if (!isWholeNumber(token)) {\n                message = \"Invalid input: \\\"\" + token + \"\\\" is not a whole number.\";\n            } else {\n                long value;\n                try {\n                    value = Long.parseLong(token);\n                } catch (NumberFormatException e) {\n                    value = Long.MAX_VALUE;\n                }\n                if (value < 1 || value > COLS) {\n                    message = \"Invalid input: \\\"\" + token + \"\\\" is out of range (1-7).\";\n                } else if (lowestEmptyRow(board, (int) value - 1) < 0) {\n                    message = \"Column \" + value + \" is full.\";\n                } else {\n                    return (int) value - 1;\n                }\n            }\n            System.out.print(\"\\n\" + message + \"\\n\");\n            System.out.flush();\n        }\n    }\n\n    public static void main(String[] args) throws IOException {\n        char[][] board = new char[ROWS][COLS];\n        for (int r = 0; r < ROWS; r++) {\n            for (int c = 0; c < COLS; c++) {\n                board[r][c] = EMPTY;\n            }\n        }\n        System.out.print(HEADER + \"\\n\" + render(board) + \"\\n\");\n        System.out.flush();\n\n        int moves = 0;\n        int playerIndex = 0;\n        while (true) {\n            char player = PLAYERS[playerIndex];\n            int column = askColumn(board, player);\n            if (column < 0) {\n                return;\n            }\n            board[lowestEmptyRow(board, column)][column] = player;\n            moves++;\n            System.out.print(\"\\n\" + render(board) + \"\\n\");\n            if (hasFour(board, player)) {\n                System.out.print(\"Player \" + player + \" wins!\\n\");\n                return;\n            }\n            if (moves == ROWS * COLS) {\n                System.out.print(\"It's a tie!\\n\");\n                return;\n            }\n            playerIndex = 1 - playerIndex;\n        }\n    }\n}\n"
@@ -244,7 +244,7 @@ window.CONNECT_FOUR_DATA = {
     {
       "id": "kotlin",
       "name": "Kotlin",
-      "category": "JVM/.NET",
+      "category": "JVM",
       "prism": "language-kotlin",
       "file": "languages/kotlin/connect_four.kt",
       "code": "import java.io.BufferedReader\nimport java.io.InputStreamReader\n\nprivate const val ROWS = 6\nprivate const val COLS = 7\nprivate const val EMPTY = '.'\nprivate val PLAYERS = charArrayOf('X', 'O')\nprivate const val HEADER = \"=== Connect Four ===\\n\" +\n    \"Get four of your pieces in a row to win. Columns are numbered 1-7.\\n\"\n\nprivate val BORDER = buildBorder()\nprivate val LABELS = buildLabels()\n\nprivate fun buildBorder(): String {\n    val sb = StringBuilder()\n    sb.append('+')\n    for (i in 0 until COLS * 2 - 1) {\n        sb.append('-')\n    }\n    sb.append('+')\n    return sb.toString()\n}\n\nprivate fun buildLabels(): String {\n    val sb = StringBuilder()\n    sb.append(' ')\n    for (c in 1..COLS) {\n        if (c > 1) {\n            sb.append(' ')\n        }\n        sb.append(('0'.code + c).toChar())\n    }\n    return sb.toString()\n}\n\nprivate fun render(board: Array<CharArray>): String {\n    val sb = StringBuilder()\n    sb.append(LABELS).append('\\n')\n    sb.append(BORDER).append('\\n')\n    for (r in ROWS - 1 downTo 0) {\n        sb.append('|')\n        for (c in 0 until COLS) {\n            if (c > 0) {\n                sb.append(' ')\n            }\n            sb.append(board[r][c])\n        }\n        sb.append(\"|\\n\")\n    }\n    sb.append(BORDER)\n    return sb.toString()\n}\n\nprivate fun lowestEmptyRow(board: Array<CharArray>, col: Int): Int {\n    for (r in 0 until ROWS) {\n        if (board[r][col] == EMPTY) {\n            return r\n        }\n    }\n    return -1\n}\n\nprivate fun hasFour(board: Array<CharArray>, p: Char): Boolean {\n    for (r in 0 until ROWS) {\n        for (c in 0 until COLS - 3) {\n            if (board[r][c] == p && board[r][c + 1] == p &&\n                board[r][c + 2] == p && board[r][c + 3] == p\n            ) {\n                return true\n            }\n        }\n    }\n    for (r in 0 until ROWS - 3) {\n        for (c in 0 until COLS) {\n            if (board[r][c] == p && board[r + 1][c] == p &&\n                board[r + 2][c] == p && board[r + 3][c] == p\n            ) {\n                return true\n            }\n        }\n    }\n    for (r in 0 until ROWS - 3) {\n        for (c in 0 until COLS - 3) {\n            if (board[r][c] == p && board[r + 1][c + 1] == p &&\n                board[r + 2][c + 2] == p && board[r + 3][c + 3] == p\n            ) {\n                return true\n            }\n        }\n    }\n    for (r in 3 until ROWS) {\n        for (c in 0 until COLS - 3) {\n            if (board[r][c] == p && board[r - 1][c + 1] == p &&\n                board[r - 2][c + 2] == p && board[r - 3][c + 3] == p\n            ) {\n                return true\n            }\n        }\n    }\n    return false\n}\n\nprivate fun isWholeNumber(token: String): Boolean {\n    var t = token\n    if (t.startsWith(\"+\") || t.startsWith(\"-\")) {\n        t = t.substring(1)\n    }\n    return t.isNotEmpty() && t.all { it in '0'..'9' }\n}\n\nprivate val reader = BufferedReader(InputStreamReader(System.`in`))\n\nprivate fun askColumn(board: Array<CharArray>, player: Char): Int {\n    while (true) {\n        print(\"Player $player, choose a column (1-7): \")\n        System.out.flush()\n        val raw = reader.readLine()\n        if (raw == null) {\n            print(\"\\nInput closed. Goodbye.\\n\")\n            return -1\n        }\n        val token = raw.trim()\n        val message: String\n        if (token.isEmpty()) {\n            message = \"Invalid input: no column entered.\"\n        } else if (!isWholeNumber(token)) {\n            message = \"Invalid input: \\\"$token\\\" is not a whole number.\"\n        } else {\n            val value = token.toLongOrNull()\n            if (value == null || value < 1 || value > COLS) {\n                message = \"Invalid input: \\\"$token\\\" is out of range (1-7).\"\n            } else if (lowestEmptyRow(board, value.toInt() - 1) < 0) {\n                message = \"Column $value is full.\"\n            } else {\n                return value.toInt() - 1\n            }\n        }\n        print(\"\\n$message\\n\")\n        System.out.flush()\n    }\n}\n\nfun main() {\n    val board = Array(ROWS) { CharArray(COLS) { EMPTY } }\n    print(HEADER + \"\\n\" + render(board) + \"\\n\")\n    System.out.flush()\n\n    var moves = 0\n    var playerIndex = 0\n    while (true) {\n        val player = PLAYERS[playerIndex]\n        val column = askColumn(board, player)\n        if (column < 0) {\n            return\n        }\n        board[lowestEmptyRow(board, column)][column] = player\n        moves++\n        print(\"\\n\" + render(board) + \"\\n\")\n        if (hasFour(board, player)) {\n            print(\"Player $player wins!\\n\")\n            return\n        }\n        if (moves == ROWS * COLS) {\n            print(\"It's a tie!\\n\")\n            return\n        }\n        playerIndex = 1 - playerIndex\n    }\n}\n"
@@ -364,7 +364,7 @@ window.CONNECT_FOUR_DATA = {
     {
       "id": "scala",
       "name": "Scala",
-      "category": "JVM/.NET",
+      "category": "JVM",
       "prism": "language-scala",
       "file": "languages/scala/connect_four.scala",
       "code": "import scala.io.StdIn\n\nobject ConnectFour {\n    private val Rows = 6\n    private val Cols = 7\n    private val Empty = '.'\n    private val Players = Array('X', 'O')\n    private val Header =\n        \"=== Connect Four ===\\nGet four of your pieces in a row to win. Columns are numbered 1-7.\\n\"\n\n    def main(args: Array[String]): Unit = {\n        val board = newBoard()\n        print(Header + \"\\n\" + render(board) + \"\\n\")\n        Console.flush()\n        loop(board, 0, 0)\n    }\n\n    private def newBoard(): Array[Array[Char]] = Array.fill(Rows, Cols)(Empty)\n\n    private def render(board: Array[Array[Char]]): String = {\n        val labels = \" \" + (1 to Cols).mkString(\" \")\n        val border = \"+\" + (\"-\" * (Cols * 2 - 1)) + \"+\"\n        val rows = (Rows - 1 to 0 by -1).map(r => \"|\" + board(r).mkString(\" \") + \"|\")\n        (labels +: border +: rows :+ border).mkString(\"\\n\")\n    }\n\n    private def lowestEmptyRow(board: Array[Array[Char]], col: Int): Int = {\n        var row = 0\n        var result = -1\n        while (row < Rows && result == -1) {\n            if (board(row)(col) == Empty) result = row\n            row += 1\n        }\n        result\n    }\n\n    private def hasFour(board: Array[Array[Char]], player: Char): Boolean = {\n        def at(r: Int, c: Int): Boolean = board(r)(c) == player\n\n        var found = false\n        var r = 0\n        while (r < Rows) {\n            var c = 0\n            while (c < Cols - 3) {\n                if (at(r, c) && at(r, c + 1) && at(r, c + 2) && at(r, c + 3)) found = true\n                c += 1\n            }\n            r += 1\n        }\n        r = 0\n        while (r < Rows - 3) {\n            var c = 0\n            while (c < Cols) {\n                if (at(r, c) && at(r + 1, c) && at(r + 2, c) && at(r + 3, c)) found = true\n                c += 1\n            }\n            r += 1\n        }\n        r = 0\n        while (r < Rows - 3) {\n            var c = 0\n            while (c < Cols - 3) {\n                if (at(r, c) && at(r + 1, c + 1) && at(r + 2, c + 2) && at(r + 3, c + 3)) found = true\n                c += 1\n            }\n            r += 1\n        }\n        r = 3\n        while (r < Rows) {\n            var c = 0\n            while (c < Cols - 3) {\n                if (at(r, c) && at(r - 1, c + 1) && at(r - 2, c + 2) && at(r - 3, c + 3)) found = true\n                c += 1\n            }\n            r += 1\n        }\n        found\n    }\n\n    private def wholeNumber(token: String): Boolean = {\n        val body =\n            if (token.startsWith(\"+\") || token.startsWith(\"-\")) token.substring(1) else token\n        body.nonEmpty && body.forall(ch => ch >= '0' && ch <= '9')\n    }\n\n    private def message(text: String): Unit = {\n        print(\"\\n\" + text + \"\\n\")\n        Console.flush()\n    }\n\n    private def validate(board: Array[Array[Char]], token: String): Option[Int] = {\n        if (token.isEmpty) {\n            message(\"Invalid input: no column entered.\")\n            None\n        } else if (!wholeNumber(token)) {\n            message(\"Invalid input: \\\"\" + token + \"\\\" is not a whole number.\")\n            None\n        } else {\n            val value = BigInt(token)\n            if (value < BigInt(1) || value > BigInt(Cols)) {\n                message(\"Invalid input: \\\"\" + token + \"\\\" is out of range (1-7).\")\n                None\n            } else if (lowestEmptyRow(board, value.toInt - 1) == -1) {\n                message(\"Column \" + value + \" is full.\")\n                None\n            } else {\n                Some(value.toInt - 1)\n            }\n        }\n    }\n\n    private def askColumn(board: Array[Array[Char]], player: Char): Option[Int] = {\n        print(\"Player \" + player + \", choose a column (1-7): \")\n        Console.flush()\n        val line = StdIn.readLine()\n        if (line == null) {\n            print(\"\\nInput closed. Goodbye.\\n\")\n            Console.flush()\n            None\n        } else {\n            validate(board, line.trim) match {\n                case Some(column) => Some(column)\n                case None => askColumn(board, player)\n            }\n        }\n    }\n\n    private def loop(board: Array[Array[Char]], moves: Int, playerIndex: Int): Unit = {\n        val player = Players(playerIndex)\n        askColumn(board, player) match {\n            case None => ()\n            case Some(column) =>\n                val row = lowestEmptyRow(board, column)\n                board(row)(column) = player\n                val newMoves = moves + 1\n                print(\"\\n\" + render(board) + \"\\n\")\n                Console.flush()\n                if (hasFour(board, player)) {\n                    print(\"Player \" + player + \" wins!\\n\")\n                    Console.flush()\n                } else if (newMoves == Rows * Cols) {\n                    print(\"It's a tie!\\n\")\n                    Console.flush()\n                } else {\n                    loop(board, newMoves, 1 - playerIndex)\n                }\n        }\n    }\n}\n"
@@ -415,7 +415,7 @@ window.CONNECT_FOUR_DATA = {
     {
       "id": "vb",
       "name": "Visual Basic",
-      "category": "JVM/.NET",
+      "category": ".NET",
       "prism": "language-vbnet",
       "file": "languages/vb/connect_four.vb",
       "code": "Imports System\nImports System.IO\nImports System.Text\n\nModule ConnectFour\n    Private Const Rows As Integer = 6\n    Private Const Cols As Integer = 7\n    Private Const Empty As Char = \".\"c\n    Private ReadOnly Players As Char() = {\"X\"c, \"O\"c}\n    Private Const Header As String =\n        \"=== Connect Four ===\" & vbLf &\n        \"Get four of your pieces in a row to win. Columns are numbered 1-7.\" & vbLf\n    Private ReadOnly Border As String = MakeBorder()\n    Private ReadOnly Labels As String = MakeLabels()\n\n    Private Function MakeBorder() As String\n        Dim b As New StringBuilder()\n        b.Append(\"+\"c)\n        For i As Integer = 1 To Cols * 2 - 1\n            b.Append(\"-\"c)\n        Next\n        b.Append(\"+\"c)\n        Return b.ToString()\n    End Function\n\n    Private Function MakeLabels() As String\n        Dim b As New StringBuilder()\n        b.Append(\" \"c)\n        For c As Integer = 1 To Cols\n            If c > 1 Then\n                b.Append(\" \"c)\n            End If\n            b.Append(c)\n        Next\n        Return b.ToString()\n    End Function\n\n    Private Function Render(board(,) As Char) As String\n        Dim b As New StringBuilder()\n        b.Append(Labels).Append(vbLf)\n        b.Append(Border).Append(vbLf)\n        For r As Integer = Rows - 1 To 0 Step -1\n            b.Append(\"|\"c)\n            For c As Integer = 0 To Cols - 1\n                If c > 0 Then\n                    b.Append(\" \"c)\n                End If\n                b.Append(board(r, c))\n            Next\n            b.Append(\"|\").Append(vbLf)\n        Next\n        b.Append(Border)\n        Return b.ToString()\n    End Function\n\n    Private Function LowestEmptyRow(board(,) As Char, col As Integer) As Integer\n        For r As Integer = 0 To Rows - 1\n            If board(r, col) = Empty Then\n                Return r\n            End If\n        Next\n        Return -1\n    End Function\n\n    Private Function HasFour(board(,) As Char, player As Char) As Boolean\n        For r As Integer = 0 To Rows - 1\n            For c As Integer = 0 To Cols - 4\n                If board(r, c) = player AndAlso board(r, c + 1) = player AndAlso\n                        board(r, c + 2) = player AndAlso board(r, c + 3) = player Then\n                    Return True\n                End If\n            Next\n        Next\n        For r As Integer = 0 To Rows - 4\n            For c As Integer = 0 To Cols - 1\n                If board(r, c) = player AndAlso board(r + 1, c) = player AndAlso\n                        board(r + 2, c) = player AndAlso board(r + 3, c) = player Then\n                    Return True\n                End If\n            Next\n        Next\n        For r As Integer = 0 To Rows - 4\n            For c As Integer = 0 To Cols - 4\n                If board(r, c) = player AndAlso board(r + 1, c + 1) = player AndAlso\n                        board(r + 2, c + 2) = player AndAlso board(r + 3, c + 3) = player Then\n                    Return True\n                End If\n            Next\n        Next\n        For r As Integer = 3 To Rows - 1\n            For c As Integer = 0 To Cols - 4\n                If board(r, c) = player AndAlso board(r - 1, c + 1) = player AndAlso\n                        board(r - 2, c + 2) = player AndAlso board(r - 3, c + 3) = player Then\n                    Return True\n                End If\n            Next\n        Next\n        Return False\n    End Function\n\n    Private Function IsWholeNumber(token As String) As Boolean\n        Dim body As String = token\n        If body.StartsWith(\"+\") OrElse body.StartsWith(\"-\") Then\n            body = body.Substring(1)\n        End If\n        If body.Length = 0 Then\n            Return False\n        End If\n        For Each ch As Char In body\n            If ch < \"0\"c OrElse ch > \"9\"c Then\n                Return False\n            End If\n        Next\n        Return True\n    End Function\n\n    Private Function AskColumn(board(,) As Char, player As Char) As Integer\n        Dim output As TextWriter = Console.Out\n        Dim input As TextReader = Console.In\n        Do\n            output.Write(\"Player \" & player & \", choose a column (1-7): \")\n            output.Flush()\n            Dim raw As String = input.ReadLine()\n            If raw Is Nothing Then\n                output.Write(vbLf & \"Input closed. Goodbye.\" & vbLf)\n                Return -1\n            End If\n            Dim token As String = raw.Trim()\n            Dim message As String\n            If token.Length = 0 Then\n                message = \"Invalid input: no column entered.\"\n            ElseIf Not IsWholeNumber(token) Then\n                message = \"Invalid input: \"\"\" & token & \"\"\" is not a whole number.\"\n            Else\n                Dim value As Long\n                If Not Long.TryParse(token, value) Then\n                    value = Long.MaxValue\n                End If\n                If value < 1 OrElse value > Cols Then\n                    message = \"Invalid input: \"\"\" & token & \"\"\" is out of range (1-7).\"\n                ElseIf LowestEmptyRow(board, CInt(value) - 1) < 0 Then\n                    message = \"Column \" & value & \" is full.\"\n                Else\n                    Return CInt(value) - 1\n                End If\n            End If\n            output.Write(vbLf & message & vbLf)\n            output.Flush()\n        Loop\n    End Function\n\n    Sub Main()\n        Dim board(Rows - 1, Cols - 1) As Char\n        For r As Integer = 0 To Rows - 1\n            For c As Integer = 0 To Cols - 1\n                board(r, c) = Empty\n            Next\n        Next\n        Console.Out.Write(Header & vbLf & Render(board) & vbLf)\n        Console.Out.Flush()\n\n        Dim moves As Integer = 0\n        Dim playerIndex As Integer = 0\n        Do\n            Dim player As Char = Players(playerIndex)\n            Dim column As Integer = AskColumn(board, player)\n            If column < 0 Then\n                Return\n            End If\n            board(LowestEmptyRow(board, column), column) = player\n            moves += 1\n            Console.Out.Write(vbLf & Render(board) & vbLf)\n            If HasFour(board, player) Then\n                Console.Out.Write(\"Player \" & player & \" wins!\" & vbLf)\n                Return\n            End If\n            If moves = Rows * Cols Then\n                Console.Out.Write(\"It's a tie!\" & vbLf)\n                Return\n            End If\n            playerIndex = 1 - playerIndex\n        Loop\n    End Sub\nEnd Module\n"
@@ -439,7 +439,41 @@ window.CONNECT_FOUR_DATA = {
       "folder": "frameworks/maui",
       "note": "This is one representative file from the app - the page code-behind (Prism has no XAML grammar, so MainPage.xaml is not shown here). See {link} to browse the XAML view, board logic and the rest of the project.",
       "linkText": "the full .NET MAUI app on GitHub",
+      "stack": "",
+      "languages": [
+        "C#"
+      ],
       "code": "namespace ConnectFour;\n\npublic partial class MainPage : ContentPage\n{\n    private ConnectFourBoard _board = new();\n\n    public MainPage()\n    {\n        InitializeComponent();\n        Render();\n    }\n\n    private void OnColumnClicked(object sender, EventArgs e)\n    {\n        if (sender is not Button button || !int.TryParse(button.Text, out var column))\n        {\n            return;\n        }\n\n        if (!_board.IsOver && !_board.IsFull(column - 1))\n        {\n            _board.Drop(column - 1);\n        }\n\n        Render();\n    }\n\n    private void OnResetClicked(object sender, EventArgs e)\n    {\n        _board = new ConnectFourBoard();\n        Render();\n    }\n\n    private void Render()\n    {\n        StatusLabel.Text = Status();\n        BoardGrid.Children.Clear();\n\n        for (var row = ConnectFourBoard.Rows - 1; row >= 0; row--)\n        {\n            for (var column = 0; column < ConnectFourBoard.Columns; column++)\n            {\n                BoardGrid.Add(\n                    new Label\n                    {\n                        Text = _board.Cell(row, column).ToString(),\n                        HorizontalTextAlignment = TextAlignment.Center,\n                        VerticalTextAlignment = TextAlignment.Center,\n                    },\n                    column,\n                    ConnectFourBoard.Rows - 1 - row);\n            }\n        }\n    }\n\n    private string Status() => _board.Winner() != '.'\n        ? $\"Player {_board.Winner()} wins!\"\n        : _board.IsOver\n            ? \"It's a tie!\"\n            : $\"Player {_board.CurrentPlayer}, choose a column.\";\n}\n"
+    },
+    {
+      "id": "adonisjs",
+      "name": "AdonisJS",
+      "category": "Web",
+      "prism": "language-typescript",
+      "file": "frameworks/adonisjs/app/controllers/games_controller.ts",
+      "folder": "frameworks/adonisjs",
+      "note": "This is one representative file from the app. See {link} to browse the board service, routes, Edge view and the rest of the project.",
+      "linkText": "the full AdonisJS app on GitHub",
+      "stack": "Backend",
+      "languages": [
+        "TypeScript"
+      ],
+      "code": "import type { HttpContext } from \"@adonisjs/core/http\";\n\nimport { COLUMNS, ConnectFourBoard } from \"#services/board\";\n\nexport default class GamesController {\n    async show({ session, view }: HttpContext) {\n        const board = ConnectFourBoard.decode(session.get(\"board\"));\n        return view.render(\"game/board\", { board });\n    }\n\n    async move({ request, response, session }: HttpContext) {\n        const board = ConnectFourBoard.decode(session.get(\"board\"));\n        const column = Number(request.input(\"column\"));\n\n        if (\n            !board.isOver &&\n            column >= 1 &&\n            column <= COLUMNS &&\n            !board.isFull(column - 1)\n        ) {\n            board.drop(column - 1);\n        }\n\n        session.put(\"board\", board.encode());\n        return response.redirect(\"/\");\n    }\n\n    async reset({ response, session }: HttpContext) {\n        session.forget(\"board\");\n        return response.redirect(\"/\");\n    }\n}\n"
+    },
+    {
+      "id": "alpinejs",
+      "name": "Alpine.js",
+      "category": "Web",
+      "prism": "language-markup",
+      "file": "frameworks/alpinejs/index.html",
+      "folder": "frameworks/alpinejs",
+      "note": "This is one representative file from the app. See {link} to browse the Alpine component and the rest of the project.",
+      "linkText": "the full Alpine.js app on GitHub",
+      "stack": "Frontend",
+      "languages": [
+        "JavaScript"
+      ],
+      "code": "<!doctype html>\n<html lang=\"en\">\n    <head>\n        <meta charset=\"utf-8\" />\n        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />\n        <title>Connect Four - Alpine.js</title>\n        <script defer src=\"https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js\"></script>\n        <script type=\"module\" src=\"./app.js\"></script>\n    </head>\n    <body>\n        <main x-data=\"connectFour\" class=\"game\">\n            <h1>Connect Four</h1>\n\n            <p role=\"status\" x-text=\"status\"></p>\n\n            <table class=\"board\">\n                <tbody>\n                    <template x-for=\"(cells, rowIndex) in rows\" :key=\"rowIndex\">\n                        <tr>\n                            <template x-for=\"(cell, columnIndex) in cells\" :key=\"columnIndex\">\n                                <td class=\"cell\" x-text=\"cell\" :class=\"`cell--${cell.toLowerCase()}`\"></td>\n                            </template>\n                        </tr>\n                    </template>\n                </tbody>\n            </table>\n\n            <div class=\"columns\">\n                <template x-for=\"column in columns\" :key=\"column\">\n                    <button\n                        type=\"button\"\n                        x-text=\"column + 1\"\n                        :disabled=\"over || isColumnFull(column)\"\n                        @click=\"play(column)\"\n                    ></button>\n                </template>\n            </div>\n\n            <button type=\"button\" @click=\"reset\">New game</button>\n        </main>\n    </body>\n</html>\n"
     },
     {
       "id": "angular",
@@ -450,6 +484,10 @@ window.CONNECT_FOUR_DATA = {
       "folder": "frameworks/angular",
       "note": "This is one representative file from the app. See {link} to browse the board logic, template and the rest of the project.",
       "linkText": "the full Angular app on GitHub",
+      "stack": "Frontend",
+      "languages": [
+        "TypeScript"
+      ],
       "code": "import { Component } from \"@angular/core\";\nimport { CommonModule } from \"@angular/common\";\n\nimport {\n    Board,\n    COLUMNS,\n    ROWS,\n    createBoard,\n    currentPlayer,\n    drop,\n    isColumnFull,\n    winner,\n} from \"./board\";\n\n@Component({\n    selector: \"app-connect-four\",\n    standalone: true,\n    imports: [CommonModule],\n    templateUrl: \"./connect-four.component.html\",\n    styleUrls: [\"./connect-four.component.css\"],\n})\nexport class ConnectFourComponent {\n    readonly columns = Array.from({ length: COLUMNS }, (_, index) => index);\n    board: Board = createBoard();\n    moves = 0;\n\n    get champion(): string | null {\n        return winner(this.board);\n    }\n\n    get over(): boolean {\n        return this.champion !== null || this.moves === ROWS * COLUMNS;\n    }\n\n    get status(): string {\n        if (this.champion) {\n            return `Player ${this.champion} wins!`;\n        }\n        if (this.over) {\n            return \"It's a tie!\";\n        }\n        return `Player ${currentPlayer(this.moves)}, choose a column.`;\n    }\n\n    rows(): Board {\n        return [...this.board].reverse();\n    }\n\n    isFull(column: number): boolean {\n        return isColumnFull(this.board, column);\n    }\n\n    play(column: number): void {\n        if (this.over || isColumnFull(this.board, column)) {\n            return;\n        }\n        this.board = drop(this.board, column, currentPlayer(this.moves));\n        this.moves += 1;\n    }\n\n    reset(): void {\n        this.board = createBoard();\n        this.moves = 0;\n    }\n}\n"
     },
     {
@@ -461,7 +499,56 @@ window.CONNECT_FOUR_DATA = {
       "folder": "frameworks/aspnetcore",
       "note": "This is one representative file from the app. See {link} to browse the board model, Razor view, host setup and the rest of the project.",
       "linkText": "the full ASP.NET Core app on GitHub",
+      "stack": "Backend",
+      "languages": [
+        "C#"
+      ],
       "code": "using System.Linq;\n\nusing ConnectFour.Models;\n\nusing Microsoft.AspNetCore.Mvc;\n\nnamespace ConnectFour.Controllers;\n\npublic class GameController : Controller\n{\n    private const string SessionKey = \"board\";\n\n    public IActionResult Board()\n    {\n        var board = CurrentBoard();\n        ViewData[\"Status\"] = Status(board);\n        return View(board);\n    }\n\n    [HttpPost]\n    [ValidateAntiForgeryToken]\n    public IActionResult Move(int column)\n    {\n        var board = CurrentBoard();\n\n        if (!board.IsOver && PlayableColumns(board).Contains(column))\n        {\n            board.Drop(column - 1);\n        }\n\n        Store(board);\n        return RedirectToAction(nameof(Board));\n    }\n\n    [HttpPost]\n    [ValidateAntiForgeryToken]\n    public IActionResult Reset()\n    {\n        HttpContext.Session.Remove(SessionKey);\n        return RedirectToAction(nameof(Board));\n    }\n\n    private ConnectFourBoard CurrentBoard()\n    {\n        var state = HttpContext.Session.GetString(SessionKey);\n        return state is null ? new ConnectFourBoard() : ConnectFourBoard.Deserialize(state);\n    }\n\n    private void Store(ConnectFourBoard board) =>\n        HttpContext.Session.SetString(SessionKey, board.Serialize());\n\n    private static IEnumerable<int> PlayableColumns(ConnectFourBoard board) =>\n        from index in ConnectFourBoard.ColumnIndexes\n        where !board.IsFull(index)\n        select index + 1;\n\n    private static string Status(ConnectFourBoard board) =>\n        board.Winner() != '.' ? $\"Player {board.Winner()} wins!\"\n        : board.IsOver ? \"It's a tie!\"\n        : $\"Player {board.CurrentPlayer}, choose a column.\";\n}\n"
+    },
+    {
+      "id": "astro",
+      "name": "Astro",
+      "category": "Web",
+      "prism": "language-typescript",
+      "file": "frameworks/astro/src/lib/board.ts",
+      "folder": "frameworks/astro",
+      "note": "This is one representative file from the app - the typed board module (Prism has no Astro grammar, so the .astro files are not shown here). See {link} to browse the component, page and the rest of the project.",
+      "linkText": "the full Astro app on GitHub",
+      "stack": "Frontend",
+      "languages": [
+        "TypeScript"
+      ],
+      "code": "export const ROWS = 6;\nexport const COLUMNS = 7;\nexport const EMPTY = \".\";\nexport const PLAYERS = [\"X\", \"O\"] as const;\n\nexport type Cell = typeof EMPTY | (typeof PLAYERS)[number];\nexport type Board = Cell[][];\n\nconst DIRECTIONS: ReadonlyArray<readonly [number, number]> = [\n    [0, 1],\n    [1, 0],\n    [1, 1],\n    [1, -1],\n];\n\nexport function createBoard(): Board {\n    return Array.from({ length: ROWS }, () => Array<Cell>(COLUMNS).fill(EMPTY));\n}\n\nexport function currentPlayer(moves: number): Cell {\n    return PLAYERS[moves % PLAYERS.length];\n}\n\nexport function lowestEmptyRow(board: Board, column: number): number {\n    for (let row = 0; row < ROWS; row += 1) {\n        if (board[row][column] === EMPTY) {\n            return row;\n        }\n    }\n    return -1;\n}\n\nexport function isColumnFull(board: Board, column: number): boolean {\n    return lowestEmptyRow(board, column) === -1;\n}\n\nexport function drop(board: Board, column: number, player: Cell): Board {\n    const row = lowestEmptyRow(board, column);\n    if (row === -1) {\n        return board;\n    }\n    const next = board.map((cells) => [...cells]);\n    next[row][column] = player;\n    return next;\n}\n\nfunction matches(board: Board, row: number, column: number, player: Cell): boolean {\n    return (\n        row >= 0 &&\n        row < ROWS &&\n        column >= 0 &&\n        column < COLUMNS &&\n        board[row][column] === player\n    );\n}\n\nexport function winner(board: Board): Cell | null {\n    for (const player of PLAYERS) {\n        for (let row = 0; row < ROWS; row += 1) {\n            for (let column = 0; column < COLUMNS; column += 1) {\n                for (const [rowStep, columnStep] of DIRECTIONS) {\n                    if (\n                        [1, 2, 3].every((step) =>\n                            matches(\n                                board,\n                                row + rowStep * step,\n                                column + columnStep * step,\n                                player,\n                            ),\n                        )\n                    ) {\n                        return player;\n                    }\n                }\n            }\n        }\n    }\n    return null;\n}\n"
+    },
+    {
+      "id": "avalonia",
+      "name": "Avalonia",
+      "category": "Desktop",
+      "prism": "language-csharp",
+      "file": "frameworks/avalonia/MainWindow.axaml.cs",
+      "folder": "frameworks/avalonia",
+      "note": "This is one representative file from the app - the code-behind (Prism has no AXAML grammar, so MainWindow.axaml is not shown here). See {link} to browse the XAML view, board logic and the rest of the project.",
+      "linkText": "the full Avalonia app on GitHub",
+      "stack": "",
+      "languages": [
+        "C#"
+      ],
+      "code": "using Avalonia;\nusing Avalonia.Controls;\nusing Avalonia.Layout;\nusing Avalonia.Media;\nusing System;\n\nnamespace ConnectFour;\n\npublic partial class MainWindow : Window\n{\n    private readonly ConnectFourBoard _board = new();\n    private readonly StackPanel _boardPanel = new() { Spacing = 4 };\n    private readonly StackPanel _columnsPanel = new()\n    {\n        Orientation = Orientation.Horizontal,\n        Spacing = 4,\n    };\n\n    public MainWindow()\n    {\n        InitializeComponent();\n\n        BoardHost.Children.Add(_boardPanel);\n        ColumnsHost.Children.Add(_columnsPanel);\n        ResetButton.Click += (_, _) => Reset();\n        Render();\n    }\n\n    private void Render()\n    {\n        StatusText.Text = _board.Winner is { } champion\n            ? $\"Player {champion} wins!\"\n            : _board.IsOver\n                ? \"It's a tie!\"\n                : $\"Player {_board.CurrentPlayer}, choose a column.\";\n\n        _boardPanel.Children.Clear();\n        for (int row = ConnectFourBoard.Rows - 1; row >= 0; row--)\n        {\n            var rowPanel = new StackPanel\n            {\n                Orientation = Orientation.Horizontal,\n                Spacing = 4,\n            };\n\n            for (int column = 0; column < ConnectFourBoard.Columns; column++)\n            {\n                string cell = _board[row, column];\n                var border = new Border\n                {\n                    Width = 40,\n                    Height = 40,\n                    CornerRadius = new CornerRadius(20),\n                    Background = DiscBrush(cell),\n                    Child = new TextBlock\n                    {\n                        Text = cell,\n                        HorizontalAlignment = HorizontalAlignment.Center,\n                        VerticalAlignment = VerticalAlignment.Center,\n                    },\n                };\n                rowPanel.Children.Add(border);\n            }\n\n            _boardPanel.Children.Add(rowPanel);\n        }\n\n        _columnsPanel.Children.Clear();\n        for (int column = 0; column < ConnectFourBoard.Columns; column++)\n        {\n            int target = column;\n            var button = new Button\n            {\n                Content = (column + 1).ToString(),\n                IsEnabled = !_board.IsOver && !_board.IsFull(column),\n            };\n            button.Click += (_, _) =>\n            {\n                _board.Drop(target);\n                Render();\n            };\n            _columnsPanel.Children.Add(button);\n        }\n    }\n\n    private void Reset()\n    {\n        _board.Reset();\n        Render();\n    }\n\n    private static IBrush DiscBrush(string cell) => cell switch\n    {\n        \"X\" => Brushes.Crimson,\n        \"O\" => Brushes.Gold,\n        _ => Brushes.DarkSlateGray,\n    };\n}\n"
+    },
+    {
+      "id": "axum",
+      "name": "Axum",
+      "category": "Web",
+      "prism": "language-rust",
+      "file": "frameworks/axum/src/main.rs",
+      "folder": "frameworks/axum",
+      "note": "This is one representative file from the app. See {link} to browse the board, MiniJinja template and the rest of the project.",
+      "linkText": "the full Axum app on GitHub",
+      "stack": "Backend",
+      "languages": [
+        "Rust"
+      ],
+      "code": "mod board;\n\nuse std::sync::Arc;\n\nuse axum::{\n    extract::{Form, State},\n    response::{Html, IntoResponse, Redirect},\n    routing::{get, post},\n    Router,\n};\nuse board::{ConnectFourBoard, COLUMNS};\nuse minijinja::{context, Environment};\nuse serde::Deserialize;\nuse tower_sessions::{MemoryStore, Session, SessionManagerLayer};\n\nstruct AppState {\n    templates: Environment<'static>,\n}\n\n#[tokio::main]\nasync fn main() {\n    let mut templates = Environment::new();\n    templates\n        .add_template(\"board.html\", include_str!(\"../templates/board.html\"))\n        .expect(\"board.html template\");\n\n    let session_layer = SessionManagerLayer::new(MemoryStore::default());\n\n    let app = Router::new()\n        .route(\"/\", get(board_page))\n        .route(\"/move\", post(move_handler))\n        .route(\"/reset\", post(reset))\n        .layer(session_layer)\n        .with_state(Arc::new(AppState { templates }));\n\n    let listener = tokio::net::TcpListener::bind(\"0.0.0.0:3000\")\n        .await\n        .expect(\"bind listener\");\n    axum::serve(listener, app).await.expect(\"serve\");\n}\n\nasync fn current_board(session: &Session) -> ConnectFourBoard {\n    session\n        .get::<ConnectFourBoard>(\"board\")\n        .await\n        .ok()\n        .flatten()\n        .unwrap_or_default()\n}\n\nasync fn board_page(State(state): State<Arc<AppState>>, session: Session) -> impl IntoResponse {\n    let game = current_board(&session).await;\n    let columns: Vec<usize> = (1..=COLUMNS).collect();\n    let rendered = state\n        .templates\n        .get_template(\"board.html\")\n        .expect(\"template registered\")\n        .render(context! {\n            board => game,\n            rows => game.rows_top_down(),\n            columns,\n            winner => game.winner(),\n            over => game.is_over(),\n        })\n        .expect(\"render board\");\n    Html(rendered)\n}\n\n#[derive(Deserialize)]\nstruct MoveForm {\n    column: usize,\n}\n\nasync fn move_handler(\n    session: Session,\n    State(_state): State<Arc<AppState>>,\n    Form(form): Form<MoveForm>,\n) -> impl IntoResponse {\n    let mut game = current_board(&session).await;\n    if !game.is_over()\n        && form.column >= 1\n        && form.column <= COLUMNS\n        && !game.is_full(form.column - 1)\n    {\n        game.drop(form.column - 1);\n    }\n    let _ = session.insert(\"board\", game).await;\n    Redirect::to(\"/\")\n}\n\nasync fn reset(session: Session, State(_state): State<Arc<AppState>>) -> impl IntoResponse {\n    let _ = session.insert(\"board\", ConnectFourBoard::new()).await;\n    Redirect::to(\"/\")\n}\n"
     },
     {
       "id": "blazor",
@@ -472,7 +559,57 @@ window.CONNECT_FOUR_DATA = {
       "folder": "frameworks/blazor",
       "note": "This is one representative file from the app. See {link} to browse the board logic and the rest of the project.",
       "linkText": "the full Blazor app on GitHub",
+      "stack": "Full stack",
+      "languages": [
+        "C#"
+      ],
       "code": "@page \"/\"\n@using ConnectFour\n\n<h1>Connect Four</h1>\n\n<p role=\"status\">@Status</p>\n\n<table class=\"board\">\n    @for (var row = ConnectFourBoard.Rows - 1; row >= 0; row--)\n    {\n        var topRow = row;\n        <tr>\n            @for (var column = 0; column < ConnectFourBoard.Columns; column++)\n            {\n                var cellColumn = column;\n                <td class=\"cell\">@_board.Cell(topRow, cellColumn)</td>\n            }\n        </tr>\n    }\n</table>\n\n<div class=\"columns\">\n    @for (var column = 1; column <= ConnectFourBoard.Columns; column++)\n    {\n        var chosen = column;\n        <button type=\"button\"\n                disabled=\"@(_board.IsOver || _board.IsFull(chosen - 1))\"\n                @onclick=\"() => Play(chosen)\">\n            @chosen\n        </button>\n    }\n</div>\n\n<button type=\"button\" @onclick=\"Reset\">New game</button>\n\n@code {\n    private ConnectFourBoard _board = new();\n\n    private string Status => _board.Winner() != '.'\n        ? $\"Player {_board.Winner()} wins!\"\n        : _board.IsOver\n            ? \"It's a tie!\"\n            : $\"Player {_board.CurrentPlayer}, choose a column.\";\n\n    private void Play(int column)\n    {\n        if (_board.IsOver || _board.IsFull(column - 1))\n        {\n            return;\n        }\n        _board.Drop(column - 1);\n    }\n\n    private void Reset() => _board = new ConnectFourBoard();\n}\n"
+    },
+    {
+      "id": "bootstrap",
+      "name": "Bootstrap",
+      "category": "Web",
+      "prism": "language-markup",
+      "file": "frameworks/bootstrap/index.html",
+      "folder": "frameworks/bootstrap",
+      "note": "This is one representative file from the app. See {link} to browse the game script and the rest of the project.",
+      "linkText": "the full Bootstrap page on GitHub",
+      "stack": "Frontend",
+      "languages": [
+        "CSS",
+        "JavaScript"
+      ],
+      "code": "<!doctype html>\n<html lang=\"en\" data-bs-theme=\"dark\">\n    <head>\n        <meta charset=\"utf-8\" />\n        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />\n        <title>Connect Four - Bootstrap</title>\n        <link\n            href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css\"\n            rel=\"stylesheet\"\n        />\n    </head>\n    <body class=\"bg-body-tertiary\">\n        <nav class=\"navbar navbar-dark bg-dark\">\n            <div class=\"container\">\n                <span class=\"navbar-brand mb-0 h1\">Connect Four</span>\n                <span class=\"navbar-text\">Bootstrap 5</span>\n            </div>\n        </nav>\n\n        <main class=\"container py-4\" style=\"max-width: 640px\">\n            <div\n                id=\"status\"\n                class=\"alert alert-info d-flex justify-content-between align-items-center\"\n                role=\"status\"\n            >\n                <span class=\"status-text\">Player X, choose a column.</span>\n                <span class=\"badge text-bg-primary\" id=\"move-count\">0 moves</span>\n            </div>\n\n            <div class=\"card shadow-sm\">\n                <div class=\"card-body text-center\">\n                    <table class=\"table table-borderless align-middle mb-0 w-auto mx-auto\">\n                        <tbody id=\"board\"></tbody>\n                    </table>\n                </div>\n            </div>\n\n            <div class=\"btn-group w-100 mt-3\" role=\"group\" id=\"columns\" aria-label=\"Columns\"></div>\n\n            <div class=\"d-grid mt-3\">\n                <button class=\"btn btn-outline-light\" type=\"button\" id=\"reset\">New game</button>\n            </div>\n        </main>\n\n        <script src=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js\"></script>\n        <script src=\"src/game.js\"></script>\n    </body>\n</html>\n"
+    },
+    {
+      "id": "cassandra",
+      "name": "Cassandra",
+      "category": "Database",
+      "prism": "language-cql",
+      "file": "frameworks/cassandra/schema.cql",
+      "folder": "frameworks/cassandra",
+      "note": "This is the representative file - the keyspace and the query-driven tables (lists of discs, timeuuid clustering), plus a materialized view and a secondary index. See {link} to browse the queries, seed data and the rest of the project.",
+      "linkText": "the full Apache Cassandra example on GitHub",
+      "stack": "",
+      "languages": [
+        "CQL"
+      ],
+      "code": "CREATE KEYSPACE IF NOT EXISTS connect_four\n    WITH replication = {'class': 'NetworkTopologyStrategy', 'datacenter1': 1}\n    AND durable_writes = true;\n\nCREATE TABLE IF NOT EXISTS connect_four.games (\n    game_id    uuid PRIMARY KEY,\n    player     text,\n    next_turn  int,\n    status     text,\n    created_at timestamp\n) WITH default_time_to_live = 86400;\n\nCREATE TABLE IF NOT EXISTS connect_four.moves_by_game (\n    game_id       uuid,\n    move_id       timeuuid,\n    turn          int,\n    player        text,\n    column_number tinyint,\n    PRIMARY KEY ((game_id), move_id)\n) WITH CLUSTERING ORDER BY (move_id ASC)\n  AND default_time_to_live = 86400;\n\nCREATE TABLE IF NOT EXISTS connect_four.board_by_game (\n    game_id       uuid,\n    column_number tinyint,\n    discs         list<text>,\n    PRIMARY KEY ((game_id), column_number)\n) WITH default_time_to_live = 86400;\n\nCREATE MATERIALIZED VIEW IF NOT EXISTS connect_four.games_by_status AS\n    SELECT status, created_at, game_id, next_turn, player\n    FROM connect_four.games\n    WHERE status IS NOT NULL AND game_id IS NOT NULL\n    PRIMARY KEY (status, created_at, game_id);\n\nCREATE INDEX IF NOT EXISTS games_by_player ON connect_four.games (player);\n"
+    },
+    {
+      "id": "clickhouse",
+      "name": "ClickHouse",
+      "category": "Database",
+      "prism": "language-sql",
+      "file": "frameworks/clickhouse/schema.sql",
+      "folder": "frameworks/clickhouse",
+      "note": "This is the representative file - the MergeTree tables and the SummingMergeTree materialized view. See {link} to browse the argMax / groupArray / ANY LEFT JOIN queries.",
+      "linkText": "the full ClickHouse example on GitHub",
+      "stack": "",
+      "languages": [
+        "SQL"
+      ],
+      "code": "CREATE TABLE IF NOT EXISTS games (\n    game_id    UUID,\n    player     LowCardinality(String),\n    created_at DateTime DEFAULT now()\n) ENGINE = MergeTree\nORDER BY (game_id);\n\nCREATE TABLE IF NOT EXISTS moves (\n    game_id       UUID,\n    turn_no       UInt8,\n    player        LowCardinality(String),\n    column_number UInt8,\n    played_at     DateTime DEFAULT now()\n) ENGINE = MergeTree\nORDER BY (game_id, turn_no);\n\nCREATE MATERIALIZED VIEW IF NOT EXISTS column_heights\nENGINE = SummingMergeTree\nORDER BY (game_id, column_number) AS\n    SELECT\n        game_id,\n        column_number,\n        toUInt32(count()) AS discs\n    FROM moves\n    GROUP BY game_id, column_number;\n"
     },
     {
       "id": "django",
@@ -483,7 +620,71 @@ window.CONNECT_FOUR_DATA = {
       "folder": "frameworks/django",
       "note": "This is one representative file from the app. See {link} to browse the board, forms, URLs, templates and the rest of the project.",
       "linkText": "the full Django app on GitHub",
+      "stack": "Full stack",
+      "languages": [
+        "Python"
+      ],
       "code": "from django.shortcuts import redirect, render\n\nfrom .board import COLUMNS, ConnectFourBoard\nfrom .forms import DropForm\n\n\ndef board(request):\n    game = ConnectFourBoard.from_session(request.session.get(\"board\"))\n    context = {\n        \"board\": game,\n        \"columns\": range(1, COLUMNS + 1),\n        \"form\": DropForm(),\n    }\n    return render(request, \"game/board.html\", context)\n\n\ndef move(request):\n    game = ConnectFourBoard.from_session(request.session.get(\"board\"))\n\n    if request.method == \"POST\" and not game.is_over:\n        form = DropForm(request.POST)\n        if form.is_valid():\n            column = form.cleaned_data[\"column\"] - 1\n            if not game.is_full(column):\n                game.drop(column)\n\n    request.session[\"board\"] = game.to_session()\n    return redirect(\"game:board\")\n\n\ndef reset(request):\n    request.session.pop(\"board\", None)\n    return redirect(\"game:board\")\n"
+    },
+    {
+      "id": "duckdb",
+      "name": "DuckDB",
+      "category": "Database",
+      "prism": "language-sql",
+      "file": "frameworks/duckdb/schema.sql",
+      "folder": "frameworks/duckdb",
+      "note": "This is the representative file - the sequence default, tables, constraints and the `cells` view. See {link} to browse the `range()`, `PIVOT` and window-function queries.",
+      "linkText": "the full DuckDB example on GitHub",
+      "stack": "",
+      "languages": [
+        "SQL"
+      ],
+      "code": "CREATE SEQUENCE move_seq START 1;\n\nCREATE TABLE games (\n    game_id    INTEGER PRIMARY KEY,\n    player     TEXT NOT NULL,\n    created_at TIMESTAMP NOT NULL DEFAULT now()\n);\n\nCREATE TABLE moves (\n    move_id       BIGINT DEFAULT nextval('move_seq'),\n    game_id       INTEGER NOT NULL REFERENCES games (game_id),\n    turn_no       INTEGER NOT NULL,\n    player        TEXT NOT NULL CHECK (player IN ('X', 'O')),\n    column_number INTEGER NOT NULL CHECK (column_number BETWEEN 1 AND 7),\n    UNIQUE (game_id, turn_no)\n);\n\nCREATE VIEW cells AS\n    SELECT\n        game_id,\n        column_number AS x,\n        player,\n        row_number() OVER (PARTITION BY game_id, column_number ORDER BY turn_no) AS y\n    FROM moves;\n"
+    },
+    {
+      "id": "echo",
+      "name": "Echo (Go)",
+      "category": "Web",
+      "prism": "language-go",
+      "file": "frameworks/echo/main.go",
+      "folder": "frameworks/echo",
+      "note": "This is one representative file from the app. See {link} to browse the board package, template and the rest of the project.",
+      "linkText": "the full Echo app on GitHub",
+      "stack": "Backend",
+      "languages": [
+        "Go"
+      ],
+      "code": "package main\n\nimport (\n    \"html/template\"\n    \"io\"\n    \"net/http\"\n    \"strconv\"\n\n    \"github.com/gorilla/sessions\"\n    \"github.com/labstack/echo-contrib/session\"\n    \"github.com/labstack/echo/v4\"\n\n    \"connectfour/board\"\n)\n\ntype templateRenderer struct {\n    templates *template.Template\n}\n\nfunc (renderer *templateRenderer) Render(writer io.Writer, name string, data interface{}, _ echo.Context) error {\n    return renderer.templates.ExecuteTemplate(writer, name, data)\n}\n\nfunc main() {\n    server := echo.New()\n    server.Renderer = &templateRenderer{\n        templates: template.Must(template.ParseGlob(\"templates/*.html\")),\n    }\n    server.Use(session.Middleware(sessions.NewCookieStore([]byte(\"change-me-in-production\"))))\n\n    server.GET(\"/\", boardPage)\n    server.POST(\"/move\", move)\n    server.POST(\"/reset\", reset)\n\n    server.Logger.Fatal(server.Start(\":8080\"))\n}\n\nfunc boardPage(c echo.Context) error {\n    columns := make([]int, board.Columns)\n    for index := range columns {\n        columns[index] = index + 1\n    }\n    return c.Render(http.StatusOK, \"board.html\", map[string]interface{}{\n        \"board\":   currentBoard(c),\n        \"columns\": columns,\n    })\n}\n\nfunc move(c echo.Context) error {\n    game := currentBoard(c)\n    column, err := strconv.Atoi(c.FormValue(\"column\"))\n\n    if err == nil && column >= 1 && column <= board.Columns && !game.IsOver() {\n        if !game.IsFull(column - 1) {\n            game.Drop(column - 1)\n        }\n    }\n\n    saveBoard(c, game)\n    return c.Redirect(http.StatusSeeOther, \"/\")\n}\n\nfunc reset(c echo.Context) error {\n    store, _ := session.Get(\"connectfour\", c)\n    delete(store.Values, \"board\")\n    store.Save(c.Request(), c.Response())\n    return c.Redirect(http.StatusSeeOther, \"/\")\n}\n\nfunc currentBoard(c echo.Context) *board.ConnectFourBoard {\n    store, _ := session.Get(\"connectfour\", c)\n    raw, _ := store.Values[\"board\"].(string)\n    return board.FromJSON(raw)\n}\n\nfunc saveBoard(c echo.Context, game *board.ConnectFourBoard) {\n    store, _ := session.Get(\"connectfour\", c)\n    store.Values[\"board\"] = game.ToJSON()\n    store.Save(c.Request(), c.Response())\n}\n"
+    },
+    {
+      "id": "electron",
+      "name": "Electron",
+      "category": "Desktop",
+      "prism": "language-javascript",
+      "file": "frameworks/electron/main.js",
+      "folder": "frameworks/electron",
+      "note": "This is one representative file from the app - the main process. See {link} to browse the preload script, renderer and the rest of the project.",
+      "linkText": "the full Electron app on GitHub",
+      "stack": "",
+      "languages": [
+        "JavaScript"
+      ],
+      "code": "const { app, BrowserWindow } = require(\"electron\");\nconst path = require(\"node:path\");\n\nfunction createWindow() {\n    const window = new BrowserWindow({\n        width: 640,\n        height: 720,\n        webPreferences: {\n            preload: path.join(__dirname, \"preload.js\"),\n            contextIsolation: true,\n            nodeIntegration: false,\n        },\n    });\n\n    window.loadFile(\"index.html\");\n}\n\napp.whenReady().then(() => {\n    createWindow();\n\n    app.on(\"activate\", () => {\n        if (BrowserWindow.getAllWindows().length === 0) {\n            createWindow();\n        }\n    });\n});\n\napp.on(\"window-all-closed\", () => {\n    if (process.platform !== \"darwin\") {\n        app.quit();\n    }\n});\n"
+    },
+    {
+      "id": "ember",
+      "name": "Ember.js",
+      "category": "Web",
+      "prism": "language-javascript",
+      "file": "frameworks/ember/app/components/connect-four.js",
+      "folder": "frameworks/ember",
+      "note": "This is one representative file from the app. See {link} to browse the template, board util, app entry and the rest of the project.",
+      "linkText": "the full Ember.js app on GitHub",
+      "stack": "Frontend",
+      "languages": [
+        "JavaScript"
+      ],
+      "code": "import Component from \"@glimmer/component\";\nimport { tracked } from \"@glimmer/tracking\";\nimport { action } from \"@ember/object\";\n\nimport {\n    COLUMNS,\n    ROWS,\n    createBoard,\n    currentPlayer,\n    drop,\n    isColumnFull,\n    winner,\n} from \"../../utils/board\";\n\nexport default class ConnectFourComponent extends Component {\n    @tracked board = createBoard();\n    @tracked moves = 0;\n\n    get champion() {\n        return winner(this.board);\n    }\n\n    get over() {\n        return Boolean(this.champion) || this.moves === ROWS * COLUMNS;\n    }\n\n    get status() {\n        if (this.champion) {\n            return `Player ${this.champion} wins!`;\n        }\n        if (this.over) {\n            return \"It's a tie!\";\n        }\n        return `Player ${currentPlayer(this.moves)}, choose a column.`;\n    }\n\n    get rows() {\n        return [...this.board].reverse().map((cells) =>\n            cells.map((cell) => ({\n                value: cell,\n                tone: cell === \".\" ? \"empty\" : cell.toLowerCase(),\n            })),\n        );\n    }\n\n    get columns() {\n        return Array.from({ length: COLUMNS }, (_, index) => ({\n            index,\n            label: index + 1,\n            disabled: this.over || isColumnFull(this.board, index),\n        }));\n    }\n\n    @action\n    play(column) {\n        if (this.over || isColumnFull(this.board, column)) {\n            return;\n        }\n        this.board = drop(this.board, column, currentPlayer(this.moves));\n        this.moves += 1;\n    }\n\n    @action\n    reset() {\n        this.board = createBoard();\n        this.moves = 0;\n    }\n}\n"
     },
     {
       "id": "expressjs",
@@ -494,6 +695,10 @@ window.CONNECT_FOUR_DATA = {
       "folder": "frameworks/expressjs",
       "note": "This is one representative file from the app. See {link} to browse the board logic, EJS view and the rest of the project.",
       "linkText": "the full Express (Node) app on GitHub",
+      "stack": "Backend",
+      "languages": [
+        "TypeScript"
+      ],
       "code": "import path from \"node:path\";\n\nimport express, { type Request, type Response } from \"express\";\nimport session from \"express-session\";\n\nimport {\n    COLUMNS,\n    ROWS,\n    createBoard,\n    currentPlayer,\n    drop,\n    isColumnFull,\n    winner,\n    type Game,\n} from \"./board\";\n\nconst app = express();\n\napp.set(\"view engine\", \"ejs\");\napp.set(\"views\", path.join(__dirname, \"views\"));\napp.use(express.urlencoded({ extended: false }));\napp.use(\n    session({\n        secret: \"change-me-in-production\",\n        resave: false,\n        saveUninitialized: true,\n    })\n);\n\nfunction currentGame(req: Request): Game {\n    return req.session.board ?? { cells: createBoard(), moves: 0 };\n}\n\nfunction isOver(game: Game): boolean {\n    return winner(game.cells) !== undefined || game.moves === ROWS * COLUMNS;\n}\n\nfunction status(game: Game): string {\n    const champion = winner(game.cells);\n    if (champion) {\n        return `Player ${champion} wins!`;\n    }\n    if (game.moves === ROWS * COLUMNS) {\n        return \"It's a tie!\";\n    }\n    return `Player ${currentPlayer(game.moves)}, choose a column.`;\n}\n\napp.get(\"/\", (req: Request, res: Response) => {\n    const game = currentGame(req);\n    res.render(\"board\", {\n        cells: [...game.cells].reverse(),\n        columns: Array.from({ length: COLUMNS }, (_, index) => index + 1),\n        status: status(game),\n        over: isOver(game),\n    });\n});\n\napp.post(\"/move\", (req: Request, res: Response) => {\n    const game = currentGame(req);\n    const column = Number.parseInt(req.body.column, 10);\n\n    if (column >= 1 && column <= COLUMNS && !isOver(game) && !isColumnFull(game.cells, column - 1)) {\n        game.cells = drop(game.cells, column - 1, currentPlayer(game.moves));\n        game.moves += 1;\n    }\n\n    req.session.board = game;\n    res.redirect(303, \"/\");\n});\n\napp.post(\"/reset\", (req: Request, res: Response) => {\n    delete req.session.board;\n    res.redirect(303, \"/\");\n});\n\nconst port = Number(process.env.PORT ?? 3000);\napp.listen(port, () => console.log(`Connect Four on http://localhost:${port}`));\n\nexport default app;\n"
     },
     {
@@ -505,6 +710,10 @@ window.CONNECT_FOUR_DATA = {
       "folder": "frameworks/fastapi",
       "note": "This is one representative file from the app. See {link} to browse the board, schemas, templates and the rest of the project.",
       "linkText": "the full FastAPI app on GitHub",
+      "stack": "Backend",
+      "languages": [
+        "Python"
+      ],
       "code": "from pathlib import Path\n\nfrom fastapi import FastAPI, Form, Request\nfrom fastapi.responses import RedirectResponse\nfrom fastapi.templating import Jinja2Templates\nfrom starlette.middleware.sessions import SessionMiddleware\n\nfrom .board import COLUMNS, ConnectFourBoard\n\napp = FastAPI(title=\"Connect Four\")\napp.add_middleware(SessionMiddleware, secret_key=\"change-me-in-production\")\n\ntemplates = Jinja2Templates(directory=str(Path(__file__).parent / \"templates\"))\n\n\ndef current_board(request: Request) -> ConnectFourBoard:\n    return ConnectFourBoard.from_session(request.session.get(\"board\"))\n\n\n@app.get(\"/\")\ndef board_page(request: Request):\n    board = current_board(request)\n    return templates.TemplateResponse(\n        request,\n        \"board.html\",\n        {\"board\": board, \"columns\": range(1, COLUMNS + 1)},\n    )\n\n\n@app.post(\"/move\")\ndef move(request: Request, column: int = Form(ge=1, le=COLUMNS)):\n    board = current_board(request)\n    if not board.is_over and not board.is_full(column - 1):\n        board.drop(column - 1)\n    request.session[\"board\"] = board.to_session()\n    return RedirectResponse(url=\"/\", status_code=303)\n\n\n@app.post(\"/reset\")\ndef reset(request: Request):\n    request.session.pop(\"board\", None)\n    return RedirectResponse(url=\"/\", status_code=303)\n"
     },
     {
@@ -516,6 +725,10 @@ window.CONNECT_FOUR_DATA = {
       "folder": "frameworks/fastify",
       "note": "This is one representative file from the app. See {link} to browse the board logic, EJS view and the rest of the project.",
       "linkText": "the full Fastify app on GitHub",
+      "stack": "Backend",
+      "languages": [
+        "JavaScript"
+      ],
       "code": "const path = require(\"node:path\");\n\nconst cookie = require(\"@fastify/cookie\");\nconst formbody = require(\"@fastify/formbody\");\nconst session = require(\"@fastify/session\");\nconst view = require(\"@fastify/view\");\nconst ejs = require(\"ejs\");\nconst fastify = require(\"fastify\")({ logger: false });\n\nconst {\n    ROWS,\n    COLUMNS,\n    createBoard,\n    currentPlayer,\n    isColumnFull,\n    drop,\n    winner,\n} = require(\"./board\");\n\nfastify.register(view, { engine: { ejs }, root: path.join(__dirname, \"views\") });\nfastify.register(formbody);\nfastify.register(cookie);\nfastify.register(session, {\n    secret: \"change-me-in-production-use-a-long-random-secret\",\n    cookie: { secure: false },\n});\n\nfunction currentGame(request) {\n    return request.session.board ?? { cells: createBoard(), moves: 0 };\n}\n\nfunction isOver(game) {\n    return winner(game.cells) !== undefined || game.moves === ROWS * COLUMNS;\n}\n\nfunction status(game) {\n    const champion = winner(game.cells);\n    if (champion) {\n        return `Player ${champion} wins!`;\n    }\n    if (game.moves === ROWS * COLUMNS) {\n        return \"It's a tie!\";\n    }\n    return `Player ${currentPlayer(game.moves)}, choose a column.`;\n}\n\nfastify.get(\"/\", (request, reply) => {\n    const game = currentGame(request);\n    return reply.view(\"board.ejs\", {\n        cells: [...game.cells].reverse(),\n        columns: Array.from({ length: COLUMNS }, (_, index) => index + 1),\n        status: status(game),\n        over: isOver(game),\n    });\n});\n\nfastify.post(\"/move\", (request, reply) => {\n    const game = currentGame(request);\n    const column = Number.parseInt(request.body.column, 10);\n\n    if (column >= 1 && column <= COLUMNS && !isOver(game) && !isColumnFull(game.cells, column - 1)) {\n        game.cells = drop(game.cells, column - 1, currentPlayer(game.moves));\n        game.moves += 1;\n    }\n\n    request.session.board = game;\n    return reply.redirect(\"/\", 303);\n});\n\nfastify.post(\"/reset\", (request, reply) => {\n    delete request.session.board;\n    return reply.redirect(\"/\", 303);\n});\n\nconst start = async () => {\n    try {\n        await fastify.listen({ port: 3000 });\n    } catch (error) {\n        fastify.log.error(error);\n        process.exit(1);\n    }\n};\n\nstart();\n\nmodule.exports = fastify;\n"
     },
     {
@@ -527,7 +740,26 @@ window.CONNECT_FOUR_DATA = {
       "folder": "frameworks/fiber",
       "note": "This is one representative file from the app. See {link} to browse the board, templates and the rest of the project.",
       "linkText": "the full Fiber app on GitHub",
+      "stack": "Backend",
+      "languages": [
+        "Go"
+      ],
       "code": "package main\n\nimport (\n    \"strconv\"\n\n    \"github.com/gofiber/fiber/v2\"\n    \"github.com/gofiber/fiber/v2/middleware/session\"\n    \"github.com/gofiber/template/html/v2\"\n\n    \"connectfour/board\"\n)\n\nvar store = session.New()\n\nfunc main() {\n    engine := html.New(\"./templates\", \".html\")\n    app := fiber.New(fiber.Config{Views: engine})\n\n    app.Get(\"/\", boardPage)\n    app.Post(\"/move\", move)\n    app.Post(\"/reset\", reset)\n\n    app.Listen(\":3000\")\n}\n\nfunc boardPage(c *fiber.Ctx) error {\n    columns := make([]int, board.Columns)\n    for index := range columns {\n        columns[index] = index + 1\n    }\n    return c.Render(\"board\", fiber.Map{\n        \"board\":   currentBoard(c),\n        \"columns\": columns,\n    })\n}\n\nfunc move(c *fiber.Ctx) error {\n    game := currentBoard(c)\n    column, err := strconv.Atoi(c.FormValue(\"column\"))\n\n    if err == nil && column >= 1 && column <= board.Columns && !game.IsOver() && !game.IsFull(column-1) {\n        game.Drop(column - 1)\n    }\n\n    saveBoard(c, game)\n    return c.Redirect(\"/\", fiber.StatusSeeOther)\n}\n\nfunc reset(c *fiber.Ctx) error {\n    sess, err := store.Get(c)\n    if err != nil {\n        return err\n    }\n    sess.Delete(\"board\")\n    if err := sess.Save(); err != nil {\n        return err\n    }\n    return c.Redirect(\"/\", fiber.StatusSeeOther)\n}\n\nfunc currentBoard(c *fiber.Ctx) *board.ConnectFourBoard {\n    sess, err := store.Get(c)\n    if err != nil {\n        return board.New()\n    }\n    raw, _ := sess.Get(\"board\").(string)\n    return board.FromJSON(raw)\n}\n\nfunc saveBoard(c *fiber.Ctx, game *board.ConnectFourBoard) {\n    sess, err := store.Get(c)\n    if err != nil {\n        return\n    }\n    sess.Set(\"board\", game.ToJSON())\n    _ = sess.Save()\n}\n"
+    },
+    {
+      "id": "firebird",
+      "name": "Firebird",
+      "category": "Database",
+      "prism": "language-sql",
+      "file": "frameworks/firebird/schema.sql",
+      "folder": "frameworks/firebird",
+      "note": "This is the representative file - the identity-column tables, constraints and the `cells` view. See {link} to browse the PSQL procedures and the rest of the project.",
+      "linkText": "the full Firebird example on GitHub",
+      "stack": "",
+      "languages": [
+        "SQL"
+      ],
+      "code": "RECREATE TABLE games (\n    game_id    INTEGER GENERATED BY DEFAULT AS IDENTITY,\n    player     VARCHAR(64) NOT NULL,\n    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n    CONSTRAINT pk_games PRIMARY KEY (game_id)\n);\n\nRECREATE TABLE moves (\n    move_id       INTEGER GENERATED BY DEFAULT AS IDENTITY,\n    game_id       INTEGER NOT NULL,\n    turn_no       INTEGER NOT NULL,\n    player        CHAR(1) NOT NULL,\n    column_number SMALLINT NOT NULL,\n    CONSTRAINT pk_moves PRIMARY KEY (move_id),\n    CONSTRAINT fk_moves_games FOREIGN KEY (game_id) REFERENCES games (game_id) ON DELETE CASCADE,\n    CONSTRAINT uq_moves_turn UNIQUE (game_id, turn_no),\n    CONSTRAINT ck_moves_player CHECK (player IN ('X', 'O')),\n    CONSTRAINT ck_moves_column CHECK (column_number BETWEEN 1 AND 7)\n);\n\nCREATE INDEX ix_moves_game_column ON moves (game_id, column_number, turn_no);\n\nCREATE OR ALTER VIEW cells AS\n    SELECT\n        game_id,\n        column_number AS x,\n        player,\n        ROW_NUMBER() OVER (PARTITION BY game_id, column_number ORDER BY turn_no) AS y\n    FROM moves;\n"
     },
     {
       "id": "flask",
@@ -538,6 +770,10 @@ window.CONNECT_FOUR_DATA = {
       "folder": "frameworks/flask",
       "note": "This is one representative file from the app. See {link} to browse the board, template and the rest of the project.",
       "linkText": "the full Flask app on GitHub",
+      "stack": "Backend",
+      "languages": [
+        "Python"
+      ],
       "code": "from flask import Flask, redirect, render_template, request, session, url_for\n\nfrom board import COLUMNS, ConnectFourBoard\n\napp = Flask(__name__)\napp.secret_key = \"change-me-in-production\"\n\n\ndef current_board():\n    return ConnectFourBoard.from_session(session.get(\"board\"))\n\n\n@app.get(\"/\")\ndef board_page():\n    board = current_board()\n    return render_template(\"board.html\", board=board, columns=range(1, COLUMNS + 1))\n\n\n@app.post(\"/move\")\ndef move():\n    board = current_board()\n    column = request.form.get(\"column\", type=int)\n    if column is not None and 1 <= column <= COLUMNS and not board.is_over:\n        if not board.is_full(column - 1):\n            board.drop(column - 1)\n    session[\"board\"] = board.to_session()\n    return redirect(url_for(\"board_page\"))\n\n\n@app.post(\"/reset\")\ndef reset():\n    session.pop(\"board\", None)\n    return redirect(url_for(\"board_page\"))\n"
     },
     {
@@ -549,6 +785,10 @@ window.CONNECT_FOUR_DATA = {
       "folder": "frameworks/flutter",
       "note": "This is one representative file from the app. See {link} to browse the app entry, board logic and the rest of the project.",
       "linkText": "the full Flutter app on GitHub",
+      "stack": "",
+      "languages": [
+        "Dart"
+      ],
       "code": "import 'package:flutter/material.dart';\n\nimport 'board.dart';\n\nclass ConnectFour extends StatefulWidget {\n  const ConnectFour({super.key});\n\n  @override\n  State<ConnectFour> createState() => _ConnectFourState();\n}\n\nclass _ConnectFourState extends State<ConnectFour> {\n  List<List<String>> _board = createBoard();\n  int _moves = 0;\n\n  String? get _champion => winner(_board);\n  bool get _over => _champion != null || _moves == rows * columns;\n\n  String get _status {\n    if (_champion != null) {\n      return 'Player $_champion wins!';\n    }\n    if (_over) {\n      return \"It's a tie!\";\n    }\n    return 'Player ${currentPlayer(_moves)}, choose a column.';\n  }\n\n  void _play(int column) {\n    if (_over || isColumnFull(_board, column)) {\n      return;\n    }\n    setState(() {\n      _board = drop(_board, column, currentPlayer(_moves));\n      _moves++;\n    });\n  }\n\n  void _reset() {\n    setState(() {\n      _board = createBoard();\n      _moves = 0;\n    });\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(title: const Text('Connect Four')),\n      body: Center(\n        child: Column(\n          mainAxisSize: MainAxisSize.min,\n          children: [\n            Text(_status, style: Theme.of(context).textTheme.titleMedium),\n            const SizedBox(height: 8),\n            for (final row in _board.reversed)\n              Row(\n                mainAxisSize: MainAxisSize.min,\n                children: [\n                  for (final cell in row)\n                    Text(cell, style: const TextStyle(fontSize: 20)),\n                ],\n              ),\n            const SizedBox(height: 8),\n            Row(\n              mainAxisSize: MainAxisSize.min,\n              children: [\n                for (var column = 0; column < columns; column++)\n                  IconButton(\n                    onPressed: _over || isColumnFull(_board, column)\n                        ? null\n                        : () => _play(column),\n                    icon: Text('${column + 1}'),\n                  ),\n              ],\n            ),\n            TextButton(onPressed: _reset, child: const Text('New game')),\n          ],\n        ),\n      ),\n    );\n  }\n}\n"
     },
     {
@@ -560,6 +800,10 @@ window.CONNECT_FOUR_DATA = {
       "folder": "frameworks/fyne",
       "note": "This is one representative file from the app - Fyne is a cross-platform desktop GUI toolkit, so it opens a native window instead of serving HTML (Prism has no Fyne grammar, so this is plain Go). See {link} to browse the board logic and the rest of the project.",
       "linkText": "the full Fyne app on GitHub",
+      "stack": "",
+      "languages": [
+        "Go"
+      ],
       "code": "package main\n\nimport (\n    \"fmt\"\n\n    \"fyne.io/fyne/v2\"\n    \"fyne.io/fyne/v2/app\"\n    \"fyne.io/fyne/v2/container\"\n    \"fyne.io/fyne/v2/widget\"\n\n    \"connectfour/board\"\n)\n\ntype gameUI struct {\n    game   *board.ConnectFourBoard\n    cells  [board.Rows][board.Columns]*widget.Label\n    status *widget.Label\n}\n\nfunc main() {\n    ui := &gameUI{game: board.New()}\n\n    application := app.New()\n    window := application.NewWindow(\"Connect Four\")\n\n    window.SetContent(ui.build())\n    window.Resize(fyne.NewSize(560, 560))\n    ui.refresh()\n\n    window.ShowAndRun()\n}\n\nfunc (ui *gameUI) build() fyne.CanvasObject {\n    ui.status = widget.NewLabel(\"\")\n    ui.status.Alignment = fyne.TextAlignCenter\n    ui.status.TextStyle = fyne.TextStyle{Bold: true}\n\n    grid := container.NewGridWithColumns(board.Columns, ui.cellObjects()...)\n    buttons := container.NewGridWithColumns(board.Columns, ui.buttonObjects()...)\n\n    return container.NewBorder(\n        ui.status,\n        widget.NewButton(\"New game\", ui.reset),\n        nil,\n        nil,\n        container.NewVBox(grid, buttons),\n    )\n}\n\nfunc (ui *gameUI) cellObjects() []fyne.CanvasObject {\n    objects := make([]fyne.CanvasObject, 0, board.Rows*board.Columns)\n    for row := 0; row < board.Rows; row++ {\n        for column := 0; column < board.Columns; column++ {\n            label := widget.NewLabel(board.Empty)\n            label.Alignment = fyne.TextAlignCenter\n            label.TextStyle = fyne.TextStyle{Monospace: true}\n            ui.cells[row][column] = label\n            objects = append(objects, label)\n        }\n    }\n    return objects\n}\n\nfunc (ui *gameUI) buttonObjects() []fyne.CanvasObject {\n    objects := make([]fyne.CanvasObject, 0, board.Columns)\n    for column := 0; column < board.Columns; column++ {\n        index := column\n        objects = append(objects, widget.NewButton(fmt.Sprintf(\"%d\", index+1), func() {\n            ui.play(index)\n        }))\n    }\n    return objects\n}\n\nfunc (ui *gameUI) play(column int) {\n    if !ui.game.IsOver() {\n        ui.game.Drop(column)\n    }\n    ui.refresh()\n}\n\nfunc (ui *gameUI) reset() {\n    ui.game = board.New()\n    ui.refresh()\n}\n\nfunc (ui *gameUI) refresh() {\n    rows := ui.game.RowsTopDown()\n    for row := 0; row < board.Rows; row++ {\n        for column := 0; column < board.Columns; column++ {\n            ui.cells[row][column].SetText(rows[row][column])\n        }\n    }\n    ui.status.SetText(ui.statusText())\n}\n\nfunc (ui *gameUI) statusText() string {\n    switch {\n    case ui.game.Winner() != \"\":\n        return fmt.Sprintf(\"Player %s wins!\", ui.game.Winner())\n    case ui.game.IsOver():\n        return \"It's a tie!\"\n    default:\n        return fmt.Sprintf(\"Player %s, choose a column\", ui.game.CurrentPlayer())\n    }\n}\n"
     },
     {
@@ -571,6 +815,10 @@ window.CONNECT_FOUR_DATA = {
       "folder": "frameworks/gin",
       "note": "This is one representative file from the app. See {link} to browse the board, templates and the rest of the project.",
       "linkText": "the full Gin app on GitHub",
+      "stack": "Backend",
+      "languages": [
+        "Go"
+      ],
       "code": "package main\n\nimport (\n    \"net/http\"\n    \"strconv\"\n\n    \"github.com/gin-contrib/sessions\"\n    \"github.com/gin-contrib/sessions/cookie\"\n    \"github.com/gin-gonic/gin\"\n\n    \"connectfour/board\"\n)\n\nfunc main() {\n    router := gin.Default()\n    router.LoadHTMLGlob(\"templates/*.html\")\n\n    store := cookie.NewStore([]byte(\"change-me-in-production\"))\n    router.Use(sessions.Sessions(\"connectfour\", store))\n\n    router.GET(\"/\", boardPage)\n    router.POST(\"/move\", move)\n    router.POST(\"/reset\", reset)\n\n    router.Run(\":8080\")\n}\n\nfunc boardPage(c *gin.Context) {\n    columns := make([]int, board.Columns)\n    for index := range columns {\n        columns[index] = index + 1\n    }\n    c.HTML(http.StatusOK, \"board.html\", gin.H{\n        \"board\":   currentBoard(c),\n        \"columns\": columns,\n    })\n}\n\nfunc move(c *gin.Context) {\n    game := currentBoard(c)\n    column, err := strconv.Atoi(c.PostForm(\"column\"))\n\n    if err == nil && column >= 1 && column <= board.Columns && !game.IsOver() {\n        if !game.IsFull(column - 1) {\n            game.Drop(column - 1)\n        }\n    }\n\n    saveBoard(c, game)\n    c.Redirect(http.StatusSeeOther, \"/\")\n}\n\nfunc reset(c *gin.Context) {\n    session := sessions.Default(c)\n    session.Delete(\"board\")\n    session.Save()\n    c.Redirect(http.StatusSeeOther, \"/\")\n}\n\nfunc currentBoard(c *gin.Context) *board.ConnectFourBoard {\n    raw, _ := sessions.Default(c).Get(\"board\").(string)\n    return board.FromJSON(raw)\n}\n\nfunc saveBoard(c *gin.Context, game *board.ConnectFourBoard) {\n    session := sessions.Default(c)\n    session.Set(\"board\", game.ToJSON())\n    session.Save()\n}\n"
     },
     {
@@ -582,7 +830,116 @@ window.CONNECT_FOUR_DATA = {
       "folder": "frameworks/graphql",
       "note": "This is the representative file - a GraphQL schema (a Board type with Query and Mutation operations), with a Python resolver server and example operations beside it. See {link} to browse the resolvers and the rest of the example.",
       "linkText": "the full GraphQL example on GitHub",
+      "stack": "",
+      "languages": [
+        "Python"
+      ],
       "code": "schema {\n    query: Query\n    mutation: Mutation\n}\n\ntype Query {\n    \"The current game.\"\n    board: Board!\n    \"Whose turn it is: X or O.\"\n    currentPlayer: String!\n    \"How many discs each column holds, left to right.\"\n    columnHeights: [Int!]!\n}\n\ntype Mutation {\n    \"Drop the current player's disc into a 1-based column.\"\n    drop(column: Int!): Board!\n    \"Clear the board and begin again.\"\n    reset: Board!\n    \"Replay a scripted list of 1-based columns from an empty board.\"\n    replay(columns: [Int!]!): Board!\n}\n\ntype Board {\n    rows: Int!\n    columns: Int!\n    \"How many discs have been played.\"\n    moves: Int!\n    \"The character used for an empty slot.\"\n    empty: String!\n    \"The player to move next.\"\n    player: String!\n    \"X or O once someone has four in a row, otherwise null.\"\n    winner: String\n    isOver: Boolean!\n    \"The board, top row first, as rows of single characters.\"\n    cells: [[String!]!]!\n}\n"
+    },
+    {
+      "id": "handlebars",
+      "name": "Handlebars",
+      "category": "Web",
+      "prism": "language-handlebars",
+      "file": "frameworks/handlebars/templates/board.hbs",
+      "folder": "frameworks/handlebars",
+      "note": "This is one representative file from the app. See {link} to browse the partial, renderer, server and the rest of the project.",
+      "linkText": "the full Handlebars app on GitHub",
+      "stack": "Frontend",
+      "languages": [
+        "JavaScript"
+      ],
+      "code": "<!doctype html>\n<html lang=\"en\">\n    <head>\n        <meta charset=\"utf-8\">\n        <title>Connect Four - Handlebars</title>\n    </head>\n    <body>\n        <h1>Connect Four</h1>\n\n        <p role=\"status\">{{status}}</p>\n\n        <table class=\"board\">\n            <tbody>\n                {{#each rows}}\n                    <tr>\n                        {{#each this}}\n                            {{> cell}}\n                        {{/each}}\n                    </tr>\n                {{/each}}\n            </tbody>\n        </table>\n\n        <form method=\"post\" action=\"/move\">\n            {{#each columns}}\n                <button type=\"submit\" name=\"column\" value=\"{{label}}\" {{disabledAttr disabled}}>{{label}}</button>\n            {{/each}}\n        </form>\n\n        <form method=\"post\" action=\"/reset\">\n            <button type=\"submit\">New game</button>\n        </form>\n    </body>\n</html>\n"
+    },
+    {
+      "id": "htmx",
+      "name": "HTMX",
+      "category": "Web",
+      "prism": "language-javascript",
+      "file": "frameworks/htmx/server.js",
+      "folder": "frameworks/htmx",
+      "note": "This is one representative file from the app - the server that returns htmx fragments. See {link} to browse the board and the rest of the project.",
+      "linkText": "the full htmx app on GitHub",
+      "stack": "Frontend",
+      "languages": [
+        "JavaScript"
+      ],
+      "code": "const http = require(\"node:http\");\n\nconst {\n    COLUMNS,\n    ROWS,\n    createBoard,\n    currentPlayer,\n    drop,\n    isColumnFull,\n    winner,\n} = require(\"./board\");\n\nconst HTMX = \"https://unpkg.com/htmx.org@2.0.4\";\nconst sessions = new Map();\n\nfunction escapeHtml(value) {\n    return String(value).replace(/[&<>\"']/g, (char) => ({\n        \"&\": \"&amp;\",\n        \"<\": \"&lt;\",\n        \">\": \"&gt;\",\n        '\"': \"&quot;\",\n        \"'\": \"&#39;\",\n    })[char]);\n}\n\nfunction boardFor(id) {\n    if (!sessions.has(id)) {\n        sessions.set(id, { cells: createBoard(), moves: 0 });\n    }\n    return sessions.get(id);\n}\n\nfunction statusLine(state) {\n    const champion = winner(state.cells);\n    const over = Boolean(champion) || state.moves === ROWS * COLUMNS;\n    if (champion) {\n        return `Player ${champion} wins!`;\n    }\n    if (over) {\n        return \"It's a tie!\";\n    }\n    return `Player ${currentPlayer(state.moves)}, choose a column.`;\n}\n\nfunction renderGame(state) {\n    const champion = winner(state.cells);\n    const over = Boolean(champion) || state.moves === ROWS * COLUMNS;\n\n    let rows = \"\";\n    for (let row = ROWS - 1; row >= 0; row -= 1) {\n        rows += \"<tr>\";\n        for (let column = 0; column < COLUMNS; column += 1) {\n            const cell = state.cells[row][column];\n            rows += `<td class=\"cell cell--${cell.toLowerCase()}\">${escapeHtml(cell)}</td>`;\n        }\n        rows += \"</tr>\";\n    }\n\n    let buttons = \"\";\n    for (let column = 0; column < COLUMNS; column += 1) {\n        const disabled = over || isColumnFull(state.cells, column) ? \" disabled\" : \"\";\n        buttons +=\n            `<button type=\"button\"${disabled} ` +\n            `hx-post=\"/move?column=${column + 1}\" hx-target=\"#game\" hx-swap=\"outerHTML\">` +\n            `${column + 1}</button>`;\n    }\n\n    return (\n        `<section id=\"game\">` +\n        `<h1>Connect Four</h1>` +\n        `<p role=\"status\">${escapeHtml(statusLine(state))}</p>` +\n        `<table class=\"board\"><tbody>${rows}</tbody></table>` +\n        `<div class=\"columns\">${buttons}</div>` +\n        `<button type=\"button\" hx-post=\"/reset\" hx-target=\"#game\" hx-swap=\"outerHTML\">New game</button>` +\n        `</section>`\n    );\n}\n\nfunction page(state) {\n    return (\n        \"<!doctype html><html lang=\\\"en\\\"><head><meta charset=\\\"utf-8\\\">\" +\n        \"<meta name=\\\"viewport\\\" content=\\\"width=device-width, initial-scale=1\\\">\" +\n        `<title>Connect Four - htmx</title>` +\n        `<script src=\"${HTMX}\"></script></head>` +\n        `<body>${renderGame(state)}</body></html>`\n    );\n}\n\nconst server = http.createServer((request, response) => {\n    const url = new URL(request.url, `http://${request.headers.host}`);\n    const sessionId = request.headers.cookie?.match(/sid=([^;]+)/)?.[1] ?? \"default\";\n    const state = boardFor(sessionId);\n\n    if (url.pathname === \"/move\") {\n        const column = Number.parseInt(url.searchParams.get(\"column\") ?? \"\", 10) - 1;\n        const over = Boolean(winner(state.cells)) || state.moves === ROWS * COLUMNS;\n        if (!over && column >= 0 && column < COLUMNS && !isColumnFull(state.cells, column)) {\n            drop(state.cells, column, currentPlayer(state.moves));\n            state.moves += 1;\n        }\n        response.writeHead(200, {\n            \"Content-Type\": \"text/html; charset=utf-8\",\n            \"Set-Cookie\": `sid=${sessionId}`,\n        });\n        response.end(renderGame(state));\n        return;\n    }\n\n    if (url.pathname === \"/reset\") {\n        sessions.set(sessionId, { cells: createBoard(), moves: 0 });\n        response.writeHead(200, {\n            \"Content-Type\": \"text/html; charset=utf-8\",\n            \"Set-Cookie\": `sid=${sessionId}`,\n        });\n        response.end(renderGame(sessions.get(sessionId)));\n        return;\n    }\n\n    response.writeHead(200, {\n        \"Content-Type\": \"text/html; charset=utf-8\",\n        \"Set-Cookie\": `sid=${sessionId}`,\n    });\n    response.end(page(state));\n});\n\nserver.listen(3000, () => {\n    console.log(\"Connect Four (htmx) on http://localhost:3000\");\n});\n"
+    },
+    {
+      "id": "db2",
+      "name": "IBM Db2",
+      "category": "Database",
+      "prism": "language-sql",
+      "file": "frameworks/db2/schema.sql",
+      "folder": "frameworks/db2",
+      "note": "This is the representative file - the identity-column tables, constraints and the `cells` view. See {link} to browse the LISTAGG queries and the rest of the project.",
+      "linkText": "the full IBM Db2 example on GitHub",
+      "stack": "",
+      "languages": [
+        "SQL"
+      ],
+      "code": "CREATE TABLE games (\n    game_id    INTEGER GENERATED ALWAYS AS IDENTITY,\n    player     VARCHAR(64) NOT NULL,\n    created_at TIMESTAMP NOT NULL DEFAULT CURRENT TIMESTAMP,\n    PRIMARY KEY (game_id)\n);\n\nCREATE TABLE moves (\n    move_id       INTEGER GENERATED ALWAYS AS IDENTITY,\n    game_id       INTEGER NOT NULL,\n    turn_no       INTEGER NOT NULL,\n    player        CHAR(1) NOT NULL,\n    column_number SMALLINT NOT NULL,\n    PRIMARY KEY (move_id),\n    CONSTRAINT uq_moves_turn UNIQUE (game_id, turn_no),\n    CONSTRAINT fk_moves_games FOREIGN KEY (game_id) REFERENCES games (game_id) ON DELETE CASCADE,\n    CONSTRAINT ck_moves_player CHECK (player IN ('X', 'O')),\n    CONSTRAINT ck_moves_column CHECK (column_number BETWEEN 1 AND 7)\n);\n\nCREATE INDEX ix_moves_game_column ON moves (game_id, column_number, turn_no);\n\nCREATE VIEW cells AS\n    SELECT\n        game_id,\n        column_number AS x,\n        player,\n        ROW_NUMBER() OVER (PARTITION BY game_id, column_number ORDER BY turn_no) AS y\n    FROM moves;\n"
+    },
+    {
+      "id": "ionic",
+      "name": "Ionic",
+      "category": "Mobile",
+      "prism": "language-typescript",
+      "file": "frameworks/ionic/src/app/connect-four/connect-four.page.ts",
+      "folder": "frameworks/ionic",
+      "note": "This is one representative file from the app. See {link} to browse the template, board logic and the rest of the project.",
+      "linkText": "the full Ionic app on GitHub",
+      "stack": "",
+      "languages": [
+        "TypeScript"
+      ],
+      "code": "import { Component } from \"@angular/core\";\n\nimport { COLUMNS, ConnectFourBoard } from \"./board\";\n\n@Component({\n    selector: \"app-connect-four\",\n    templateUrl: \"./connect-four.page.html\",\n})\nexport class ConnectFourPage {\n    readonly columns = Array.from({ length: COLUMNS }, (_, index) => index);\n    board = new ConnectFourBoard();\n\n    get champion(): string | null {\n        return this.board.winner;\n    }\n\n    get status(): string {\n        if (this.champion) {\n            return `Player ${this.champion} wins!`;\n        }\n        if (this.board.isOver) {\n            return \"It's a tie!\";\n        }\n        return `Player ${this.board.currentPlayer}, choose a column.`;\n    }\n\n    play(column: number): void {\n        this.board.play(column);\n    }\n\n    isFull(column: number): boolean {\n        return this.board.isFull(column);\n    }\n\n    reset(): void {\n        this.board = new ConnectFourBoard();\n    }\n}\n"
+    },
+    {
+      "id": "javafx",
+      "name": "JavaFX",
+      "category": "Desktop",
+      "prism": "language-java",
+      "file": "frameworks/javafx/src/main/java/com/example/connectfour/ConnectFourApp.java",
+      "folder": "frameworks/javafx",
+      "note": "This is one representative file from the app. See {link} to browse the board and the rest of the project.",
+      "linkText": "the full JavaFX app on GitHub",
+      "stack": "",
+      "languages": [
+        "Java"
+      ],
+      "code": "package com.example.connectfour;\n\nimport javafx.application.Application;\nimport javafx.geometry.Insets;\nimport javafx.geometry.Pos;\nimport javafx.scene.Scene;\nimport javafx.scene.control.Button;\nimport javafx.scene.control.Label;\nimport javafx.scene.layout.GridPane;\nimport javafx.scene.layout.VBox;\nimport javafx.scene.paint.Color;\nimport javafx.scene.shape.Circle;\nimport javafx.stage.Stage;\n\npublic class ConnectFourApp extends Application {\n\n    private final ConnectFourBoard board = new ConnectFourBoard();\n    private final GridPane boardGrid = new GridPane();\n    private final GridPane columnGrid = new GridPane();\n    private final Label status = new Label();\n\n    @Override\n    public void start(Stage stage) {\n        boardGrid.setHgap(4);\n        boardGrid.setVgap(4);\n        columnGrid.setHgap(4);\n        boardGrid.setAlignment(Pos.CENTER);\n        columnGrid.setAlignment(Pos.CENTER);\n\n        Label title = new Label(\"Connect Four\");\n        title.setStyle(\"-fx-font-size: 24px; -fx-font-weight: bold;\");\n\n        VBox root = new VBox(12, title, status, boardGrid, columnGrid);\n        root.setPadding(new Insets(16));\n        root.setAlignment(Pos.CENTER);\n\n        render();\n\n        stage.setTitle(\"Connect Four\");\n        stage.setScene(new Scene(root, 480, 580));\n        stage.show();\n    }\n\n    private void render() {\n        String champion = board.winner();\n        status.setText(\n                champion != null\n                        ? \"Player \" + champion + \" wins!\"\n                        : board.isOver()\n                                ? \"It's a tie!\"\n                                : \"Player \" + board.currentPlayer() + \", choose a column.\");\n\n        boardGrid.getChildren().clear();\n        for (int displayRow = 0; displayRow < ConnectFourBoard.ROWS; displayRow++) {\n            int row = ConnectFourBoard.ROWS - 1 - displayRow;\n            for (int column = 0; column < ConnectFourBoard.COLUMNS; column++) {\n                Circle disc = new Circle(20, discColor(board.cell(row, column)));\n                boardGrid.add(disc, column, displayRow);\n            }\n        }\n\n        columnGrid.getChildren().clear();\n        for (int column = 0; column < ConnectFourBoard.COLUMNS; column++) {\n            int target = column;\n            Button button = new Button(String.valueOf(column + 1));\n            button.setDisable(board.isOver() || board.isFull(column));\n            button.setOnAction(event -> {\n                board.drop(target);\n                render();\n            });\n            columnGrid.add(button, column, 0);\n        }\n    }\n\n    private Color discColor(String cell) {\n        return switch (cell) {\n            case \"X\" -> Color.CRIMSON;\n            case \"O\" -> Color.GOLD;\n            default -> Color.DARKSLATEGRAY;\n        };\n    }\n\n    public static void main(String[] args) {\n        launch(args);\n    }\n}\n"
+    },
+    {
+      "id": "jetpackcompose",
+      "name": "Jetpack Compose",
+      "category": "Mobile",
+      "prism": "language-kotlin",
+      "file": "frameworks/jetpackcompose/app/src/main/java/com/example/connectfour/MainActivity.kt",
+      "folder": "frameworks/jetpackcompose",
+      "note": "This is one representative file from the app. See {link} to browse the ViewModel, board, Gradle build and the rest of the project.",
+      "linkText": "the full Jetpack Compose app on GitHub",
+      "stack": "",
+      "languages": [
+        "Kotlin"
+      ],
+      "code": "package com.example.connectfour\n\nimport android.os.Bundle\nimport androidx.activity.ComponentActivity\nimport androidx.activity.compose.setContent\nimport androidx.compose.foundation.background\nimport androidx.compose.foundation.layout.Arrangement\nimport androidx.compose.foundation.layout.Box\nimport androidx.compose.foundation.layout.Column\nimport androidx.compose.foundation.layout.Row\nimport androidx.compose.foundation.layout.fillMaxSize\nimport androidx.compose.foundation.layout.padding\nimport androidx.compose.foundation.layout.size\nimport androidx.compose.foundation.shape.CircleShape\nimport androidx.compose.material3.Button\nimport androidx.compose.material3.MaterialTheme\nimport androidx.compose.material3.Text\nimport androidx.compose.material3.TextButton\nimport androidx.compose.runtime.Composable\nimport androidx.compose.ui.Alignment\nimport androidx.compose.ui.Modifier\nimport androidx.compose.ui.draw.clip\nimport androidx.compose.ui.graphics.Color\nimport androidx.compose.ui.unit.dp\nimport androidx.lifecycle.viewmodel.compose.viewModel\n\nclass MainActivity : ComponentActivity() {\n    override fun onCreate(savedInstanceState: Bundle?) {\n        super.onCreate(savedInstanceState)\n        setContent {\n            MaterialTheme {\n                ConnectFourScreen()\n            }\n        }\n    }\n}\n\n@Composable\nfun ConnectFourScreen(viewModel: GameViewModel = viewModel()) {\n    val game = viewModel.game\n    val champion = game.winner\n\n    Column(\n        modifier = Modifier.fillMaxSize().padding(16.dp),\n        horizontalAlignment = Alignment.CenterHorizontally,\n        verticalArrangement = Arrangement.spacedBy(12.dp),\n    ) {\n        Text(\"Connect Four\", style = MaterialTheme.typography.headlineMedium)\n\n        Text(\n            when {\n                champion != null -> \"Player $champion wins!\"\n                game.isOver -> \"It's a tie!\"\n                else -> \"Player ${game.currentPlayer}, choose a column.\"\n            }\n        )\n\n        game.rowsTopDown().forEach { row ->\n            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {\n                row.forEach { cell ->\n                    Box(\n                        modifier = Modifier\n                            .size(40.dp)\n                            .clip(CircleShape)\n                            .background(discColor(cell)),\n                        contentAlignment = Alignment.Center,\n                    ) {\n                        Text(cell)\n                    }\n                }\n            }\n        }\n\n        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {\n            repeat(ConnectFourBoard.COLUMNS) { column ->\n                Button(\n                    onClick = { viewModel.play(column) },\n                    enabled = !game.isOver && !game.isFull(column),\n                ) {\n                    Text(\"${column + 1}\")\n                }\n            }\n        }\n\n        TextButton(onClick = viewModel::reset) {\n            Text(\"New game\")\n        }\n    }\n}\n\nprivate fun discColor(cell: String): Color = when (cell) {\n    \"X\" -> Color(0xFFE53935)\n    \"O\" -> Color(0xFFFDD835)\n    else -> Color(0xFF263238)\n}\n"
+    },
+    {
+      "id": "jquery",
+      "name": "jQuery",
+      "category": "Web",
+      "prism": "language-javascript",
+      "file": "frameworks/jquery/app.js",
+      "folder": "frameworks/jquery",
+      "note": "This is one representative file from the app. See {link} to browse the markup, stylesheet and the rest of the project.",
+      "linkText": "the full jQuery app on GitHub",
+      "stack": "Frontend",
+      "languages": [
+        "JavaScript"
+      ],
+      "code": "const ROWS = 6;\nconst COLUMNS = 7;\nconst EMPTY = \".\";\nconst PLAYERS = [\"X\", \"O\"];\nconst DIRECTIONS = [\n    [0, 1],\n    [1, 0],\n    [1, 1],\n    [1, -1],\n];\n\n$(function () {\n    let board = createBoard();\n    let moves = 0;\n\n    function createBoard() {\n        return Array.from({ length: ROWS }, () => Array(COLUMNS).fill(EMPTY));\n    }\n\n    function currentPlayer() {\n        return PLAYERS[moves % PLAYERS.length];\n    }\n\n    function lowestEmptyRow(column) {\n        for (let row = 0; row < ROWS; row += 1) {\n            if (board[row][column] === EMPTY) {\n                return row;\n            }\n        }\n        return -1;\n    }\n\n    function isColumnFull(column) {\n        return lowestEmptyRow(column) === -1;\n    }\n\n    function winner() {\n        for (const player of PLAYERS) {\n            if (hasLine(player)) {\n                return player;\n            }\n        }\n        return null;\n    }\n\n    function matches(row, column, player) {\n        return (\n            row >= 0 &&\n            row < ROWS &&\n            column >= 0 &&\n            column < COLUMNS &&\n            board[row][column] === player\n        );\n    }\n\n    function hasLine(player) {\n        for (let row = 0; row < ROWS; row += 1) {\n            for (let column = 0; column < COLUMNS; column += 1) {\n                for (const [rowStep, columnStep] of DIRECTIONS) {\n                    if (\n                        [1, 2, 3].every((step) =>\n                            matches(row + rowStep * step, column + columnStep * step, player),\n                        )\n                    ) {\n                        return true;\n                    }\n                }\n            }\n        }\n        return false;\n    }\n\n    function statusText() {\n        const champion = winner();\n        if (champion) {\n            return `Player ${champion} wins!`;\n        }\n        if (moves === ROWS * COLUMNS) {\n            return \"It's a tie!\";\n        }\n        return `Player ${currentPlayer()}, choose a column.`;\n    }\n\n    function render() {\n        const champion = winner();\n        const over = Boolean(champion) || moves === ROWS * COLUMNS;\n\n        $(\"#status\").text(statusText());\n\n        const $tbody = $(\"#board\").empty();\n        for (let row = ROWS - 1; row >= 0; row -= 1) {\n            const $tr = $(\"<tr>\");\n            for (let column = 0; column < COLUMNS; column += 1) {\n                const cell = board[row][column];\n                const tone = cell === \".\" ? \"empty\" : cell.toLowerCase();\n                $(\"<td>\")\n                    .addClass(\"cell\")\n                    .addClass(`cell--${tone}`)\n                    .text(cell)\n                    .appendTo($tr);\n            }\n            $tr.appendTo($tbody);\n        }\n\n        const $columns = $(\"#columns\").empty();\n        for (let column = 0; column < COLUMNS; column += 1) {\n            $(\"<button>\")\n                .attr(\"type\", \"button\")\n                .prop(\"disabled\", over || isColumnFull(column))\n                .text(column + 1)\n                .appendTo($columns);\n        }\n    }\n\n    function play(column) {\n        if (winner() || moves === ROWS * COLUMNS || isColumnFull(column)) {\n            return;\n        }\n        board[lowestEmptyRow(column)][column] = currentPlayer();\n        moves += 1;\n        render();\n    }\n\n    $(\"#columns\").on(\"click\", \"button\", function () {\n        play($(this).index());\n    });\n\n    $(\"#reset\").on(\"click\", function () {\n        board = createBoard();\n        moves = 0;\n        render();\n    });\n\n    render();\n});\n"
     },
     {
       "id": "json",
@@ -593,7 +950,56 @@ window.CONNECT_FOUR_DATA = {
       "folder": "frameworks/json",
       "note": "This is the representative file - a data-first Connect Four whose board and scripted moves live in JSON, played by a small Python loader. See {link} to browse the loader and the rest of the example.",
       "linkText": "the JSON example on GitHub",
+      "stack": "",
+      "languages": [
+        "JSON"
+      ],
       "code": "{\n    \"title\": \"Connect Four\",\n    \"rows\": 6,\n    \"columns\": 7,\n    \"empty\": \".\",\n    \"players\": [\"X\", \"O\"],\n    \"moves\": [1, 1, 2, 2, 3, 3, 4]\n}\n"
+    },
+    {
+      "id": "koa",
+      "name": "Koa",
+      "category": "Web",
+      "prism": "language-javascript",
+      "file": "frameworks/koa/app.js",
+      "folder": "frameworks/koa",
+      "note": "This is one representative file from the app. See {link} to browse the board module and the rest of the project.",
+      "linkText": "the full Koa app on GitHub",
+      "stack": "Backend",
+      "languages": [
+        "JavaScript"
+      ],
+      "code": "import Koa from \"koa\";\nimport Router from \"@koa/router\";\nimport bodyParser from \"koa-bodyparser\";\nimport session from \"koa-session\";\n\nimport {\n    COLUMNS,\n    ROWS,\n    countMoves,\n    createBoard,\n    currentPlayer,\n    drop,\n    isColumnFull,\n    winner,\n} from \"./lib/board.js\";\n\nconst app = new Koa();\napp.keys = [\"change-me-in-production\"];\napp.use(session(app));\napp.use(bodyParser());\n\nfunction boardFrom(sessionState) {\n    return sessionState.board ?? createBoard();\n}\n\nfunction renderBoard(board) {\n    const champion = winner(board);\n    const moves = countMoves(board);\n    const over = Boolean(champion) || moves === ROWS * COLUMNS;\n\n    let rows = \"\";\n    for (let row = ROWS - 1; row >= 0; row -= 1) {\n        rows += \"<tr>\";\n        for (let column = 0; column < COLUMNS; column += 1) {\n            const cell = board[row][column];\n            rows += `<td class=\"cell cell--${cell.toLowerCase()}\">${cell}</td>`;\n        }\n        rows += \"</tr>\";\n    }\n\n    let buttons = \"\";\n    for (let column = 0; column < COLUMNS; column += 1) {\n        const disabled = over || isColumnFull(board, column) ? \" disabled\" : \"\";\n        buttons += `<button type=\"submit\" name=\"column\" value=\"${column + 1}\"${disabled}>${column + 1}</button>`;\n    }\n\n    const status = champion\n        ? `Player ${champion} wins!`\n        : over\n        ? \"It's a tie!\"\n        : `Player ${currentPlayer(moves)}, choose a column.`;\n\n    return (\n        `<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\">` +\n        `<title>Connect Four</title></head><body>` +\n        `<h1>Connect Four</h1><p>${status}</p>` +\n        `<table class=\"board\">${rows}</table>` +\n        `<form method=\"post\" action=\"/move\">${buttons}</form>` +\n        `<form method=\"post\" action=\"/reset\"><button type=\"submit\">New game</button></form>` +\n        `</body></html>`\n    );\n}\n\nconst router = new Router();\n\nrouter.get(\"/\", (ctx) => {\n    ctx.type = \"text/html\";\n    ctx.body = renderBoard(boardFrom(ctx.session));\n});\n\nrouter.post(\"/move\", (ctx) => {\n    const board = boardFrom(ctx.session);\n    const column = Number.parseInt(ctx.request.body.column, 10) - 1;\n    const moves = countMoves(board);\n    if (\n        !winner(board) &&\n        moves < ROWS * COLUMNS &&\n        column >= 0 &&\n        column < COLUMNS &&\n        !isColumnFull(board, column)\n    ) {\n        ctx.session.board = drop(board, column);\n    }\n    ctx.redirect(\"/\");\n});\n\nrouter.post(\"/reset\", (ctx) => {\n    ctx.session = null;\n    ctx.redirect(\"/\");\n});\n\napp.use(router.routes());\napp.use(router.allowedMethods());\n\napp.listen(3000, () => {\n    console.log(\"Connect Four (Koa) on http://localhost:3000\");\n});\n"
+    },
+    {
+      "id": "ktor",
+      "name": "Ktor",
+      "category": "Web",
+      "prism": "language-kotlin",
+      "file": "frameworks/ktor/src/main/kotlin/com/example/connectfour/Application.kt",
+      "folder": "frameworks/ktor",
+      "note": "This is one representative file from the app. See {link} to browse the board, Gradle build and the rest of the project.",
+      "linkText": "the full Ktor app on GitHub",
+      "stack": "Backend",
+      "languages": [
+        "Kotlin"
+      ],
+      "code": "package com.example.connectfour\n\nimport io.ktor.http.ContentType\nimport io.ktor.server.application.Application\nimport io.ktor.server.application.call\nimport io.ktor.server.engine.embeddedServer\nimport io.ktor.server.html.respondHtml\nimport io.ktor.server.netty.Netty\nimport io.ktor.server.request.receiveParameters\nimport io.ktor.server.response.respondRedirect\nimport io.ktor.server.response.respondText\nimport io.ktor.server.routing.get\nimport io.ktor.server.routing.post\nimport io.ktor.server.routing.routing\nimport io.ktor.server.sessions.Sessions\nimport io.ktor.server.sessions.cookie\nimport io.ktor.server.sessions.get\nimport io.ktor.server.sessions.set\nimport kotlinx.html.ButtonType\nimport kotlinx.html.FormMethod\nimport kotlinx.html.body\nimport kotlinx.html.button\nimport kotlinx.html.div\nimport kotlinx.html.form\nimport kotlinx.html.h1\nimport kotlinx.html.head\nimport kotlinx.html.p\nimport kotlinx.html.table\nimport kotlinx.html.tbody\nimport kotlinx.html.td\nimport kotlinx.html.title\nimport kotlinx.html.tr\n\ndata class GameSession(val board: String)\n\nfun main() {\n    embeddedServer(Netty, port = 8080, host = \"0.0.0.0\", module = Application::module)\n        .start(wait = true)\n}\n\nfun Application.module() {\n    install(Sessions) {\n        cookie<GameSession>(\"connectfour\") {\n            cookie.path = \"/\"\n            cookie.httpOnly = true\n        }\n    }\n\n    routing {\n        get(\"/\") {\n            val board = boardOf(call)\n            call.respondHtml {\n                head { title(\"Connect Four\") }\n                body {\n                    h1 { +\"Connect Four\" }\n                    p { +statusLine(board) }\n                    table {\n                        tbody {\n                            board.rowsTopDown().forEach { row ->\n                                tr {\n                                    row.forEach { cell ->\n                                        td(classes = \"cell cell--${cell.lowercase()}\") { +cell }\n                                    }\n                                }\n                            }\n                        }\n                    }\n                    form(action = \"/move\", method = FormMethod.post) {\n                        (1..COLUMNS).forEach { column ->\n                            button(type = ButtonType.submit) {\n                                name = \"column\"\n                                value = column.toString()\n                                disabled = board.isOver\n                                +\"$column\"\n                            }\n                        }\n                    }\n                    form(action = \"/reset\", method = FormMethod.post) {\n                        button(type = ButtonType.submit) { +\"New game\" }\n                    }\n                }\n            }\n        }\n\n        post(\"/move\") {\n            val board = boardOf(call)\n            val column = call.receiveParameters()[\"column\"]?.toIntOrNull()\n            if (column != null && column in 1..COLUMNS && !board.isOver && !board.isFull(column - 1)) {\n                board.drop(column - 1)\n            }\n            call.sessions.set(GameSession(board.encode()))\n            call.respondRedirect(\"/\")\n        }\n\n        post(\"/reset\") {\n            call.sessions.set(GameSession(ConnectFourBoard().encode()))\n            call.respondRedirect(\"/\")\n        }\n    }\n}\n\nprivate fun boardOf(call: io.ktor.server.application.ApplicationCall): ConnectFourBoard =\n    ConnectFourBoard.decode(call.sessions.get<GameSession>()?.board)\n\nprivate fun statusLine(board: ConnectFourBoard): String {\n    board.winner?.let { return \"Player $it wins!\" }\n    if (board.isOver) {\n        return \"It's a tie!\"\n    }\n    return \"Player ${board.currentPlayer}, choose a column.\"\n}\n"
+    },
+    {
+      "id": "langchain",
+      "name": "LangChain",
+      "category": "AI",
+      "prism": "language-python",
+      "file": "frameworks/langchain/coach.py",
+      "folder": "frameworks/langchain",
+      "note": "This is one representative file from the app - the LCEL chain. See {link} to browse the board, Flask app and the rest of the project.",
+      "linkText": "the full LangChain app on GitHub",
+      "stack": "",
+      "languages": [
+        "Python"
+      ],
+      "code": "import os\n\nfrom langchain_core.output_parsers import StrOutputParser\nfrom langchain_core.prompts import ChatPromptTemplate\nfrom langchain_openai import ChatOpenAI\n\nSYSTEM = (\n    \"You are a concise Connect Four coach. Reply in a single short sentence, \"\n    \"naming one column number and the reason.\"\n)\n\nHUMAN = (\n    \"It is player {player}'s turn. The board is:\\n{board}\\n\"\n    \"Which column (1-7) should they play, and why?\"\n)\n\n\ndef build_coach(model=None, temperature=0.2):\n    prompt = ChatPromptTemplate.from_messages(\n        [\n            (\"system\", SYSTEM),\n            (\"human\", HUMAN),\n        ]\n    )\n    llm = ChatOpenAI(\n        model=model or os.environ.get(\"OPENAI_MODEL\", \"gpt-4o-mini\"),\n        temperature=temperature,\n    )\n    return prompt | llm | StrOutputParser()\n\n\ndef suggest_move(board, coach=None):\n    chain = coach or build_coach()\n    return chain.invoke({\"player\": board.current_player, \"board\": board.render()})\n"
     },
     {
       "id": "laravel",
@@ -604,7 +1010,41 @@ window.CONNECT_FOUR_DATA = {
       "folder": "frameworks/laravel",
       "note": "This is one representative file from the app. See {link} to browse the board, routes, Blade view and the rest of the project.",
       "linkText": "the full Laravel app on GitHub",
+      "stack": "Full stack",
+      "languages": [
+        "PHP"
+      ],
       "code": "<?php\n\nnamespace App\\Http\\Controllers;\n\nuse App\\Support\\ConnectFourBoard;\nuse Illuminate\\Http\\RedirectResponse;\nuse Illuminate\\Http\\Request;\nuse Illuminate\\View\\View;\n\nclass GameController extends Controller\n{\n    public function show(): View\n    {\n        return view('game.board', [\n            'board' => $this->board(),\n            'columns' => range(1, ConnectFourBoard::COLUMNS),\n        ]);\n    }\n\n    public function move(Request $request): RedirectResponse\n    {\n        $board = $this->board();\n        $column = (int) $request->input('column') - 1;\n\n        if ($column >= 0 && $column < ConnectFourBoard::COLUMNS\n            && ! $board->isOver() && ! $board->isFull($column)) {\n            $board->drop($column);\n        }\n\n        session(['board' => $board->toSession()]);\n\n        return redirect()->route('game.board');\n    }\n\n    public function reset(): RedirectResponse\n    {\n        session()->forget('board');\n\n        return redirect()->route('game.board');\n    }\n\n    private function board(): ConnectFourBoard\n    {\n        return ConnectFourBoard::fromSession(session('board'));\n    }\n}\n"
+    },
+    {
+      "id": "lit",
+      "name": "Lit",
+      "category": "Web",
+      "prism": "language-typescript",
+      "file": "frameworks/lit/src/connect-four.ts",
+      "folder": "frameworks/lit",
+      "note": "This is one representative file from the app. See {link} to browse the typed board module and the rest of the project.",
+      "linkText": "the full Lit app on GitHub",
+      "stack": "Frontend",
+      "languages": [
+        "TypeScript"
+      ],
+      "code": "import { LitElement, css, html } from \"lit\";\nimport { customElement, state } from \"lit/decorators.js\";\n\nimport {\n    COLUMNS,\n    ROWS,\n    createBoard,\n    currentPlayer,\n    drop,\n    isColumnFull,\n    tone,\n    winner,\n    type Board,\n    type Cell,\n} from \"./board\";\n\n@customElement(\"connect-four\")\nexport class ConnectFour extends LitElement {\n    static styles = css`\n        :host {\n            display: block;\n            max-width: 32rem;\n            margin: 0 auto;\n            padding: 3rem 1rem;\n            text-align: center;\n            font-family: system-ui, sans-serif;\n            color: #f4f6f5;\n        }\n\n        .board {\n            margin: 0 auto 1rem;\n            background: #1d4ed8;\n            border-radius: 0.75rem;\n            padding: 0.5rem;\n            border-spacing: 0.25rem;\n        }\n\n        .cell {\n            width: 2.5rem;\n            height: 2.5rem;\n            border-radius: 50%;\n            background: #263238;\n            font-weight: 600;\n        }\n\n        .cell--x {\n            background: #e53935;\n        }\n\n        .cell--o {\n            background: #fdd835;\n            color: #263238;\n        }\n\n        .columns {\n            display: flex;\n            gap: 0.25rem;\n            justify-content: center;\n        }\n\n        .columns button {\n            width: 2.5rem;\n            padding: 0.25rem 0;\n            border: 0;\n            border-radius: 0.375rem;\n            background: #334155;\n            color: inherit;\n            cursor: pointer;\n        }\n\n        .columns button:disabled {\n            opacity: 0.3;\n            cursor: default;\n        }\n    `;\n\n    @state()\n    private board: Board = createBoard();\n\n    @state()\n    private moves = 0;\n\n    private get champion(): Cell | null {\n        return winner(this.board);\n    }\n\n    private get over(): boolean {\n        return Boolean(this.champion) || this.moves === ROWS * COLUMNS;\n    }\n\n    private get status(): string {\n        if (this.champion) {\n            return `Player ${this.champion} wins!`;\n        }\n        if (this.over) {\n            return \"It's a tie!\";\n        }\n        return `Player ${currentPlayer(this.moves)}, choose a column.`;\n    }\n\n    render() {\n        return html`\n            <h1>Connect Four</h1>\n            <p role=\"status\">${this.status}</p>\n\n            <table class=\"board\">\n                <tbody>\n                    ${[...this.board].reverse().map(\n                        (cells) => html`\n                            <tr>\n                                ${cells.map(\n                                    (cell) => html`\n                                        <td class=\"cell cell--${tone(cell)}\">${cell}</td>\n                                    `,\n                                )}\n                            </tr>\n                        `,\n                    )}\n                </tbody>\n            </table>\n\n            <div class=\"columns\">\n                ${Array.from({ length: COLUMNS }, (_, column) => column).map(\n                    (column) => html`\n                        <button\n                            type=\"button\"\n                            ?disabled=${this.over || isColumnFull(this.board, column)}\n                            @click=${() => this.play(column)}\n                        >\n                            ${column + 1}\n                        </button>\n                    `,\n                )}\n            </div>\n\n            <button type=\"button\" @click=${this.reset}>New game</button>\n        `;\n    }\n\n    private play(column: number): void {\n        if (this.over || isColumnFull(this.board, column)) {\n            return;\n        }\n        this.board = drop(this.board, column, currentPlayer(this.moves));\n        this.moves += 1;\n    }\n\n    private reset(): void {\n        this.board = createBoard();\n        this.moves = 0;\n    }\n}\n\ndeclare global {\n    interface HTMLElementTagNameMap {\n        \"connect-four\": ConnectFour;\n    }\n}\n"
+    },
+    {
+      "id": "mariadb",
+      "name": "MariaDB",
+      "category": "Database",
+      "prism": "language-sql",
+      "file": "frameworks/mariadb/schema.sql",
+      "folder": "frameworks/mariadb",
+      "note": "This is the representative file - the sequence default, tables, constraints and the `cells` view. See {link} to browse the window-function queries and the rest of the project.",
+      "linkText": "the full MariaDB example on GitHub",
+      "stack": "",
+      "languages": [
+        "SQL"
+      ],
+      "code": "CREATE SEQUENCE IF NOT EXISTS game_seq START WITH 1 INCREMENT BY 1;\n\nCREATE TABLE IF NOT EXISTS games (\n    game_id    BIGINT NOT NULL DEFAULT NEXTVAL(game_seq),\n    player     VARCHAR(64) NOT NULL,\n    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n    PRIMARY KEY (game_id)\n);\n\nCREATE TABLE IF NOT EXISTS moves (\n    move_id       BIGINT NOT NULL AUTO_INCREMENT,\n    game_id       BIGINT NOT NULL,\n    turn_no       INT NOT NULL,\n    player        CHAR(1) NOT NULL,\n    column_number TINYINT NOT NULL,\n    PRIMARY KEY (move_id),\n    CONSTRAINT fk_moves_games FOREIGN KEY (game_id) REFERENCES games (game_id) ON DELETE CASCADE,\n    CONSTRAINT uq_moves_turn UNIQUE (game_id, turn_no),\n    CONSTRAINT ck_moves_player CHECK (player IN ('X', 'O')),\n    CONSTRAINT ck_moves_column CHECK (column_number BETWEEN 1 AND 7)\n);\n\nCREATE INDEX IF NOT EXISTS ix_moves_game_column ON moves (game_id, column_number, turn_no);\n\nCREATE OR REPLACE VIEW cells AS\n    SELECT\n        game_id,\n        column_number AS x,\n        player,\n        ROW_NUMBER() OVER (PARTITION BY game_id, column_number ORDER BY turn_no) AS y\n    FROM moves;\n"
     },
     {
       "id": "minimax",
@@ -615,6 +1055,10 @@ window.CONNECT_FOUR_DATA = {
       "folder": "frameworks/minimax",
       "note": "This is the representative file - a minimax search with alpha-beta pruning that plays Connect Four, with the board rules and a self-play driver beside it. See {link} to browse the board, the player and the rest of the example.",
       "linkText": "the full Minimax AI app on GitHub",
+      "stack": "",
+      "languages": [
+        "Python"
+      ],
       "code": "from board import COLUMNS, ROWS\n\nDEPTH = 6\nINFINITY = 1_000_000\nWIN = 100_000\n\nCOLUMN_ORDER = (3, 2, 4, 1, 5, 0, 6)\n\nRUN_SCORES = (0, 1, 8, 64, 100_000)\n\n\ndef _windows():\n    \"\"\"Every straight line of four cells on the board (69 of them).\"\"\"\n    found = []\n    for row in range(ROWS):\n        for column in range(COLUMNS):\n            for row_step, column_step in ((0, 1), (1, 0), (1, 1), (1, -1)):\n                end_row = row + 3 * row_step\n                end_column = column + 3 * column_step\n                if 0 <= end_row < ROWS and 0 <= end_column < COLUMNS:\n                    found.append(\n                        tuple(\n                            (row + index * row_step, column + index * column_step)\n                            for index in range(4)\n                        )\n                    )\n    return found\n\n\nWINDOWS = _windows()\n\n\ndef evaluate(board, player):\n    \"\"\"Score a quiet position from `player`'s point of view.\n\n    Each of the 69 windows of four is scored by how many of one player's discs\n    it holds - and skipped entirely once both players have a disc in it, because\n    that window can never become a line for either side.\n    \"\"\"\n    opponent = board.other_player(player)\n    score = 0\n    for window in WINDOWS:\n        values = [board.cells[row][column] for row, column in window]\n        own = values.count(player)\n        enemy = values.count(opponent)\n        if own and enemy:\n            continue\n        score += RUN_SCORES[own] - RUN_SCORES[enemy]\n    return score\n\n\ndef ordered_columns(board):\n    \"\"\"Open columns, centre first, so alpha-beta prunes as early as possible.\"\"\"\n    return [column for column in COLUMN_ORDER if not board.is_full(column)]\n\n\ndef minimax(board, depth, alpha, beta, ai_player):\n    \"\"\"Return the value of `board` for `ai_player` (classic minimax).\n\n    Wins and losses score near +/-WIN, scaled by the depth at which they are\n    found so the search prefers the quickest win and the slowest loss.\n    \"\"\"\n    player = board.current_player\n    maximizing = player == ai_player\n\n    if board.moves == ROWS * COLUMNS:\n        return 0\n    if depth == 0:\n        return evaluate(board, ai_player)\n\n    best = -INFINITY if maximizing else INFINITY\n    for column in ordered_columns(board):\n        row = board.drop(column, player)\n        if board.won_from(row, column, player):\n            score = (WIN + depth) if maximizing else -(WIN + depth)\n        else:\n            score = minimax(board, depth - 1, alpha, beta, ai_player)\n        board.undo(column, row)\n\n        if maximizing:\n            best = max(best, score)\n            alpha = max(alpha, best)\n        else:\n            best = min(best, score)\n            beta = min(beta, best)\n        if alpha >= beta:\n            break\n    return best\n\n\ndef choose_move(board, ai_player, depth=DEPTH):\n    \"\"\"Best column for `ai_player`, which must be the side to move.\"\"\"\n    best_column = None\n    best_score = -INFINITY\n    for column in ordered_columns(board):\n        row = board.drop(column, board.current_player)\n        if board.won_from(row, column, ai_player):\n            score = WIN + depth\n        else:\n            score = minimax(board, depth - 1, -INFINITY, INFINITY, ai_player)\n        board.undo(column, row)\n\n        if score > best_score:\n            best_score = score\n            best_column = column\n    return best_column\n"
     },
     {
@@ -626,6 +1070,10 @@ window.CONNECT_FOUR_DATA = {
       "folder": "frameworks/mongodb",
       "note": "This is the representative file - a MongoDB collection whose moves are embedded in each game document, validated with a $jsonSchema, with a seed game and aggregation pipelines beside it. See {link} to browse the seed data, the queries and the rest of the example.",
       "linkText": "the MongoDB example on GitHub",
+      "stack": "",
+      "languages": [
+        "JavaScript"
+      ],
       "code": "const connectFour = db.getSiblingDB(\"connect_four\");\n\nconnectFour.games.drop();\n\nconnectFour.createCollection(\"games\", {\n    validator: {\n        $jsonSchema: {\n            bsonType: \"object\",\n            required: [\"startedAt\", \"finished\", \"moves\"],\n            additionalProperties: false,\n            properties: {\n                _id: { bsonType: \"int\" },\n                startedAt: { bsonType: \"date\", description: \"when the game began\" },\n                finished: { bsonType: \"bool\" },\n                winner: { bsonType: [\"string\", \"null\"], enum: [\"X\", \"O\", null] },\n                moves: {\n                    bsonType: \"array\",\n                    description: \"every disc, in the order it was dropped\",\n                    maxItems: 42,\n                    items: {\n                        bsonType: \"object\",\n                        required: [\"turn\", \"player\", \"column\", \"row\"],\n                        additionalProperties: false,\n                        properties: {\n                            turn: { bsonType: \"int\", minimum: 1, maximum: 42 },\n                            player: { bsonType: \"string\", enum: [\"X\", \"O\"] },\n                            column: { bsonType: \"int\", minimum: 1, maximum: 7 },\n                            row: { bsonType: \"int\", minimum: 1, maximum: 6 }\n                        }\n                    }\n                }\n            }\n        }\n    }\n});\n\nconnectFour.games.createIndex({ \"moves.column\": 1, \"moves.row\": 1 });\nconnectFour.games.createIndex({ winner: 1 });\n"
     },
     {
@@ -637,6 +1085,10 @@ window.CONNECT_FOUR_DATA = {
       "folder": "frameworks/mysql",
       "note": "This is the representative file - a Connect Four schema (a games table, a moves table and a board view) with a seed game and window-function queries beside it. See {link} to browse the seed data, the queries and the rest of the example.",
       "linkText": "the MySQL example on GitHub",
+      "stack": "",
+      "languages": [
+        "SQL"
+      ],
       "code": "CREATE DATABASE IF NOT EXISTS connect_four\n    CHARACTER SET utf8mb4\n    COLLATE utf8mb4_unicode_ci;\n\nUSE connect_four;\n\nDROP VIEW IF EXISTS board_cells;\nDROP TABLE IF EXISTS moves;\nDROP TABLE IF EXISTS games;\n\nCREATE TABLE games (\n    id         INT UNSIGNED NOT NULL AUTO_INCREMENT,\n    started_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n    finished   BOOLEAN NOT NULL DEFAULT FALSE,\n    winner     CHAR(1) NULL,\n    PRIMARY KEY (id),\n    CONSTRAINT chk_winner CHECK (winner IN ('X', 'O'))\n) ENGINE = InnoDB;\n\nCREATE TABLE moves (\n    id        INT UNSIGNED NOT NULL AUTO_INCREMENT,\n    game_id   INT UNSIGNED NOT NULL,\n    turn      TINYINT UNSIGNED NOT NULL,\n    player    CHAR(1) NOT NULL,\n    column_no TINYINT UNSIGNED NOT NULL,\n    row_no    TINYINT UNSIGNED NOT NULL,\n    PRIMARY KEY (id),\n    UNIQUE KEY uniq_turn (game_id, turn),\n    UNIQUE KEY uniq_cell (game_id, column_no, row_no),\n    CONSTRAINT fk_moves_game FOREIGN KEY (game_id) REFERENCES games (id) ON DELETE CASCADE,\n    CONSTRAINT chk_player CHECK (player IN ('X', 'O')),\n    CONSTRAINT chk_column CHECK (column_no BETWEEN 1 AND 7),\n    CONSTRAINT chk_row CHECK (row_no BETWEEN 1 AND 6)\n) ENGINE = InnoDB;\n\nCREATE VIEW board_cells AS\nSELECT\n    g.id AS game_id,\n    rows_all.row_no,\n    cols_all.column_no,\n    COALESCE(m.player, '.') AS cell\nFROM games AS g\nCROSS JOIN (\n    SELECT 1 AS row_no UNION ALL SELECT 2 UNION ALL SELECT 3\n    UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6\n) AS rows_all\nCROSS JOIN (\n    SELECT 1 AS column_no UNION ALL SELECT 2 UNION ALL SELECT 3\n    UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6\n    UNION ALL SELECT 7\n) AS cols_all\nLEFT JOIN moves AS m\n    ON m.game_id = g.id\n   AND m.row_no = rows_all.row_no\n   AND m.column_no = cols_all.column_no;\n"
     },
     {
@@ -648,6 +1100,10 @@ window.CONNECT_FOUR_DATA = {
       "folder": "frameworks/nestjs",
       "note": "This is one representative file from the app (a JSON REST API, so there is no HTML view). See {link} to browse the service, board logic, modules and the rest of the project.",
       "linkText": "the full NestJS app on GitHub",
+      "stack": "Backend",
+      "languages": [
+        "TypeScript"
+      ],
       "code": "import { Body, Controller, Get, Post, Session } from \"@nestjs/common\";\n\nimport { GameService, GameState, GameView } from \"./game.service\";\n\n@Controller(\"game\")\nexport class GameController {\n    constructor(private readonly game: GameService) {}\n\n    @Get()\n    show(@Session() session: Record<string, unknown>): GameView {\n        return this.game.view(this.game.fromState(session.board as GameState));\n    }\n\n    @Post(\"move\")\n    move(\n        @Session() session: Record<string, unknown>,\n        @Body(\"column\") column: number,\n    ): GameView {\n        const state = this.game.play(this.game.fromState(session.board as GameState), Number(column));\n        session.board = state;\n        return this.game.view(state);\n    }\n\n    @Post(\"reset\")\n    reset(@Session() session: Record<string, unknown>): GameView {\n        delete session.board;\n        return this.game.view(this.game.fromState(undefined));\n    }\n}\n"
     },
     {
@@ -659,6 +1115,10 @@ window.CONNECT_FOUR_DATA = {
       "folder": "frameworks/nextjs",
       "note": "This is one representative file from the app. See {link} to browse the layout, board logic and the rest of the project.",
       "linkText": "the full Next.js app on GitHub",
+      "stack": "Full stack",
+      "languages": [
+        "JavaScript"
+      ],
       "code": "\"use client\";\n\nimport { useState } from \"react\";\n\nimport {\n    COLUMNS,\n    ROWS,\n    createBoard,\n    currentPlayer,\n    drop,\n    isColumnFull,\n    winner,\n} from \"../lib/board\";\n\nexport default function ConnectFourPage() {\n    const [board, setBoard] = useState(createBoard);\n    const [moves, setMoves] = useState(0);\n\n    const champion = winner(board);\n    const over = Boolean(champion) || moves === ROWS * COLUMNS;\n\n    function play(column) {\n        if (over || isColumnFull(board, column)) {\n            return;\n        }\n        setBoard(drop(board, column, currentPlayer(moves)));\n        setMoves(moves + 1);\n    }\n\n    function reset() {\n        setBoard(createBoard());\n        setMoves(0);\n    }\n\n    return (\n        <main className=\"game\">\n            <h1>Connect Four</h1>\n\n            <p role=\"status\">\n                {champion\n                    ? `Player ${champion} wins!`\n                    : over\n                    ? \"It's a tie!\"\n                    : `Player ${currentPlayer(moves)}, choose a column.`}\n            </p>\n\n            <table className=\"board\">\n                <tbody>\n                    {[...board].reverse().map((cells, rowIndex) => (\n                        <tr key={rowIndex}>\n                            {cells.map((cell, columnIndex) => (\n                                <td key={columnIndex} className={`cell cell--${cell.toLowerCase()}`}>\n                                    {cell}\n                                </td>\n                            ))}\n                        </tr>\n                    ))}\n                </tbody>\n            </table>\n\n            <div className=\"columns\">\n                {Array.from({ length: COLUMNS }, (_, index) => (\n                    <button\n                        key={index}\n                        type=\"button\"\n                        onClick={() => play(index)}\n                        disabled={over || isColumnFull(board, index)}\n                    >\n                        {index + 1}\n                    </button>\n                ))}\n            </div>\n\n            <button type=\"button\" onClick={reset}>\n                New game\n            </button>\n        </main>\n    );\n}\n"
     },
     {
@@ -670,7 +1130,56 @@ window.CONNECT_FOUR_DATA = {
       "folder": "frameworks/nuxt",
       "note": "This is one representative file from the app - the composable (Prism has no Vue grammar, so the .vue files are not shown here). See {link} to browse the page, board logic and the rest of the project.",
       "linkText": "the full Nuxt app on GitHub",
+      "stack": "Full stack",
+      "languages": [
+        "JavaScript"
+      ],
       "code": "import { computed, ref } from \"vue\";\n\nimport {\n    COLUMNS,\n    ROWS,\n    createBoard,\n    currentPlayer,\n    drop,\n    isColumnFull,\n    winner,\n} from \"../utils/board\";\n\nexport function useConnectFour() {\n    const board = ref(createBoard());\n    const moves = ref(0);\n\n    const columns = Array.from({ length: COLUMNS }, (_, index) => index);\n    const champion = computed(() => winner(board.value));\n    const over = computed(() => champion.value !== undefined || moves.value === ROWS * COLUMNS);\n    const status = computed(() => {\n        if (champion.value) {\n            return `Player ${champion.value} wins!`;\n        }\n        if (over.value) {\n            return \"It's a tie!\";\n        }\n        return `Player ${currentPlayer(moves.value)}, choose a column.`;\n    });\n\n    function play(column) {\n        if (over.value || isColumnFull(board.value, column)) {\n            return;\n        }\n        board.value = drop(board.value, column, currentPlayer(moves.value));\n        moves.value += 1;\n    }\n\n    function reset() {\n        board.value = createBoard();\n        moves.value = 0;\n    }\n\n    return { board, over, status, columns, play, reset, isColumnFull };\n}\n"
+    },
+    {
+      "id": "ollama",
+      "name": "Ollama",
+      "category": "AI",
+      "prism": "language-python",
+      "file": "frameworks/ollama/app.py",
+      "folder": "frameworks/ollama",
+      "note": "This is one representative file from the app - the game loop that asks a local model for a move. See {link} to browse the board and the rest of the project.",
+      "linkText": "the full Ollama app on GitHub",
+      "stack": "",
+      "languages": [
+        "Python"
+      ],
+      "code": "import re\n\nimport ollama\n\nfrom board import COLUMNS, ConnectFourBoard\n\nMODEL = \"llama3.2\"\n\nPROMPT = (\n    \"You are playing Connect Four as the O player. Reply with exactly one \"\n    \"column number between 1 and 7 and nothing else.\\n\\n\"\n    \"Board (top row first, bottom row last):\\n{board}\\n\\n\"\n    \"Legal columns: {legal}\\nYour move:\"\n)\n\n\ndef choose_ai_move(board):\n    legal = [column + 1 for column in board.legal_columns()]\n    reply = ollama.chat(\n        model=MODEL,\n        messages=[{\"role\": \"user\", \"content\": PROMPT.format(board=board.render(), legal=legal)}],\n        options={\"temperature\": 0.2},\n    )\n    text = reply[\"message\"][\"content\"]\n    for match in re.finditer(r\"[1-7]\", text):\n        column = int(match.group()) - 1\n        if column in board.legal_columns():\n            return column\n    return board.legal_columns()[0]\n\n\ndef choose_human_move(board):\n    legal = [column + 1 for column in board.legal_columns()]\n    while True:\n        raw = input(\"Choose a column %s: \" % legal).strip()\n        if raw.isdigit() and int(raw) in legal:\n            return int(raw) - 1\n        print(\"That column is not available.\")\n\n\ndef main():\n    board = ConnectFourBoard()\n\n    while not board.is_over:\n        print(board.render())\n        print()\n\n        if board.current_player == \"O\":\n            column = choose_ai_move(board)\n            print(\"Ollama plays column %d.\" % (column + 1))\n        else:\n            column = choose_human_move(board)\n\n        board.drop(column)\n        print()\n\n    print(board.render())\n    print(\"Player %s wins!\" % board.winner if board.winner else \"It's a tie!\")\n\n\nif __name__ == \"__main__\":\n    main()\n"
+    },
+    {
+      "id": "oracle",
+      "name": "Oracle Database",
+      "category": "Database",
+      "prism": "language-plsql",
+      "file": "frameworks/oracle/schema.sql",
+      "folder": "frameworks/oracle",
+      "note": "This is the representative file - the tables, constraints, index and the `cells` window-function view. See {link} to browse the `INSERT ALL` seed and the PL/SQL package sibling.",
+      "linkText": "the full Oracle Database example on GitHub",
+      "stack": "",
+      "languages": [
+        "SQL"
+      ],
+      "code": "CREATE TABLE games (\n    game_id    NUMBER GENERATED BY DEFAULT AS IDENTITY,\n    player     VARCHAR2(64) NOT NULL,\n    created_at TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,\n    CONSTRAINT pk_games PRIMARY KEY (game_id)\n);\n\nCREATE TABLE moves (\n    move_id       NUMBER GENERATED BY DEFAULT AS IDENTITY,\n    game_id       NUMBER NOT NULL,\n    turn_no       NUMBER(3) NOT NULL,\n    player        CHAR(1) NOT NULL,\n    column_number NUMBER(1) NOT NULL,\n    CONSTRAINT pk_moves PRIMARY KEY (move_id),\n    CONSTRAINT fk_moves_games FOREIGN KEY (game_id) REFERENCES games (game_id) ON DELETE CASCADE,\n    CONSTRAINT uq_moves_turn UNIQUE (game_id, turn_no),\n    CONSTRAINT ck_moves_player CHECK (player IN ('X', 'O')),\n    CONSTRAINT ck_moves_column CHECK (column_number BETWEEN 1 AND 7)\n);\n\nCREATE INDEX ix_moves_game_column ON moves (game_id, column_number, turn_no);\n\nCREATE OR REPLACE VIEW cells AS\n    SELECT\n        game_id,\n        column_number AS x,\n        player,\n        ROW_NUMBER() OVER (PARTITION BY game_id, column_number ORDER BY turn_no) AS y\n    FROM moves;\n"
+    },
+    {
+      "id": "plsql",
+      "name": "Oracle PL/SQL",
+      "category": "Database",
+      "prism": "language-plsql",
+      "file": "frameworks/plsql/packages.sql",
+      "folder": "frameworks/plsql",
+      "note": "This is the representative file - the `connect_four_pkg` package spec and body. See {link} to browse the Oracle tables it runs on.",
+      "linkText": "the full Oracle PL/SQL example on GitHub",
+      "stack": "",
+      "languages": [
+        "PL/SQL"
+      ],
+      "code": "CREATE OR REPLACE PACKAGE connect_four_pkg AS\n    FUNCTION player_at (p_game_id IN NUMBER, p_row IN NUMBER, p_column IN NUMBER) RETURN CHAR;\n    FUNCTION winner (p_game_id IN NUMBER) RETURN CHAR;\n    FUNCTION board (p_game_id IN NUMBER) RETURN VARCHAR2;\n    PROCEDURE drop_disc (p_game_id IN NUMBER, p_column IN NUMBER);\nEND connect_four_pkg;\n/\n\nCREATE OR REPLACE PACKAGE BODY connect_four_pkg AS\n\n    FUNCTION player_at (p_game_id IN NUMBER, p_row IN NUMBER, p_column IN NUMBER) RETURN CHAR IS\n        l_player CHAR(1);\n    BEGIN\n        SELECT player\n          INTO l_player\n          FROM moves\n         WHERE game_id = p_game_id\n           AND column_number = p_column\n           AND turn_no = (\n               SELECT MIN(turn_no)\n                 FROM moves\n                WHERE game_id = p_game_id\n                  AND column_number = p_column\n           ) + p_row - 1;\n        RETURN l_player;\n    EXCEPTION\n        WHEN NO_DATA_FOUND THEN\n            RETURN '.';\n    END player_at;\n\n    FUNCTION has_line (\n        p_game_id IN NUMBER,\n        p_player  IN CHAR,\n        p_row_step IN NUMBER,\n        p_column_step IN NUMBER\n    ) RETURN BOOLEAN IS\n    BEGIN\n        FOR r IN 1 .. 6 LOOP\n            FOR c IN 1 .. 7 LOOP\n                IF player_at(p_game_id, r, c) = p_player\n                   AND player_at(p_game_id, r + p_row_step, c + p_column_step) = p_player\n                   AND player_at(p_game_id, r + 2 * p_row_step, c + 2 * p_column_step) = p_player\n                   AND player_at(p_game_id, r + 3 * p_row_step, c + 3 * p_column_step) = p_player THEN\n                    RETURN TRUE;\n                END IF;\n            END LOOP;\n        END LOOP;\n        RETURN FALSE;\n    END has_line;\n\n    FUNCTION winner (p_game_id IN NUMBER) RETURN CHAR IS\n    BEGIN\n        FOR p IN (SELECT 'X' AS player FROM dual UNION ALL SELECT 'O' FROM dual) LOOP\n            IF has_line(p_game_id, p.player, 0, 1)\n               OR has_line(p_game_id, p.player, 1, 0)\n               OR has_line(p_game_id, p.player, 1, 1)\n               OR has_line(p_game_id, p.player, 1, -1) THEN\n                RETURN p.player;\n            END IF;\n        END LOOP;\n        RETURN NULL;\n    END winner;\n\n    FUNCTION board (p_game_id IN NUMBER) RETURN VARCHAR2 IS\n        l_board VARCHAR2(4000);\n    BEGIN\n        FOR r IN REVERSE 1 .. 6 LOOP\n            FOR c IN 1 .. 7 LOOP\n                l_board := l_board || player_at(p_game_id, r, c) || ' ';\n            END LOOP;\n            l_board := l_board || CHR(10);\n        END LOOP;\n        RETURN RTRIM(l_board);\n    END board;\n\n    PROCEDURE drop_disc (p_game_id IN NUMBER, p_column IN NUMBER) IS\n        l_height    NUMBER;\n        l_next_turn NUMBER;\n        l_player    CHAR(1);\n    BEGIN\n        IF p_column < 1 OR p_column > 7 THEN\n            RAISE_APPLICATION_ERROR(-20001, 'Column is out of range.');\n        END IF;\n\n        SELECT COUNT(*)\n          INTO l_height\n          FROM moves\n         WHERE game_id = p_game_id\n           AND column_number = p_column;\n\n        IF l_height >= 6 THEN\n            RAISE_APPLICATION_ERROR(-20002, 'Column is full.');\n        END IF;\n\n        SELECT NVL(MAX(turn_no), 0) + 1\n          INTO l_next_turn\n          FROM moves\n         WHERE game_id = p_game_id;\n\n        l_player := CASE WHEN MOD(l_next_turn, 2) = 1 THEN 'X' ELSE 'O' END;\n\n        INSERT INTO moves (game_id, turn_no, player, column_number)\n        VALUES (p_game_id, l_next_turn, l_player, p_column);\n    END drop_disc;\n\nEND connect_four_pkg;\n/\n"
     },
     {
       "id": "phoenix",
@@ -681,7 +1190,146 @@ window.CONNECT_FOUR_DATA = {
       "folder": "frameworks/phoenix",
       "note": "This is one representative file from the app. See {link} to browse the game engine, router, HEEx template and the rest of the project.",
       "linkText": "the full Phoenix app on GitHub",
+      "stack": "Full stack",
+      "languages": [
+        "Elixir"
+      ],
       "code": "defmodule ConnectFourWeb.GameController do\n  use ConnectFourWeb, :controller\n\n  alias ConnectFour.Game\n\n  def board(conn, _params) do\n    game = current_game(conn)\n    render(conn, :board, game: game, status: Game.status(game), columns: 1..Game.columns())\n  end\n\n  def move(conn, params) do\n    game = current_game(conn)\n\n    value =\n      case Integer.parse(to_string(params[\"column\"])) do\n        {value, \"\"} -> value\n        _ -> 0\n      end\n\n    game =\n      if value >= 1 and value <= Game.columns() and not Game.over?(game) and\n           not Game.full?(game, value - 1) do\n        Game.drop(game, value - 1)\n      else\n        game\n      end\n\n    conn\n    |> put_session(:board, Game.to_session(game))\n    |> redirect(to: ~p\"/\")\n  end\n\n  def reset(conn, _params) do\n    conn\n    |> delete_session(:board)\n    |> redirect(to: ~p\"/\")\n  end\n\n  defp current_game(conn) do\n    conn\n    |> get_session(:board)\n    |> Game.from_session()\n  end\nend\n"
+    },
+    {
+      "id": "playframework",
+      "name": "Play Framework",
+      "category": "Web",
+      "prism": "language-scala",
+      "file": "frameworks/playframework/app/controllers/GameController.scala",
+      "folder": "frameworks/playframework",
+      "note": "This is one representative file from the app. See {link} to browse the board model, Twirl template, routes and the rest of the project.",
+      "linkText": "the full Play Framework app on GitHub",
+      "stack": "Full stack",
+      "languages": [
+        "Scala"
+      ],
+      "code": "package controllers\n\nimport javax.inject._\nimport models.Board\nimport models.ConnectFourBoard\nimport play.api.mvc._\n\n@Singleton\nclass GameController @Inject() (val controllerComponents: ControllerComponents)\n    extends BaseController {\n\n    def index: Action[AnyContent] = Action { implicit request =>\n        val board = currentBoard\n        Ok(views.html.board(board, 1 to Board.Columns))\n    }\n\n    def move: Action[AnyContent] = Action { implicit request =>\n        val board = currentBoard\n        val column = request.body.asFormUrlEncoded\n            .flatMap(_.get(\"column\").flatMap(_.headOption))\n            .flatMap(_.toIntOption)\n            .getOrElse(0)\n\n        val next =\n            if (!board.isOver && column >= 1 && column <= Board.Columns && !board.isFull(column - 1)) {\n                board.drop(column - 1)\n            } else {\n                board\n            }\n\n        Redirect(routes.GameController.index).withSession(\"board\" -> next.encode)\n    }\n\n    def reset: Action[AnyContent] = Action {\n        Redirect(routes.GameController.index).withNewSession\n    }\n\n    private def currentBoard(implicit request: RequestHeader): ConnectFourBoard =\n        request.session.get(\"board\").map(ConnectFourBoard.decode).getOrElse(ConnectFourBoard())\n}\n"
+    },
+    {
+      "id": "playwright",
+      "name": "Playwright",
+      "category": "Data",
+      "prism": "language-typescript",
+      "file": "frameworks/playwright/tests/connect-four.spec.ts",
+      "folder": "frameworks/playwright",
+      "note": "This is one representative file from the test suite. See {link} to browse the config, helpers and the rest of the project.",
+      "linkText": "the full Playwright suite on GitHub",
+      "stack": "",
+      "languages": [
+        "TypeScript"
+      ],
+      "code": "import { expect, test } from \"@playwright/test\";\n\nimport { columnName, dropDiscs } from \"./support/board\";\n\ntest.beforeEach(async ({ page }) => {\n    await page.goto(\"/\");\n});\n\ntest(\"announces the opening player\", async ({ page }) => {\n    await expect(page.getByRole(\"status\")).toHaveText(\"Player X, choose a column.\");\n});\n\ntest(\"X wins with a horizontal line across the bottom\", async ({ page }) => {\n    await dropDiscs(page, [0, 0, 1, 1, 2, 2, 3]);\n    await expect(page.getByRole(\"status\")).toHaveText(\"Player X wins!\");\n});\n\ntest(\"O wins with a vertical line\", async ({ page }) => {\n    await dropDiscs(page, [0, 1, 0, 1, 6, 1, 6, 1]);\n    await expect(page.getByRole(\"status\")).toHaveText(\"Player O wins!\");\n});\n\ntest(\"a full column can no longer be played\", async ({ page }) => {\n    for (let move = 0; move < 6; move += 1) {\n        await dropDiscs(page, [0]);\n    }\n    await expect(page.getByRole(\"button\", { name: columnName(0), exact: true })).toBeDisabled();\n});\n\ntest(\"the reset button clears the board\", async ({ page }) => {\n    await dropDiscs(page, [0, 1, 2]);\n    await page.getByRole(\"button\", { name: \"New game\" }).click();\n    await expect(page.getByRole(\"status\")).toHaveText(\"Player X, choose a column.\");\n});\n"
+    },
+    {
+      "id": "postgresql",
+      "name": "PostgreSQL",
+      "category": "Database",
+      "prism": "language-sql",
+      "file": "frameworks/postgresql/schema.sql",
+      "folder": "frameworks/postgresql",
+      "note": "This is the representative file - the schema, window-function board view and the `winner`/`drop_disc` functions. See {link} to browse the seed data and the rest of the project.",
+      "linkText": "the full PostgreSQL example on GitHub",
+      "stack": "",
+      "languages": [
+        "SQL"
+      ],
+      "code": "CREATE TABLE games (\n    id         BIGSERIAL PRIMARY KEY,\n    player     TEXT NOT NULL,\n    created_at TIMESTAMPTZ NOT NULL DEFAULT now()\n);\n\nCREATE TABLE moves (\n    id            BIGSERIAL PRIMARY KEY,\n    game_id       BIGINT  NOT NULL REFERENCES games (id) ON DELETE CASCADE,\n    turn          INTEGER NOT NULL CHECK (turn > 0),\n    player        TEXT    NOT NULL CHECK (player IN ('X', 'O')),\n    column_number INTEGER NOT NULL CHECK (column_number BETWEEN 1 AND 7),\n    UNIQUE (game_id, turn)\n);\n\nCREATE INDEX moves_game_turn_idx ON moves (game_id, turn);\n\nCREATE VIEW cells AS\nSELECT\n    game_id,\n    column_number AS x,\n    row_number AS y,\n    player\nFROM (\n    SELECT\n        game_id,\n        column_number,\n        player,\n        ROW_NUMBER() OVER (PARTITION BY game_id, column_number ORDER BY turn) AS row_number\n    FROM moves\n) stacked;\n\nCREATE FUNCTION board(p_game_id BIGINT)\nRETURNS TABLE (row_index INTEGER, cells TEXT[])\nLANGUAGE sql\nSTABLE\nAS $$\n    SELECT\n        row_index,\n        ARRAY(\n            SELECT COALESCE(\n                (\n                    SELECT c.player\n                    FROM cells c\n                    WHERE c.game_id = p_game_id\n                      AND c.x = column_index\n                      AND c.y = row_index\n                ),\n                '.'\n            )\n            FROM generate_series(1, 7) AS column_index\n        )\n    FROM generate_series(6, 1, -1) AS row_index\n$$;\n\nCREATE FUNCTION winner(p_game_id BIGINT)\nRETURNS TEXT\nLANGUAGE sql\nSTABLE\nAS $$\n    SELECT player FROM (\n        SELECT g.player\n        FROM cells g\n        JOIN cells s1 ON s1.game_id = g.game_id AND s1.x = g.x + 1 AND s1.y = g.y AND s1.player = g.player\n        JOIN cells s2 ON s2.game_id = g.game_id AND s2.x = g.x + 2 AND s2.y = g.y AND s2.player = g.player\n        JOIN cells s3 ON s3.game_id = g.game_id AND s3.x = g.x + 3 AND s3.y = g.y AND s3.player = g.player\n        WHERE g.game_id = p_game_id\n        UNION ALL\n        SELECT g.player\n        FROM cells g\n        JOIN cells s1 ON s1.game_id = g.game_id AND s1.x = g.x AND s1.y = g.y + 1 AND s1.player = g.player\n        JOIN cells s2 ON s2.game_id = g.game_id AND s2.x = g.x AND s2.y = g.y + 2 AND s2.player = g.player\n        JOIN cells s3 ON s3.game_id = g.game_id AND s3.x = g.x AND s3.y = g.y + 3 AND s3.player = g.player\n        WHERE g.game_id = p_game_id\n        UNION ALL\n        SELECT g.player\n        FROM cells g\n        JOIN cells s1 ON s1.game_id = g.game_id AND s1.x = g.x + 1 AND s1.y = g.y + 1 AND s1.player = g.player\n        JOIN cells s2 ON s2.game_id = g.game_id AND s2.x = g.x + 2 AND s2.y = g.y + 2 AND s2.player = g.player\n        JOIN cells s3 ON s3.game_id = g.game_id AND s3.x = g.x + 3 AND s3.y = g.y + 3 AND s3.player = g.player\n        WHERE g.game_id = p_game_id\n        UNION ALL\n        SELECT g.player\n        FROM cells g\n        JOIN cells s1 ON s1.game_id = g.game_id AND s1.x = g.x + 1 AND s1.y = g.y - 1 AND s1.player = g.player\n        JOIN cells s2 ON s2.game_id = g.game_id AND s2.x = g.x + 2 AND s2.y = g.y - 2 AND s2.player = g.player\n        JOIN cells s3 ON s3.game_id = g.game_id AND s3.x = g.x + 3 AND s3.y = g.y - 3 AND s3.player = g.player\n        WHERE g.game_id = p_game_id\n    ) lines\n    LIMIT 1\n$$;\n\nCREATE FUNCTION drop_disc(p_game_id BIGINT, p_column INTEGER)\nRETURNS void\nLANGUAGE plpgsql\nAS $$\nDECLARE\n    next_turn   INTEGER;\n    next_player TEXT;\n    height      INTEGER;\nBEGIN\n    SELECT COALESCE(MAX(turn), 0) + 1 INTO next_turn\n    FROM moves WHERE game_id = p_game_id;\n\n    SELECT COUNT(*) INTO height\n    FROM moves WHERE game_id = p_game_id AND column_number = p_column;\n\n    IF p_column < 1 OR p_column > 7 THEN\n        RAISE EXCEPTION 'column % is out of range', p_column;\n    END IF;\n    IF height >= 6 THEN\n        RAISE EXCEPTION 'column % is full', p_column;\n    END IF;\n\n    next_player := CASE WHEN next_turn % 2 = 1 THEN 'X' ELSE 'O' END;\n\n    INSERT INTO moves (game_id, turn, player, column_number)\n    VALUES (p_game_id, next_turn, next_player, p_column);\nEND;\n$$;\n"
+    },
+    {
+      "id": "preact",
+      "name": "Preact",
+      "category": "Web",
+      "prism": "language-jsx",
+      "file": "frameworks/preact/src/connect-four.jsx",
+      "folder": "frameworks/preact",
+      "note": "This is one representative file from the app. See {link} to browse the board logic, entry point and the rest of the project.",
+      "linkText": "the full Preact app on GitHub",
+      "stack": "Frontend",
+      "languages": [
+        "JavaScript"
+      ],
+      "code": "import { useState } from \"preact/hooks\";\n\nimport {\n    COLUMNS,\n    ROWS,\n    createBoard,\n    currentPlayer,\n    drop,\n    isColumnFull,\n    winner,\n} from \"./board\";\n\nexport default function ConnectFour() {\n    const [board, setBoard] = useState(createBoard);\n    const [moves, setMoves] = useState(0);\n\n    const champion = winner(board);\n    const over = Boolean(champion) || moves === ROWS * COLUMNS;\n\n    function play(column) {\n        if (over || isColumnFull(board, column)) {\n            return;\n        }\n        setBoard(drop(board, column, currentPlayer(moves)));\n        setMoves(moves + 1);\n    }\n\n    function reset() {\n        setBoard(createBoard());\n        setMoves(0);\n    }\n\n    return (\n        <section class=\"game\">\n            <h1>Connect Four</h1>\n\n            <p role=\"status\">\n                {champion\n                    ? `Player ${champion} wins!`\n                    : over\n                    ? \"It's a tie!\"\n                    : `Player ${currentPlayer(moves)}, choose a column.`}\n            </p>\n\n            <table class=\"board\">\n                <tbody>\n                    {[...board].reverse().map((cells, rowIndex) => (\n                        <tr key={rowIndex}>\n                            {cells.map((cell, columnIndex) => (\n                                <td key={columnIndex} class={`cell cell--${cell.toLowerCase()}`}>\n                                    {cell}\n                                </td>\n                            ))}\n                        </tr>\n                    ))}\n                </tbody>\n            </table>\n\n            <div class=\"columns\">\n                {Array.from({ length: COLUMNS }, (_, index) => (\n                    <button\n                        key={index}\n                        type=\"button\"\n                        onClick={() => play(index)}\n                        disabled={over || isColumnFull(board, index)}\n                    >\n                        {index + 1}\n                    </button>\n                ))}\n            </div>\n\n            <button type=\"button\" onClick={reset}>\n                New game\n            </button>\n        </section>\n    );\n}\n"
+    },
+    {
+      "id": "prisma",
+      "name": "Prisma",
+      "category": "Data",
+      "prism": "language-typescript",
+      "file": "frameworks/prisma/src/gameService.ts",
+      "folder": "frameworks/prisma",
+      "note": "This is one representative file from the app. See {link} to browse the schema, board logic and the rest of the project.",
+      "linkText": "the full Prisma example on GitHub",
+      "stack": "",
+      "languages": [
+        "TypeScript"
+      ],
+      "code": "import { PrismaClient } from \"@prisma/client\";\n\nimport { COLUMNS, ConnectFourBoard } from \"./board\";\n\nconst prisma = new PrismaClient();\n\nexport async function newGame(player: string) {\n    return prisma.game.create({\n        data: { player },\n    });\n}\n\nexport async function boardFor(gameId: number): Promise<ConnectFourBoard> {\n    const game = await prisma.game.findUniqueOrThrow({\n        where: { id: gameId },\n        include: { moves: { orderBy: { id: \"asc\" } } },\n    });\n\n    const board = new ConnectFourBoard();\n    for (const move of game.moves) {\n        board.play(move.column);\n    }\n    return board;\n}\n\nexport async function play(gameId: number, column: number): Promise<ConnectFourBoard> {\n    const board = await boardFor(gameId);\n    if (column < 0 || column >= COLUMNS) {\n        return board;\n    }\n\n    const player = board.currentPlayer;\n    if (!board.play(column)) {\n        return board;\n    }\n\n    await prisma.move.create({\n        data: { gameId, column, player },\n    });\n    return board;\n}\n\nexport async function history(gameId: number) {\n    return prisma.move.findMany({\n        where: { gameId },\n        orderBy: { id: \"asc\" },\n        select: { player: true, column: true },\n    });\n}\n"
+    },
+    {
+      "id": "pyside6",
+      "name": "PySide6 (Qt)",
+      "category": "Desktop",
+      "prism": "language-python",
+      "file": "frameworks/pyside6/main.py",
+      "folder": "frameworks/pyside6",
+      "note": "This is one representative file from the app. See {link} to browse the board model and the rest of the project.",
+      "linkText": "the full PySide6 app on GitHub",
+      "stack": "",
+      "languages": [
+        "Python"
+      ],
+      "code": "import sys\n\nfrom PySide6.QtCore import Qt\nfrom PySide6.QtWidgets import (\n    QApplication,\n    QGridLayout,\n    QLabel,\n    QMainWindow,\n    QPushButton,\n    QVBoxLayout,\n    QWidget,\n)\n\nfrom board import COLUMNS, ROWS, ConnectFourBoard\n\nDISC_COLORS = {\n    \"X\": \"#e53935\",\n    \"O\": \"#fdd835\",\n    \".\": \"#263238\",\n}\n\n\nclass MainWindow(QMainWindow):\n    def __init__(self):\n        super().__init__()\n        self.setWindowTitle(\"Connect Four\")\n        self.board = ConnectFourBoard()\n\n        self.status = QLabel()\n        self.status.setAlignment(Qt.AlignmentFlag.AlignCenter)\n\n        self.grid = QGridLayout()\n        self.grid.setSpacing(4)\n        self.buttons = QGridLayout()\n        self.buttons.setSpacing(4)\n\n        layout = QVBoxLayout()\n        layout.addWidget(self.status)\n        layout.addLayout(self.grid)\n        layout.addLayout(self.buttons)\n\n        container = QWidget()\n        container.setLayout(layout)\n        self.setCentralWidget(container)\n\n        self.render()\n\n    def render(self):\n        champion = self.board.winner\n        self.status.setText(\n            f\"Player {champion} wins!\"\n            if champion\n            else \"It's a tie!\"\n            if self.board.is_over\n            else f\"Player {self.board.current_player}, choose a column.\"\n        )\n\n        while self.grid.count():\n            self.grid.takeAt(0).widget().deleteLater()\n        while self.buttons.count():\n            self.buttons.takeAt(0).widget().deleteLater()\n\n        for display_row, row in enumerate(range(ROWS - 1, -1, -1)):\n            for column in range(COLUMNS):\n                cell = self.board.cell(row, column)\n                disc = QLabel(cell)\n                disc.setFixedSize(48, 48)\n                disc.setAlignment(Qt.AlignmentFlag.AlignCenter)\n                disc.setStyleSheet(\n                    f\"background-color: {DISC_COLORS[cell]}; border-radius: 24px; color: white;\"\n                )\n                self.grid.addWidget(disc, display_row, column)\n\n        for column in range(COLUMNS):\n            button = QPushButton(str(column + 1))\n            button.setEnabled(not self.board.is_over and not self.board.is_full(column))\n            button.clicked.connect(lambda _=False, target=column: self.play(target))\n            self.buttons.addWidget(button, 0, column)\n\n    def play(self, column):\n        if not self.board.is_over and not self.board.is_full(column):\n            self.board.drop(column)\n            self.render()\n\n\ndef main():\n    app = QApplication(sys.argv)\n    window = MainWindow()\n    window.show()\n    sys.exit(app.exec())\n\n\nif __name__ == \"__main__\":\n    main()\n"
+    },
+    {
+      "id": "quarkus",
+      "name": "Quarkus",
+      "category": "Web",
+      "prism": "language-java",
+      "file": "frameworks/quarkus/src/main/java/com/example/connectfour/GameResource.java",
+      "folder": "frameworks/quarkus",
+      "note": "This is one representative file from the app. See {link} to browse the board, Qute template, Maven build and the rest of the project.",
+      "linkText": "the full Quarkus app on GitHub",
+      "stack": "Backend",
+      "languages": [
+        "Java"
+      ],
+      "code": "package com.example.connectfour;\n\nimport io.quarkus.qute.Template;\nimport io.quarkus.qute.TemplateInstance;\nimport jakarta.enterprise.context.SessionScoped;\nimport jakarta.inject.Inject;\nimport jakarta.ws.rs.FormParam;\nimport jakarta.ws.rs.GET;\nimport jakarta.ws.rs.POST;\nimport jakarta.ws.rs.Path;\nimport jakarta.ws.rs.Produces;\nimport jakarta.ws.rs.core.MediaType;\nimport jakarta.ws.rs.core.Response;\nimport java.io.Serializable;\nimport java.net.URI;\n\n@Path(\"/\")\npublic class GameResource {\n\n    @SessionScoped\n    public static class Game implements Serializable {\n        private ConnectFourBoard board = new ConnectFourBoard();\n\n        public ConnectFourBoard getBoard() {\n            return board;\n        }\n\n        public void play(int column) {\n            if (!board.isOver()\n                    && column >= 1\n                    && column <= ConnectFourBoard.COLUMNS\n                    && !board.isFull(column - 1)) {\n                board.drop(column - 1);\n            }\n        }\n\n        public void reset() {\n            board = new ConnectFourBoard();\n        }\n    }\n\n    @Inject\n    Game game;\n\n    @Inject\n    Template board;\n\n    @GET\n    @Produces(MediaType.TEXT_HTML)\n    public TemplateInstance page() {\n        return board.data(\"board\", game.getBoard());\n    }\n\n    @POST\n    @Path(\"/move\")\n    public Response move(@FormParam(\"column\") int column) {\n        game.play(column);\n        return Response.seeOther(URI.create(\"/\")).build();\n    }\n\n    @POST\n    @Path(\"/reset\")\n    public Response reset() {\n        game.reset();\n        return Response.seeOther(URI.create(\"/\")).build();\n    }\n}\n"
+    },
+    {
+      "id": "questdb",
+      "name": "QuestDB",
+      "category": "Database",
+      "prism": "language-sql",
+      "file": "frameworks/questdb/schema.sql",
+      "folder": "frameworks/questdb",
+      "note": "This is the representative file - the designated-timestamp, `PARTITION BY` time-series tables with `SYMBOL` columns. See {link} to browse the LATEST ON / SAMPLE BY / ASOF JOIN queries.",
+      "linkText": "the full QuestDB example on GitHub",
+      "stack": "",
+      "languages": [
+        "SQL"
+      ],
+      "code": "CREATE TABLE IF NOT EXISTS moves (\n    game_id       LONG,\n    turn_no       INT,\n    player        SYMBOL CAPACITY 2 CACHE,\n    column_number INT,\n    played_at     TIMESTAMP\n) TIMESTAMP(played_at) PARTITION BY DAY WAL;\n\nCREATE TABLE IF NOT EXISTS games (\n    game_id    LONG,\n    player     SYMBOL CAPACITY 64 CACHE,\n    started_at TIMESTAMP\n) TIMESTAMP(started_at) PARTITION BY MONTH WAL;\n"
+    },
+    {
+      "id": "qwik",
+      "name": "Qwik",
+      "category": "Web",
+      "prism": "language-tsx",
+      "file": "frameworks/qwik/src/routes/index.tsx",
+      "folder": "frameworks/qwik",
+      "note": "This is one representative file from the app. See {link} to browse the typed board module and the rest of the project.",
+      "linkText": "the full Qwik app on GitHub",
+      "stack": "Frontend",
+      "languages": [
+        "TypeScript"
+      ],
+      "code": "import { component$, useSignal } from \"@builder.io/qwik\";\n\nimport {\n    COLUMNS,\n    ROWS,\n    createBoard,\n    currentPlayer,\n    drop,\n    isColumnFull,\n    winner,\n} from \"../lib/board\";\n\nexport default component$(() => {\n    const board = useSignal(createBoard());\n    const moves = useSignal(0);\n\n    const champion = winner(board.value);\n    const over = Boolean(champion) || moves.value === ROWS * COLUMNS;\n\n    return (\n        <main class=\"game\">\n            <h1>Connect Four</h1>\n\n            <p role=\"status\">\n                {champion\n                    ? `Player ${champion} wins!`\n                    : over\n                    ? \"It's a tie!\"\n                    : `Player ${currentPlayer(moves.value)}, choose a column.`}\n            </p>\n\n            <table class=\"board\">\n                <tbody>\n                    {[...board.value].reverse().map((cells, rowIndex) => (\n                        <tr key={rowIndex}>\n                            {cells.map((cell, columnIndex) => (\n                                <td key={columnIndex} class={`cell cell--${cell.toLowerCase()}`}>\n                                    {cell}\n                                </td>\n                            ))}\n                        </tr>\n                    ))}\n                </tbody>\n            </table>\n\n            <div class=\"columns\">\n                {Array.from({ length: COLUMNS }, (_, index) => (\n                    <button\n                        key={index}\n                        type=\"button\"\n                        disabled={over || isColumnFull(board.value, index)}\n                        onClick$={() => {\n                            if (\n                                winner(board.value) ||\n                                moves.value === ROWS * COLUMNS ||\n                                isColumnFull(board.value, index)\n                            ) {\n                                return;\n                            }\n                            board.value = drop(board.value, index, currentPlayer(moves.value));\n                            moves.value += 1;\n                        }}\n                    >\n                        {index + 1}\n                    </button>\n                ))}\n            </div>\n\n            <button\n                type=\"button\"\n                onClick$={() => {\n                    board.value = createBoard();\n                    moves.value = 0;\n                }}\n            >\n                New game\n            </button>\n        </main>\n    );\n});\n"
     },
     {
       "id": "react",
@@ -692,7 +1340,26 @@ window.CONNECT_FOUR_DATA = {
       "folder": "frameworks/react",
       "note": "This is one representative file from the app. See {link} to browse the board logic, entry point and the rest of the project.",
       "linkText": "the full React app on GitHub",
+      "stack": "Frontend",
+      "languages": [
+        "JavaScript"
+      ],
       "code": "import { useState } from \"react\";\n\nimport {\n    COLUMNS,\n    ROWS,\n    createBoard,\n    currentPlayer,\n    drop,\n    isColumnFull,\n    winner,\n} from \"./board\";\n\nexport default function ConnectFour() {\n    const [board, setBoard] = useState(createBoard);\n    const [moves, setMoves] = useState(0);\n\n    const champion = winner(board);\n    const over = Boolean(champion) || moves === ROWS * COLUMNS;\n\n    function play(column) {\n        if (over || isColumnFull(board, column)) {\n            return;\n        }\n        setBoard(drop(board, column, currentPlayer(moves)));\n        setMoves(moves + 1);\n    }\n\n    function reset() {\n        setBoard(createBoard());\n        setMoves(0);\n    }\n\n    return (\n        <section className=\"game\">\n            <h1>Connect Four</h1>\n\n            <p role=\"status\">\n                {champion\n                    ? `Player ${champion} wins!`\n                    : over\n                    ? \"It's a tie!\"\n                    : `Player ${currentPlayer(moves)}, choose a column.`}\n            </p>\n\n            <table className=\"board\">\n                <tbody>\n                    {[...board].reverse().map((cells, rowIndex) => (\n                        <tr key={rowIndex}>\n                            {cells.map((cell, columnIndex) => (\n                                <td key={columnIndex} className={`cell cell--${cell.toLowerCase()}`}>\n                                    {cell}\n                                </td>\n                            ))}\n                        </tr>\n                    ))}\n                </tbody>\n            </table>\n\n            <div className=\"columns\">\n                {Array.from({ length: COLUMNS }, (_, index) => (\n                    <button\n                        key={index}\n                        type=\"button\"\n                        onClick={() => play(index)}\n                        disabled={over || isColumnFull(board, index)}\n                    >\n                        {index + 1}\n                    </button>\n                ))}\n            </div>\n\n            <button type=\"button\" className=\"reset\" onClick={reset}>\n                New game\n            </button>\n        </section>\n    );\n}\n"
+    },
+    {
+      "id": "reactbootstrap",
+      "name": "React Bootstrap",
+      "category": "Web",
+      "prism": "language-jsx",
+      "file": "frameworks/reactbootstrap/src/ConnectFour.jsx",
+      "folder": "frameworks/reactbootstrap",
+      "note": "This is one representative file from the app. See {link} to browse the board logic, entry point and the rest of the project.",
+      "linkText": "the full React Bootstrap app on GitHub",
+      "stack": "Frontend",
+      "languages": [
+        "JavaScript"
+      ],
+      "code": "import { useState } from \"react\";\nimport { Alert, Badge, Button, ButtonGroup, Card, Container, Table } from \"react-bootstrap\";\n\nimport {\n    COLUMNS,\n    ROWS,\n    createBoard,\n    currentPlayer,\n    drop,\n    isColumnFull,\n    winner,\n} from \"./board\";\n\nconst DISC_BG = {\n    X: \"danger\",\n    O: \"warning\",\n    \".\": \"secondary\",\n};\n\nexport default function ConnectFour() {\n    const [board, setBoard] = useState(createBoard);\n    const [moves, setMoves] = useState(0);\n\n    const champion = winner(board);\n    const over = Boolean(champion) || moves === ROWS * COLUMNS;\n    const alertVariant = champion ? \"success\" : over ? \"warning\" : \"info\";\n\n    function play(column) {\n        if (over || isColumnFull(board, column)) {\n            return;\n        }\n        setBoard(drop(board, column, currentPlayer(moves)));\n        setMoves(moves + 1);\n    }\n\n    function reset() {\n        setBoard(createBoard());\n        setMoves(0);\n    }\n\n    return (\n        <Container style={{ maxWidth: 640 }} className=\"py-4\">\n            <Alert\n                variant={alertVariant}\n                role=\"status\"\n                className=\"d-flex justify-content-between align-items-center\"\n            >\n                <span>\n                    {champion\n                        ? `Player ${champion} wins!`\n                        : over\n                        ? \"It's a tie!\"\n                        : `Player ${currentPlayer(moves)}, choose a column.`}\n                </span>\n                <Badge bg=\"primary\">\n                    {moves} {moves === 1 ? \"move\" : \"moves\"}\n                </Badge>\n            </Alert>\n\n            <Card>\n                <Card.Body className=\"text-center\">\n                    <Table borderless className=\"w-auto mx-auto mb-0\">\n                        <tbody>\n                            {[...board].reverse().map((cells, rowIndex) => (\n                                <tr key={rowIndex}>\n                                    {cells.map((cell, columnIndex) => (\n                                        <td key={columnIndex} className=\"p-1\">\n                                            <span\n                                                className={`d-inline-flex align-items-center justify-content-center rounded-circle text-bg-${\n                                                    DISC_BG[cell]\n                                                }`}\n                                                style={{ width: \"2.5rem\", height: \"2.5rem\" }}\n                                            >\n                                                {cell === \".\" ? \"\" : cell}\n                                            </span>\n                                        </td>\n                                    ))}\n                                </tr>\n                            ))}\n                        </tbody>\n                    </Table>\n                </Card.Body>\n            </Card>\n\n            <ButtonGroup className=\"w-100 mt-3\">\n                {Array.from({ length: COLUMNS }, (_, column) => (\n                    <Button\n                        key={column}\n                        variant=\"outline-primary\"\n                        disabled={over || isColumnFull(board, column)}\n                        onClick={() => play(column)}\n                    >\n                        {column + 1}\n                    </Button>\n                ))}\n            </ButtonGroup>\n\n            <div className=\"d-grid mt-3\">\n                <Button variant=\"outline-light\" onClick={reset}>\n                    New game\n                </Button>\n            </div>\n        </Container>\n    );\n}\n"
     },
     {
       "id": "reactnative",
@@ -703,7 +1370,56 @@ window.CONNECT_FOUR_DATA = {
       "folder": "frameworks/reactnative",
       "note": "This is one representative file from the app. See {link} to browse the app entry, board logic and the rest of the project.",
       "linkText": "the full React Native app on GitHub",
+      "stack": "",
+      "languages": [
+        "JavaScript"
+      ],
       "code": "import { useState } from \"react\";\nimport { Pressable, StyleSheet, Text, View } from \"react-native\";\n\nimport {\n    COLUMNS,\n    ROWS,\n    createBoard,\n    currentPlayer,\n    drop,\n    isColumnFull,\n    winner,\n} from \"./board\";\n\nexport default function ConnectFour() {\n    const [board, setBoard] = useState(createBoard);\n    const [moves, setMoves] = useState(0);\n\n    const champion = winner(board);\n    const over = Boolean(champion) || moves === ROWS * COLUMNS;\n\n    function play(column) {\n        if (over || isColumnFull(board, column)) {\n            return;\n        }\n        setBoard(drop(board, column, currentPlayer(moves)));\n        setMoves(moves + 1);\n    }\n\n    function reset() {\n        setBoard(createBoard());\n        setMoves(0);\n    }\n\n    return (\n        <View style={styles.game}>\n            <Text style={styles.title}>Connect Four</Text>\n\n            <Text style={styles.status}>\n                {champion\n                    ? `Player ${champion} wins!`\n                    : over\n                    ? \"It's a tie!\"\n                    : `Player ${currentPlayer(moves)}, choose a column.`}\n            </Text>\n\n            <View style={styles.board}>\n                {[...board].reverse().map((cells, rowIndex) => (\n                    <View key={rowIndex} style={styles.row}>\n                        {cells.map((cell, columnIndex) => (\n                            <Text key={columnIndex} style={styles.cell}>\n                                {cell}\n                            </Text>\n                        ))}\n                    </View>\n                ))}\n            </View>\n\n            <View style={styles.columns}>\n                {Array.from({ length: COLUMNS }, (_, index) => (\n                    <Pressable\n                        key={index}\n                        style={styles.button}\n                        disabled={over || isColumnFull(board, index)}\n                        onPress={() => play(index)}\n                    >\n                        <Text style={styles.buttonLabel}>{index + 1}</Text>\n                    </Pressable>\n                ))}\n            </View>\n\n            <Pressable style={styles.button} onPress={reset}>\n                <Text style={styles.buttonLabel}>New game</Text>\n            </Pressable>\n        </View>\n    );\n}\n\nconst styles = StyleSheet.create({\n    game: { alignItems: \"center\", flex: 1, justifyContent: \"center\" },\n    title: { fontSize: 24, fontWeight: \"bold\" },\n    status: { marginVertical: 8 },\n    board: { borderColor: \"#cbd3d0\", borderWidth: 1 },\n    row: { flexDirection: \"row\" },\n    cell: { fontSize: 20, padding: 4, textAlign: \"center\", width: 32 },\n    columns: { flexDirection: \"row\", marginVertical: 8 },\n    button: {\n        alignItems: \"center\",\n        backgroundColor: \"#eef1f0\",\n        borderRadius: 4,\n        marginHorizontal: 2,\n        paddingHorizontal: 12,\n        paddingVertical: 8,\n    },\n    buttonLabel: { fontSize: 16 },\n});\n"
+    },
+    {
+      "id": "redis",
+      "name": "Redis",
+      "category": "Database",
+      "prism": "language-python",
+      "file": "frameworks/redis/app.py",
+      "folder": "frameworks/redis",
+      "note": "This is one representative file from the app. See {link} to browse the board, template and the rest of the project.",
+      "linkText": "the full Redis example on GitHub",
+      "stack": "",
+      "languages": [
+        "Python"
+      ],
+      "code": "import os\nimport secrets\n\nimport redis\nfrom flask import Flask, redirect, render_template, request, session\n\nfrom board import COLUMNS, ConnectFourBoard\n\napp = Flask(__name__)\napp.secret_key = \"change-me-in-production\"\n\nstore = redis.Redis.from_url(os.environ.get(\"REDIS_URL\", \"redis://localhost:6379/0\"))\n\n\ndef game_key():\n    if \"game\" not in session:\n        session[\"game\"] = secrets.token_hex(8)\n    return f\"connectfour:{session['game']}\"\n\n\ndef load_board():\n    return ConnectFourBoard.from_json(store.get(game_key()))\n\n\n@app.get(\"/\")\ndef board_page():\n    board = load_board()\n    return render_template(\"board.html\", board=board, columns=range(1, COLUMNS + 1))\n\n\n@app.post(\"/move\")\ndef move():\n    board = load_board()\n    column = request.form.get(\"column\", type=int)\n\n    if column and not board.is_over and 1 <= column <= COLUMNS and not board.is_full(column - 1):\n        board.drop(column - 1)\n\n    store.set(game_key(), board.to_json())\n    return redirect(\"/\")\n\n\n@app.post(\"/reset\")\ndef reset():\n    store.delete(game_key())\n    return redirect(\"/\")\n\n\n@app.get(\"/history\")\ndef history():\n    board = load_board()\n    return {\"moves\": board.moves}\n\n\nif __name__ == \"__main__\":\n    app.run(host=\"0.0.0.0\", port=5000)\n"
+    },
+    {
+      "id": "redux",
+      "name": "Redux Toolkit",
+      "category": "Data",
+      "prism": "language-javascript",
+      "file": "frameworks/redux/src/features/game/gameSlice.js",
+      "folder": "frameworks/redux",
+      "note": "This is one representative file from the app - the state slice. See {link} to browse the store, components and the rest of the project.",
+      "linkText": "the full Redux Toolkit app on GitHub",
+      "stack": "",
+      "languages": [
+        "JavaScript"
+      ],
+      "code": "import { createSlice } from \"@reduxjs/toolkit\";\n\nimport { COLUMNS, ROWS, createBoard, currentPlayer, drop, isColumnFull, winner } from \"../../board\";\n\nconst initialState = {\n    cells: createBoard(),\n    moves: 0,\n};\n\nconst gameSlice = createSlice({\n    name: \"game\",\n    initialState,\n    reducers: {\n        play(state, action) {\n            const column = action.payload;\n            const over = Boolean(winner(state.cells)) || state.moves === ROWS * COLUMNS;\n            if (over || column < 0 || column >= COLUMNS || isColumnFull(state.cells, column)) {\n                return;\n            }\n            state.cells = drop(state.cells, column, currentPlayer(state.moves));\n            state.moves += 1;\n        },\n        reset() {\n            return { cells: createBoard(), moves: 0 };\n        },\n    },\n});\n\nexport const { play, reset } = gameSlice.actions;\n\nexport const selectBoard = (state) => state.game.cells;\nexport const selectMoves = (state) => state.game.moves;\n\nexport const selectOver = (state) =>\n    Boolean(winner(state.game.cells)) || state.game.moves === ROWS * COLUMNS;\n\nexport const selectStatus = (state) => {\n    const champion = winner(state.game.cells);\n    if (champion) {\n        return `Player ${champion} wins!`;\n    }\n    if (state.game.moves === ROWS * COLUMNS) {\n        return \"It's a tie!\";\n    }\n    return `Player ${currentPlayer(state.game.moves)}, choose a column.`;\n};\n\nexport default gameSlice.reducer;\n"
+    },
+    {
+      "id": "remix",
+      "name": "Remix (React Router)",
+      "category": "Web",
+      "prism": "language-tsx",
+      "file": "frameworks/remix/app/routes/home.tsx",
+      "folder": "frameworks/remix",
+      "note": "This is one representative file from the app. See {link} to browse the board, session storage, root layout and the rest of the project.",
+      "linkText": "the full React Router app on GitHub",
+      "stack": "Full stack",
+      "languages": [
+        "TypeScript"
+      ],
+      "code": "import { Form, useLoaderData } from \"react-router\";\n\nimport {\n    COLUMNS,\n    ROWS,\n    countMoves,\n    createBoard,\n    currentPlayer,\n    drop,\n    isColumnFull,\n    winner,\n    type Board,\n} from \"../lib/board\";\nimport { commitBoard, loadBoard } from \"../lib/session.server\";\n\nexport function loader({ request }: { request: Request }) {\n    return loadBoard(request);\n}\n\nexport async function action({ request }: { request: Request }) {\n    const board = await loadBoard(request);\n    const formData = await request.formData();\n\n    if (formData.get(\"intent\") === \"reset\") {\n        return commitBoard(request, createBoard());\n    }\n\n    const column = Number.parseInt(String(formData.get(\"column\")), 10) - 1;\n    const playable =\n        !winner(board.cells) &&\n        countMoves(board.cells) < ROWS * COLUMNS &&\n        column >= 0 &&\n        column < COLUMNS &&\n        !isColumnFull(board.cells, column);\n\n    return commitBoard(request, playable ? drop(board.cells, column) : board.cells);\n}\n\nexport default function Home() {\n    const board: Board = useLoaderData<typeof loader>().cells;\n    const moves = countMoves(board);\n    const champion = winner(board);\n    const over = Boolean(champion) || moves === ROWS * COLUMNS;\n\n    return (\n        <main className=\"game\">\n            <h1>Connect Four</h1>\n\n            <p role=\"status\">\n                {champion\n                    ? `Player ${champion} wins!`\n                    : over\n                    ? \"It's a tie!\"\n                    : `Player ${currentPlayer(moves)}, choose a column.`}\n            </p>\n\n            <table className=\"board\">\n                <tbody>\n                    {[...board].reverse().map((cells, rowIndex) => (\n                        <tr key={rowIndex}>\n                            {cells.map((cell, columnIndex) => (\n                                <td key={columnIndex} className={`cell cell--${cell.toLowerCase()}`}>\n                                    {cell}\n                                </td>\n                            ))}\n                        </tr>\n                    ))}\n                </tbody>\n            </table>\n\n            <div className=\"columns\">\n                {Array.from({ length: COLUMNS }, (_, index) => (\n                    <Form method=\"post\" key={index}>\n                        <input type=\"hidden\" name=\"column\" value={index + 1} />\n                        <button type=\"submit\" disabled={over || isColumnFull(board, index)}>\n                            {index + 1}\n                        </button>\n                    </Form>\n                ))}\n            </div>\n\n            <Form method=\"post\">\n                <input type=\"hidden\" name=\"intent\" value=\"reset\" />\n                <button type=\"submit\">New game</button>\n            </Form>\n        </main>\n    );\n}\n"
     },
     {
       "id": "rubyonrails",
@@ -714,7 +1430,71 @@ window.CONNECT_FOUR_DATA = {
       "folder": "frameworks/rubyonrails",
       "note": "This is one representative file from the app. See {link} to browse the models, views, routes and the rest of the project.",
       "linkText": "the full Rails app on GitHub",
+      "stack": "Full stack",
+      "languages": [
+        "Ruby"
+      ],
       "code": "class GamesController < ApplicationController\n    def show\n        @game = current_game\n    end\n\n    def create\n        game = current_game\n        column = params[:column].to_i - 1\n\n        if playable?(game, column)\n            game.drop(column)\n        else\n            flash[:alert] = \"Column #{params[:column]} is not available.\"\n        end\n\n        session[:game] = game.to_session\n        redirect_to root_path\n    end\n\n    def destroy\n        session[:game] = ConnectFourGame.new.to_session\n        redirect_to root_path\n    end\n\n    private\n\n    def current_game\n        ConnectFourGame.from_session(session[:game] || ConnectFourGame.new.to_session)\n    end\n\n    def playable?(game, column)\n        column.between?(0, ConnectFourGame::COLUMNS - 1) && !game.finished? && !game.column_full?(column)\n    end\nend\n"
+    },
+    {
+      "id": "sanic",
+      "name": "Sanic",
+      "category": "Web",
+      "prism": "language-python",
+      "file": "frameworks/sanic/app.py",
+      "folder": "frameworks/sanic",
+      "note": "This is one representative file from the app. See {link} to browse the board, template and the rest of the project.",
+      "linkText": "the full Sanic app on GitHub",
+      "stack": "Backend",
+      "languages": [
+        "Python"
+      ],
+      "code": "from pathlib import Path\n\nfrom jinja2 import Environment, FileSystemLoader, select_autoescape\nfrom sanic import Sanic\nfrom sanic.response import html, redirect\nfrom sanic_session import InMemorySessionInterface, Session\n\nfrom board import COLUMNS, ConnectFourBoard\n\napp = Sanic(\"connect_four\")\nSession(app, interface=InMemorySessionInterface())\n\ntemplates = Environment(\n    loader=FileSystemLoader(str(Path(__file__).parent / \"templates\")),\n    autoescape=select_autoescape([\"html\"]),\n)\n\n\n@app.get(\"/\")\nasync def board_page(request):\n    board = ConnectFourBoard.from_session(request.ctx.session.get(\"board\"))\n    page = templates.get_template(\"board.html\").render(\n        board=board,\n        columns=range(1, COLUMNS + 1),\n    )\n    return html(page)\n\n\n@app.post(\"/move\")\nasync def move(request):\n    board = ConnectFourBoard.from_session(request.ctx.session.get(\"board\"))\n    raw = request.form.get(\"column\")\n    column = int(raw) if raw and raw.isdigit() else 0\n\n    if not board.is_over and 1 <= column <= COLUMNS and not board.is_full(column - 1):\n        board.drop(column - 1)\n\n    request.ctx.session[\"board\"] = board.to_session()\n    return redirect(\"/\")\n\n\n@app.post(\"/reset\")\nasync def reset(request):\n    request.ctx.session.pop(\"board\", None)\n    return redirect(\"/\")\n\n\nif __name__ == \"__main__\":\n    app.run(host=\"0.0.0.0\", port=8000)\n"
+    },
+    {
+      "id": "scss",
+      "name": "SCSS",
+      "category": "Web",
+      "prism": "language-scss",
+      "file": "frameworks/scss/scss/main.scss",
+      "folder": "frameworks/scss",
+      "note": "This is one representative file from the app - the entry stylesheet (the `_variables`/`_board` partials and the plain JavaScript next to it). See {link} to browse the rest of the project.",
+      "linkText": "the full SCSS project on GitHub",
+      "stack": "Frontend",
+      "languages": [
+        "CSS"
+      ],
+      "code": "@use \"sass:color\";\n@use \"variables\" as v;\n@use \"board\";\n\n* {\n    box-sizing: border-box;\n}\n\nbody {\n    margin: 0;\n    background: v.$ink;\n    color: v.$paper;\n    font-family: system-ui, sans-serif;\n}\n\n.game {\n    max-width: 32rem;\n    margin: 0 auto;\n    padding: 3rem 1rem;\n    display: flex;\n    flex-direction: column;\n    align-items: center;\n    gap: 1rem;\n\n    h1 {\n        letter-spacing: -0.02em;\n    }\n\n    #columns {\n        display: flex;\n        gap: 0.25rem;\n\n        button {\n            width: 2.5rem;\n            padding: 0.25rem 0;\n            border: 0;\n            border-radius: 0.375rem;\n            background: v.$button;\n            color: inherit;\n            cursor: pointer;\n            transition: background 120ms ease;\n\n            &:hover:not(:disabled) {\n                background: color.adjust(v.$button, $lightness: 8%);\n            }\n\n            &:disabled {\n                opacity: 0.3;\n                cursor: default;\n            }\n        }\n    }\n\n    #reset {\n        padding: 0.5rem 1rem;\n        border: 0;\n        border-radius: v.$radius;\n        background: #5eead4;\n        color: v.$ink;\n        font-weight: 600;\n        cursor: pointer;\n    }\n}\n"
+    },
+    {
+      "id": "selenium",
+      "name": "Selenium",
+      "category": "Data",
+      "prism": "language-python",
+      "file": "frameworks/selenium/tests/test_connect_four.py",
+      "folder": "frameworks/selenium",
+      "note": "This is one representative file from the test suite. See {link} to browse the Page Object, the driver fixtures and the rest of the project.",
+      "linkText": "the full Selenium suite on GitHub",
+      "stack": "",
+      "languages": [
+        "Python"
+      ],
+      "code": "from pages.connect_four_page import ConnectFourPage\n\n\ndef test_announces_the_opening_player(driver, base_url):\n    page = ConnectFourPage(driver, base_url).open()\n    assert page.status == \"Player X, choose a column.\"\n\n\ndef test_x_wins_with_a_horizontal_line(driver, base_url):\n    page = ConnectFourPage(driver, base_url).open()\n    page.play_all([0, 0, 1, 1, 2, 2, 3])\n    assert page.status == \"Player X wins!\"\n\n\ndef test_o_wins_with_a_vertical_line(driver, base_url):\n    page = ConnectFourPage(driver, base_url).open()\n    page.play_all([0, 1, 0, 1, 6, 1, 6, 1])\n    assert page.status == \"Player O wins!\"\n\n\ndef test_a_full_column_can_no_longer_be_played(driver, base_url):\n    page = ConnectFourPage(driver, base_url).open()\n    for _ in range(6):\n        page.play(0)\n    assert page.column_is_disabled(0)\n\n\ndef test_the_reset_button_clears_the_board(driver, base_url):\n    page = ConnectFourPage(driver, base_url).open()\n    page.play_all([0, 1, 2])\n    page.reset()\n    assert page.status == \"Player X, choose a column.\"\n"
+    },
+    {
+      "id": "solidjs",
+      "name": "SolidJS",
+      "category": "Web",
+      "prism": "language-jsx",
+      "file": "frameworks/solidjs/src/ConnectFour.jsx",
+      "folder": "frameworks/solidjs",
+      "note": "This is one representative file from the app. See {link} to browse the board logic, entry point and the rest of the project.",
+      "linkText": "the full SolidJS app on GitHub",
+      "stack": "Frontend",
+      "languages": [
+        "JavaScript"
+      ],
+      "code": "import { createSignal, For } from \"solid-js\";\n\nimport {\n    COLUMNS,\n    ROWS,\n    createBoard,\n    currentPlayer,\n    drop,\n    isColumnFull,\n    winner,\n} from \"./board\";\n\nexport default function ConnectFour() {\n    const [board, setBoard] = createSignal(createBoard());\n    const [moves, setMoves] = createSignal(0);\n\n    const champion = () => winner(board());\n    const over = () => Boolean(champion()) || moves() === ROWS * COLUMNS;\n\n    function play(column) {\n        if (over() || isColumnFull(board(), column)) {\n            return;\n        }\n        setBoard(drop(board(), column, currentPlayer(moves())));\n        setMoves(moves() + 1);\n    }\n\n    function reset() {\n        setBoard(createBoard());\n        setMoves(0);\n    }\n\n    return (\n        <section class=\"game\">\n            <h1>Connect Four</h1>\n\n            <p role=\"status\">\n                {champion()\n                    ? `Player ${champion()} wins!`\n                    : over()\n                    ? \"It's a tie!\"\n                    : `Player ${currentPlayer(moves())}, choose a column.`}\n            </p>\n\n            <table class=\"board\">\n                <tbody>\n                    <For each={[...board()].reverse()}>\n                        {(cells) => (\n                            <tr>\n                                <For each={cells}>\n                                    {(cell) => (\n                                        <td class={`cell cell--${cell.toLowerCase()}`}>{cell}</td>\n                                    )}\n                                </For>\n                            </tr>\n                        )}\n                    </For>\n                </tbody>\n            </table>\n\n            <div class=\"columns\">\n                <For each={Array.from({ length: COLUMNS }, (_, index) => index)}>\n                    {(column) => (\n                        <button\n                            type=\"button\"\n                            onClick={() => play(column)}\n                            disabled={over() || isColumnFull(board(), column)}\n                        >\n                            {column + 1}\n                        </button>\n                    )}\n                </For>\n            </div>\n\n            <button type=\"button\" onClick={reset}>\n                New game\n            </button>\n        </section>\n    );\n}\n"
     },
     {
       "id": "springboot",
@@ -725,7 +1505,41 @@ window.CONNECT_FOUR_DATA = {
       "folder": "frameworks/springboot",
       "note": "This is one representative file from the app. See {link} to browse the board, application entry point, Thymeleaf template and the rest of the project.",
       "linkText": "the full Spring Boot app on GitHub",
+      "stack": "Backend",
+      "languages": [
+        "Java"
+      ],
       "code": "package com.example.connectfour;\n\nimport jakarta.servlet.http.HttpSession;\n\nimport org.springframework.stereotype.Controller;\nimport org.springframework.ui.Model;\nimport org.springframework.web.bind.annotation.GetMapping;\nimport org.springframework.web.bind.annotation.PostMapping;\nimport org.springframework.web.bind.annotation.RequestParam;\n\n@Controller\npublic class GameController {\n    private static final String SESSION_KEY = \"board\";\n\n    @GetMapping(\"/\")\n    public String board(HttpSession session, Model model) {\n        ConnectFourBoard board = currentBoard(session);\n        model.addAttribute(\"board\", board);\n        model.addAttribute(\"status\", status(board));\n        return \"board\";\n    }\n\n    @PostMapping(\"/move\")\n    public String move(@RequestParam int column, HttpSession session) {\n        ConnectFourBoard board = currentBoard(session);\n\n        if (column >= 1 && column <= ConnectFourBoard.COLUMNS && !board.isOver()\n                && !board.isFull(column - 1)) {\n            board.drop(column - 1);\n        }\n\n        session.setAttribute(SESSION_KEY, board);\n        return \"redirect:/\";\n    }\n\n    @PostMapping(\"/reset\")\n    public String reset(HttpSession session) {\n        session.removeAttribute(SESSION_KEY);\n        return \"redirect:/\";\n    }\n\n    private String status(ConnectFourBoard board) {\n        if (board.winner() != '.') {\n            return \"Player \" + board.winner() + \" wins!\";\n        }\n        if (board.isOver()) {\n            return \"It's a tie!\";\n        }\n        return \"Player \" + board.currentPlayer() + \", choose a column.\";\n    }\n\n    private ConnectFourBoard currentBoard(HttpSession session) {\n        Object stored = session.getAttribute(SESSION_KEY);\n        if (stored instanceof ConnectFourBoard board) {\n            return board;\n        }\n        return new ConnectFourBoard();\n    }\n}\n"
+    },
+    {
+      "id": "sqlite",
+      "name": "SQLite",
+      "category": "Database",
+      "prism": "language-sql",
+      "file": "frameworks/sqlite/schema.sql",
+      "folder": "frameworks/sqlite",
+      "note": "This is the representative file - the STRICT tables, constraints and the `cells` window-function view. See {link} to browse the recursive-CTE queries and the rest of the project.",
+      "linkText": "the full SQLite example on GitHub",
+      "stack": "",
+      "languages": [
+        "SQL"
+      ],
+      "code": "PRAGMA foreign_keys = ON;\n\nCREATE TABLE games (\n    game_id    INTEGER PRIMARY KEY,\n    player     TEXT NOT NULL,\n    created_at TEXT NOT NULL DEFAULT (datetime('now'))\n) STRICT;\n\nCREATE TABLE moves (\n    move_id       INTEGER PRIMARY KEY,\n    game_id       INTEGER NOT NULL REFERENCES games (game_id) ON DELETE CASCADE,\n    turn_no       INTEGER NOT NULL,\n    player        TEXT NOT NULL CHECK (player IN ('X', 'O')),\n    column_number INTEGER NOT NULL CHECK (column_number BETWEEN 1 AND 7),\n    UNIQUE (game_id, turn_no)\n) STRICT;\n\nCREATE INDEX ix_moves_game_column ON moves (game_id, column_number, turn_no);\n\nCREATE VIEW cells AS\n    SELECT\n        game_id,\n        column_number AS x,\n        player,\n        ROW_NUMBER() OVER (PARTITION BY game_id, column_number ORDER BY turn_no) AS y\n    FROM moves;\n"
+    },
+    {
+      "id": "surrealdb",
+      "name": "SurrealDB",
+      "category": "Database",
+      "prism": "language-sql",
+      "file": "frameworks/surrealdb/schema.surql",
+      "folder": "frameworks/surrealdb",
+      "note": "This is the representative file - the SCHEMAFULL table and field definitions with ASSERT rules and a record link. See {link} to browse the SurrealQL queries and the rest of the project.",
+      "linkText": "the full SurrealDB example on GitHub",
+      "stack": "",
+      "languages": [
+        "SurrealQL"
+      ],
+      "code": "DEFINE TABLE game SCHEMAFULL;\nDEFINE FIELD player ON game TYPE string;\nDEFINE FIELD status ON game TYPE string DEFAULT 'in_progress'\n    ASSERT $value INSIDE ['in_progress', 'finished'];\nDEFINE FIELD created_at ON game TYPE datetime DEFAULT time::now();\n\nDEFINE TABLE move SCHEMAFULL;\nDEFINE FIELD game ON move TYPE record<game>;\nDEFINE FIELD turn_no ON move TYPE int ASSERT $value > 0;\nDEFINE FIELD player ON move TYPE string ASSERT $value INSIDE ['X', 'O'];\nDEFINE FIELD column_number ON move TYPE int ASSERT $value >= 1 AND $value <= 7;\nDEFINE FIELD played_at ON move TYPE datetime DEFAULT time::now();\n\nDEFINE INDEX move_by_game ON move FIELDS game, turn_no UNIQUE;\n"
     },
     {
       "id": "svelte",
@@ -736,7 +1550,26 @@ window.CONNECT_FOUR_DATA = {
       "folder": "frameworks/svelte",
       "note": "This is one representative file from the app - the Svelte stores (Prism has no Svelte grammar, so the .svelte file is not shown here). See {link} to browse the component, board logic and the rest of the project.",
       "linkText": "the full Svelte app on GitHub",
+      "stack": "Frontend",
+      "languages": [
+        "JavaScript"
+      ],
       "code": "import { derived, writable } from \"svelte/store\";\n\nimport {\n    COLUMNS,\n    ROWS,\n    createBoard,\n    currentPlayer,\n    drop,\n    isColumnFull,\n    winner,\n} from \"./board\";\n\nconst initial = { board: createBoard(), moves: 0 };\n\nexport const game = writable(initial);\n\nexport const columns = Array.from({ length: COLUMNS }, (_, index) => index);\nexport const board = derived(game, ($game) => $game.board);\nexport const champion = derived(game, ($game) => winner($game.board));\nexport const over = derived(\n    game,\n    ($game) => winner($game.board) !== undefined || $game.moves === ROWS * COLUMNS\n);\nexport const status = derived(game, ($game) => {\n    const won = winner($game.board);\n    if (won) {\n        return `Player ${won} wins!`;\n    }\n    if ($game.moves === ROWS * COLUMNS) {\n        return \"It's a tie!\";\n    }\n    return `Player ${currentPlayer($game.moves)}, choose a column.`;\n});\n\nexport function play(column) {\n    game.update(($game) => {\n        if (winner($game.board) || isColumnFull($game.board, column)) {\n            return $game;\n        }\n        return {\n            board: drop($game.board, column, currentPlayer($game.moves)),\n            moves: $game.moves + 1,\n        };\n    });\n}\n\nexport function reset() {\n    game.set(initial);\n}\n"
+    },
+    {
+      "id": "swiftui",
+      "name": "SwiftUI",
+      "category": "Mobile",
+      "prism": "language-swift",
+      "file": "frameworks/swiftui/Sources/ConnectFour/ContentView.swift",
+      "folder": "frameworks/swiftui",
+      "note": "This is one representative file from the app. See {link} to browse the board, app entry point and the rest of the project.",
+      "linkText": "the full SwiftUI app on GitHub",
+      "stack": "",
+      "languages": [
+        "Swift"
+      ],
+      "code": "import SwiftUI\n\nstruct ContentView: View {\n    @State private var board = ConnectFourBoard()\n\n    private var status: String {\n        if let champion = board.winner {\n            return \"Player \\(champion) wins!\"\n        }\n        if board.isOver {\n            return \"It's a tie!\"\n        }\n        return \"Player \\(board.currentPlayer), choose a column.\"\n    }\n\n    var body: some View {\n        VStack(spacing: 16) {\n            Text(\"Connect Four\")\n                .font(.largeTitle)\n                .bold()\n\n            Text(status)\n\n            VStack(spacing: 4) {\n                ForEach(Array(board.rowsTopDown.enumerated()), id: \\.offset) { _, row in\n                    HStack(spacing: 4) {\n                        ForEach(Array(row.enumerated()), id: \\.offset) { _, cell in\n                            Circle()\n                                .fill(color(for: cell))\n                                .frame(width: 40, height: 40)\n                                .overlay(Text(cell))\n                        }\n                    }\n                }\n            }\n\n            HStack(spacing: 4) {\n                ForEach(0..<ConnectFourBoard.columnCount, id: \\.self) { column in\n                    Button(\"\\(column + 1)\") {\n                        board.play(column: column)\n                    }\n                    .disabled(board.isOver || board.isFull(column: column))\n                }\n            }\n\n            Button(\"New game\") {\n                board = ConnectFourBoard()\n            }\n        }\n        .padding()\n    }\n\n    private func color(for cell: String) -> Color {\n        switch cell {\n        case \"X\":\n            return .red\n        case \"O\":\n            return .yellow\n        default:\n            return .gray.opacity(0.25)\n        }\n    }\n}\n\n#Preview {\n    ContentView()\n}\n"
     },
     {
       "id": "symfony",
@@ -747,7 +1580,73 @@ window.CONNECT_FOUR_DATA = {
       "folder": "frameworks/symfony",
       "note": "This is one representative file from the app. See {link} to browse the board, Twig template, routes and the rest of the project.",
       "linkText": "the full Symfony app on GitHub",
+      "stack": "Full stack",
+      "languages": [
+        "PHP"
+      ],
       "code": "<?php\n\nnamespace App\\Controller;\n\nuse App\\Game\\ConnectFourBoard;\nuse Symfony\\Bundle\\FrameworkBundle\\Controller\\AbstractController;\nuse Symfony\\Component\\HttpFoundation\\Request;\nuse Symfony\\Component\\HttpFoundation\\Response;\nuse Symfony\\Component\\Routing\\Attribute\\Route;\n\nclass GameController extends AbstractController\n{\n    private const SESSION_KEY = 'board';\n\n    #[Route('/', name: 'game_board', methods: ['GET'])]\n    public function board(Request $request): Response\n    {\n        $board = $this->currentBoard($request);\n\n        return $this->render('game/board.html.twig', [\n            'board' => $board,\n            'status' => $this->status($board),\n            'columns' => range(1, ConnectFourBoard::COLUMNS),\n        ]);\n    }\n\n    #[Route('/move', name: 'game_move', methods: ['POST'])]\n    public function move(Request $request): Response\n    {\n        $board = $this->currentBoard($request);\n        $column = (int) $request->request->get('column');\n\n        if ($column >= 1 && $column <= ConnectFourBoard::COLUMNS\n            && ! $board->isOver() && ! $board->isFull($column - 1)) {\n            $board->drop($column - 1);\n        }\n\n        $request->getSession()->set(self::SESSION_KEY, $board->toArray());\n\n        return $this->redirectToRoute('game_board');\n    }\n\n    #[Route('/reset', name: 'game_reset', methods: ['POST'])]\n    public function reset(Request $request): Response\n    {\n        $request->getSession()->remove(self::SESSION_KEY);\n\n        return $this->redirectToRoute('game_board');\n    }\n\n    private function currentBoard(Request $request): ConnectFourBoard\n    {\n        return ConnectFourBoard::fromArray($request->getSession()->get(self::SESSION_KEY));\n    }\n\n    private function status(ConnectFourBoard $board): string\n    {\n        if ($board->winner() !== null) {\n            return sprintf('Player %s wins!', $board->winner());\n        }\n\n        if ($board->isOver()) {\n            return \"It's a tie!\";\n        }\n\n        return sprintf('Player %s, choose a column.', $board->currentPlayer());\n    }\n}\n"
+    },
+    {
+      "id": "tsql",
+      "name": "T-SQL",
+      "category": "Database",
+      "prism": "language-tsql",
+      "file": "frameworks/tsql/schema.sql",
+      "folder": "frameworks/tsql",
+      "note": "This is the representative file - the tables, the `dbo.Cells` window-function view and the constraints. See {link} to browse the `fn_Winner`/`DropDisc` procedures, seed data and the rest of the project.",
+      "linkText": "the full T-SQL example on GitHub",
+      "stack": "",
+      "languages": [
+        "SQL"
+      ],
+      "code": "CREATE TABLE dbo.Games (\n    GameId    INT IDENTITY(1, 1) NOT NULL CONSTRAINT PK_Games PRIMARY KEY,\n    Player    NVARCHAR(64)       NOT NULL,\n    CreatedAt DATETIME2(0)       NOT NULL CONSTRAINT DF_Games_CreatedAt DEFAULT SYSUTCDATETIME()\n);\nGO\n\nCREATE TABLE dbo.Moves (\n    MoveId   INT IDENTITY(1, 1) NOT NULL CONSTRAINT PK_Moves PRIMARY KEY,\n    GameId   INT                NOT NULL CONSTRAINT FK_Moves_Games REFERENCES dbo.Games (GameId),\n    TurnNo   INT                NOT NULL,\n    Player   CHAR(1)            NOT NULL,\n    ColumnNo TINYINT            NOT NULL,\n    CONSTRAINT UQ_Moves_Turn   UNIQUE (GameId, TurnNo),\n    CONSTRAINT CK_Moves_Player CHECK (Player IN ('X', 'O')),\n    CONSTRAINT CK_Moves_Column CHECK (ColumnNo BETWEEN 1 AND 7)\n);\nGO\n\nCREATE INDEX IX_Moves_Game_Column ON dbo.Moves (GameId, ColumnNo, TurnNo);\nGO\n\nCREATE VIEW dbo.Cells\nAS\n    SELECT\n        game_id = m.GameId,\n        x = m.ColumnNo,\n        y = ROW_NUMBER() OVER (PARTITION BY m.GameId, m.ColumnNo ORDER BY m.TurnNo),\n        player = m.Player\n    FROM dbo.Moves AS m;\nGO\n"
+    },
+    {
+      "id": "tailwindcss",
+      "name": "Tailwind CSS",
+      "category": "Web",
+      "prism": "language-markup",
+      "file": "frameworks/tailwindcss/index.html",
+      "folder": "frameworks/tailwindcss",
+      "note": "This is one representative file from the app. See {link} to browse the theme config, stylesheet, game script and the rest of the project.",
+      "linkText": "the full Tailwind CSS page on GitHub",
+      "stack": "Frontend",
+      "languages": [
+        "CSS",
+        "JavaScript"
+      ],
+      "code": "<!doctype html>\n<html lang=\"en\" class=\"h-full\">\n    <head>\n        <meta charset=\"utf-8\" />\n        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />\n        <title>Connect Four - Tailwind CSS</title>\n        <link rel=\"stylesheet\" href=\"dist/output.css\" />\n    </head>\n    <body class=\"min-h-full bg-slate-950 text-slate-100\">\n        <main class=\"mx-auto flex max-w-xl flex-col items-center gap-6 px-4 py-12\">\n            <h1 class=\"text-3xl font-bold tracking-tight\">Connect Four</h1>\n\n            <p id=\"status\" role=\"status\" class=\"text-lg text-slate-300\"></p>\n\n            <table class=\"rounded-xl bg-blue-800 p-2 shadow-xl\">\n                <tbody id=\"board\"></tbody>\n            </table>\n\n            <div id=\"columns\" class=\"grid grid-cols-7 gap-2\"></div>\n\n            <button\n                id=\"reset\"\n                type=\"button\"\n                class=\"rounded-lg bg-mint-400 px-4 py-2 font-semibold text-slate-950 transition hover:brightness-110 active:scale-95\"\n            >\n                New game\n            </button>\n        </main>\n\n        <script type=\"module\" src=\"/src/game.js\"></script>\n    </body>\n</html>\n"
+    },
+    {
+      "id": "tanstackquery",
+      "name": "TanStack Query",
+      "category": "Data",
+      "prism": "language-jsx",
+      "file": "frameworks/tanstackquery/src/ConnectFour.jsx",
+      "folder": "frameworks/tanstackquery",
+      "note": "This is one representative file from the app. See {link} to browse the API client, server and the rest of the project.",
+      "linkText": "the full TanStack Query app on GitHub",
+      "stack": "",
+      "languages": [
+        "JavaScript"
+      ],
+      "code": "import { useMutation, useQuery, useQueryClient } from \"@tanstack/react-query\";\n\nimport { fetchGame, resetGame, sendMove } from \"./api\";\n\nexport default function ConnectFour() {\n    const queryClient = useQueryClient();\n    const board = useQuery({ queryKey: [\"game\"], queryFn: fetchGame });\n\n    const invalidate = () => queryClient.invalidateQueries({ queryKey: [\"game\"] });\n    const move = useMutation({ mutationFn: sendMove, onSuccess: invalidate });\n    const reset = useMutation({ mutationFn: resetGame, onSuccess: invalidate });\n\n    if (!board.data) {\n        return <p>Loading...</p>;\n    }\n\n    return (\n        <section className=\"game\">\n            <h1>Connect Four</h1>\n            <p role=\"status\">{board.data.status}</p>\n\n            <table className=\"board\">\n                <tbody>\n                    {board.data.rows.map((row, rowIndex) => (\n                        <tr key={rowIndex}>\n                            {row.map((cell, columnIndex) => (\n                                <td key={columnIndex} className={`cell cell--${cell.toLowerCase()}`}>\n                                    {cell}\n                                </td>\n                            ))}\n                        </tr>\n                    ))}\n                </tbody>\n            </table>\n\n            <div className=\"columns\">\n                {board.data.full.map((full, column) => (\n                    <button\n                        key={column}\n                        type=\"button\"\n                        disabled={board.data?.over || full}\n                        onClick={() => move.mutate(column)}\n                    >\n                        {column + 1}\n                    </button>\n                ))}\n            </div>\n\n            <button type=\"button\" onClick={() => reset.mutate()}>\n                New game\n            </button>\n        </section>\n    );\n}\n"
+    },
+    {
+      "id": "tauri",
+      "name": "Tauri",
+      "category": "Desktop",
+      "prism": "language-rust",
+      "file": "frameworks/tauri/src-tauri/src/main.rs",
+      "folder": "frameworks/tauri",
+      "note": "This is one representative file from the app - the Rust entry point and its commands. See {link} to browse the board, frontend and the rest of the project.",
+      "linkText": "the full Tauri app on GitHub",
+      "stack": "",
+      "languages": [
+        "JavaScript",
+        "Rust"
+      ],
+      "code": "#![cfg_attr(not(debug_assertions), windows_subsystem = \"windows\")]\n\nmod board;\n\nuse std::sync::Mutex;\n\nuse board::{ConnectFourBoard, COLUMNS};\nuse tauri::State;\n\nstruct GameState(Mutex<ConnectFourBoard>);\n\n#[tauri::command]\nfn new_game(state: State<GameState>) -> board::GameView {\n    let mut game = state.0.lock().expect(\"lock game\");\n    *game = ConnectFourBoard::new();\n    game.view()\n}\n\n#[tauri::command]\nfn play(column: usize, state: State<GameState>) -> board::GameView {\n    let mut game = state.0.lock().expect(\"lock game\");\n    if !game.is_over() && column < COLUMNS && !game.is_full(column) {\n        game.drop(column);\n    }\n    game.view()\n}\n\nfn main() {\n    tauri::Builder::default()\n        .manage(GameState(Mutex::new(ConnectFourBoard::new())))\n        .invoke_handler(tauri::generate_handler![new_game, play])\n        .run(tauri::generate_context!())\n        .expect(\"error while running tauri application\");\n}\n"
     },
     {
       "id": "tkinter",
@@ -758,7 +1657,41 @@ window.CONNECT_FOUR_DATA = {
       "folder": "frameworks/tkinter",
       "note": "This is the representative file - a Tkinter window that draws the board on a Canvas and drops red and yellow discs, with the game rules beside it. See {link} to browse the board and the rest of the example.",
       "linkText": "the full Tkinter app on GitHub",
+      "stack": "",
+      "languages": [
+        "Python"
+      ],
       "code": "import tkinter as tk\n\nfrom board import COLUMNS, ROWS, Board\n\nCELL = 64\nGAP = 6\nDISC_COLOURS = {\"X\": \"#ef4444\", \"O\": \"#facc15\"}\nFRAME_COLOUR = \"#1d4ed8\"\nSLOT_COLOUR = \"#0b1220\"\n\n\nclass ConnectFourApp:\n    \"\"\"A Tkinter window with a Canvas board; click a column to drop a disc.\"\"\"\n\n    def __init__(self, root):\n        self.root = root\n        self.board = Board()\n\n        root.title(\"Connect Four - Tkinter\")\n\n        self.status = tk.Label(root, text=\"\", font=(\"Segoe UI\", 14, \"bold\"))\n        self.status.pack(pady=(12, 4))\n\n        self.canvas = tk.Canvas(\n            root,\n            width=COLUMNS * CELL,\n            height=ROWS * CELL,\n            bg=FRAME_COLOUR,\n            highlightthickness=0,\n        )\n        self.canvas.pack(padx=12, pady=4)\n        self.canvas.bind(\"<Button-1>\", self.on_click)\n\n        tk.Button(root, text=\"New game\", command=self.reset).pack(pady=(4, 12))\n\n        self.refresh()\n\n    def cell_box(self, row, column):\n        \"\"\"Canvas coordinates of a slot; row 0 (the bottom row) is drawn last.\"\"\"\n        top = (ROWS - 1 - row) * CELL\n        left = column * CELL\n        return left + GAP, top + GAP, left + CELL - GAP, top + CELL - GAP\n\n    def refresh(self):\n        self.canvas.delete(\"all\")\n        for row in range(ROWS):\n            for column in range(COLUMNS):\n                colour = DISC_COLOURS.get(self.board.cells[row][column], SLOT_COLOUR)\n                self.canvas.create_oval(*self.cell_box(row, column), fill=colour, outline=\"\")\n        self.status.config(text=self.status_text())\n\n    def status_text(self):\n        winner = self.board.winner()\n        if winner:\n            return \"Player %s wins!\" % winner\n        if self.board.moves == ROWS * COLUMNS:\n            return \"It's a tie!\"\n        return \"Player %s, choose a column\" % self.board.current_player\n\n    def on_click(self, event):\n        column = event.x // CELL\n        if 0 <= column < COLUMNS and not self.board.is_over() and not self.board.is_full(column):\n            self.board.drop(column)\n            self.refresh()\n\n    def reset(self):\n        self.board = Board()\n        self.refresh()\n\n\ndef main():\n    root = tk.Tk()\n    ConnectFourApp(root)\n    root.mainloop()\n\n\nif __name__ == \"__main__\":\n    main()\n"
+    },
+    {
+      "id": "trpc",
+      "name": "tRPC",
+      "category": "API",
+      "prism": "language-typescript",
+      "file": "frameworks/trpc/server/router.ts",
+      "folder": "frameworks/trpc",
+      "note": "This is one representative file from the app - the typed router. See {link} to browse the board, server, client and the rest of the project.",
+      "linkText": "the full tRPC app on GitHub",
+      "stack": "",
+      "languages": [
+        "TypeScript"
+      ],
+      "code": "import { initTRPC } from \"@trpc/server\";\nimport { z } from \"zod\";\n\nimport { COLUMNS, ConnectFourBoard } from \"./board\";\n\nconst t = initTRPC.create();\n\nexport interface Context {\n    board: ConnectFourBoard;\n}\n\nexport const appRouter = t.router({\n    board: t.procedure.query(({ ctx }) => ctx.board.view()),\n\n    move: t.procedure\n        .input(z.object({ column: z.number().int().min(0).max(COLUMNS - 1) }))\n        .mutation(({ ctx, input }) => {\n            ctx.board.play(input.column);\n            return ctx.board.view();\n        }),\n\n    reset: t.procedure.mutation(({ ctx }) => {\n        ctx.board.reset();\n        return ctx.board.view();\n    }),\n});\n\nexport type AppRouter = typeof appRouter;\n"
+    },
+    {
+      "id": "vapor",
+      "name": "Vapor",
+      "category": "Web",
+      "prism": "language-swift",
+      "file": "frameworks/vapor/Sources/App/routes.swift",
+      "folder": "frameworks/vapor",
+      "note": "This is one representative file from the app. See {link} to browse the board, configure step, boot file and the rest of the project.",
+      "linkText": "the full Vapor app on GitHub",
+      "stack": "Backend",
+      "languages": [
+        "Swift"
+      ],
+      "code": "import Vapor\n\nstruct MoveForm: Content {\n    let column: Int\n}\n\nfunc routes(_ app: Application) throws {\n    app.get { req async throws -> Response in\n        let board = req.session.data[\"board\"].flatMap(ConnectFourBoard.decode) ?? ConnectFourBoard()\n        return html(render(board))\n    }\n\n    app.post(\"move\") { req async throws -> Response in\n        var board = req.session.data[\"board\"].flatMap(ConnectFourBoard.decode) ?? ConnectFourBoard()\n        let form = try req.content.decode(MoveForm.self)\n\n        if !board.isOver,\n            form.column >= 1,\n            form.column <= ConnectFourBoard.columnCount,\n            !board.isFull(column: form.column - 1)\n        {\n            board.drop(column: form.column - 1)\n        }\n\n        req.session.data[\"board\"] = board.encoded\n        return req.redirect(to: \"/\")\n    }\n\n    app.post(\"reset\") { req async throws -> Response in\n        req.session.data[\"board\"] = nil\n        return req.redirect(to: \"/\")\n    }\n}\n\nprivate func html(_ body: String) -> Response {\n    var headers = HTTPHeaders()\n    headers.contentType = .html\n    return Response(status: .ok, headers: headers, body: .init(string: body))\n}\n\nprivate func render(_ board: ConnectFourBoard) -> String {\n    let status: String\n    if let champion = board.winner {\n        status = \"Player \\(champion) wins!\"\n    } else if board.isOver {\n        status = \"It's a tie!\"\n    } else {\n        status = \"Player \\(board.currentPlayer), choose a column.\"\n    }\n\n    let rows = board.rowsTopDown.map { row in\n        let cells = row.map { cell in\n            \"<td class=\\\"cell cell--\\(cell.lowercased())\\\">\\(cell)</td>\"\n        }.joined()\n        return \"<tr>\\(cells)</tr>\"\n    }.joined()\n\n    let buttons = (1...ConnectFourBoard.columnCount).map { column in\n        let disabled = board.isOver ? \" disabled\" : \"\"\n        return \"<button type=\\\"submit\\\" name=\\\"column\\\" value=\\\"\\(column)\\\"\\(disabled)>\\(column)</button>\"\n    }.joined()\n\n    return \"\"\"\n        <!doctype html>\n        <html lang=\"en\">\n        <head><meta charset=\"utf-8\"><title>Connect Four</title></head>\n        <body>\n        <h1>Connect Four</h1>\n        <p>\\(status)</p>\n        <table class=\"board\">\\(rows)</table>\n        <form method=\"post\" action=\"/move\">\\(buttons)</form>\n        <form method=\"post\" action=\"/reset\"><button type=\"submit\">New game</button></form>\n        </body>\n        </html>\n        \"\"\"\n}\n"
     },
     {
       "id": "vue",
@@ -769,7 +1702,26 @@ window.CONNECT_FOUR_DATA = {
       "folder": "frameworks/vue",
       "note": "This is one representative file from the app - the Composition API composable (Prism has no Vue grammar, so the .vue file is not shown here). See {link} to browse the single-file component, board logic and the rest of the project.",
       "linkText": "the full Vue app on GitHub",
+      "stack": "Frontend",
+      "languages": [
+        "JavaScript"
+      ],
       "code": "import { computed, ref } from \"vue\";\n\nimport {\n    COLUMNS,\n    ROWS,\n    createBoard,\n    currentPlayer,\n    drop,\n    isColumnFull,\n    winner,\n} from \"../board\";\n\nexport function useConnectFour() {\n    const board = ref(createBoard());\n    const moves = ref(0);\n\n    const columns = Array.from({ length: COLUMNS }, (_, index) => index);\n    const champion = computed(() => winner(board.value));\n    const over = computed(() => champion.value !== undefined || moves.value === ROWS * COLUMNS);\n    const status = computed(() => {\n        if (champion.value) {\n            return `Player ${champion.value} wins!`;\n        }\n        if (over.value) {\n            return \"It's a tie!\";\n        }\n        return `Player ${currentPlayer(moves.value)}, choose a column.`;\n    });\n\n    function play(column) {\n        if (over.value || isColumnFull(board.value, column)) {\n            return;\n        }\n        board.value = drop(board.value, column, currentPlayer(moves.value));\n        moves.value += 1;\n    }\n\n    function reset() {\n        board.value = createBoard();\n        moves.value = 0;\n    }\n\n    return { board, over, status, columns, play, reset, isColumnFull };\n}\n"
+    },
+    {
+      "id": "vuebootstrap",
+      "name": "Vue Bootstrap",
+      "category": "Web",
+      "prism": "language-javascript",
+      "file": "frameworks/vuebootstrap/src/composables/useConnectFour.js",
+      "folder": "frameworks/vuebootstrap",
+      "note": "This is one representative file from the app - the Composition API composable (Prism has no Vue grammar, so App.vue is not shown here). See {link} to browse the single-file component, board logic and the rest of the project.",
+      "linkText": "the full Vue Bootstrap app on GitHub",
+      "stack": "Frontend",
+      "languages": [
+        "JavaScript"
+      ],
+      "code": "import { computed, ref } from \"vue\";\n\nimport {\n    COLUMNS,\n    ROWS,\n    createBoard,\n    currentPlayer,\n    drop,\n    isColumnFull,\n    winner,\n} from \"../board\";\n\nexport function useConnectFour() {\n    const board = ref(createBoard());\n    const moves = ref(0);\n\n    const champion = computed(() => winner(board.value));\n    const over = computed(() => Boolean(champion.value) || moves.value === ROWS * COLUMNS);\n\n    const status = computed(() => {\n        if (champion.value) {\n            return `Player ${champion.value} wins!`;\n        }\n        if (over.value) {\n            return \"It's a tie!\";\n        }\n        return `Player ${currentPlayer(moves.value)}, choose a column.`;\n    });\n\n    const rows = computed(() => [...board.value].reverse());\n\n    const columns = computed(() =>\n        Array.from({ length: COLUMNS }, (_, index) => ({\n            index,\n            label: index + 1,\n            disabled: over.value || isColumnFull(board.value, index),\n        })),\n    );\n\n    const alertVariant = computed(() =>\n        champion.value ? \"success\" : over.value ? \"warning\" : \"info\",\n    );\n\n    function play(column) {\n        if (over.value || isColumnFull(board.value, column)) {\n            return;\n        }\n        board.value = drop(board.value, column, currentPlayer(moves.value));\n        moves.value += 1;\n    }\n\n    function reset() {\n        board.value = createBoard();\n        moves.value = 0;\n    }\n\n    return { board, moves, status, rows, columns, alertVariant, play, reset };\n}\n"
     },
     {
       "id": "wpf",
@@ -780,6 +1732,10 @@ window.CONNECT_FOUR_DATA = {
       "folder": "frameworks/wpf",
       "note": "This is the representative file - the code-behind of a WPF window (Prism has no XAML grammar, so MainWindow.xaml is not shown here). See {link} to browse the XAML view, board logic and the rest of the project.",
       "linkText": "the full WPF (C#) app on GitHub",
+      "stack": "",
+      "languages": [
+        "C#"
+      ],
       "code": "using System.Windows;\nusing System.Windows.Controls;\nusing System.Windows.Media;\n\nnamespace ConnectFour;\n\npublic partial class MainWindow : Window\n{\n    private static readonly Brush EmptySlot = new SolidColorBrush(Color.FromRgb(0x0B, 0x12, 0x20));\n    private static readonly Brush RedDisc = new SolidColorBrush(Color.FromRgb(0xEF, 0x44, 0x44));\n    private static readonly Brush YellowDisc = new SolidColorBrush(Color.FromRgb(0xFA, 0xCC, 0x15));\n\n    private ConnectFourBoard _board = new();\n\n    public MainWindow()\n    {\n        InitializeComponent();\n        Render();\n    }\n\n    private void OnColumnClicked(object sender, RoutedEventArgs e)\n    {\n        if (sender is Button { Tag: string tag }\n            && int.TryParse(tag, out var column)\n            && !_board.IsOver\n            && !_board.IsFull(column - 1))\n        {\n            _board.Drop(column - 1);\n            Render();\n        }\n    }\n\n    private void OnResetClicked(object sender, RoutedEventArgs e)\n    {\n        _board = new ConnectFourBoard();\n        Render();\n    }\n\n    private void Render()\n    {\n        StatusLabel.Text = Status();\n        BoardGrid.Children.Clear();\n\n        for (var row = ConnectFourBoard.Rows - 1; row >= 0; row--)\n        {\n            for (var column = 0; column < ConnectFourBoard.Columns; column++)\n            {\n                BoardGrid.Children.Add(new Border\n                {\n                    Background = BrushFor(_board.Cell(row, column)),\n                    CornerRadius = new CornerRadius(20),\n                    Margin = new Thickness(3),\n                });\n            }\n        }\n    }\n\n    private static Brush BrushFor(char cell) => cell switch\n    {\n        'X' => RedDisc,\n        'O' => YellowDisc,\n        _ => EmptySlot,\n    };\n\n    private string Status() => _board.Winner() != ConnectFourBoard.Empty\n        ? $\"Player {_board.Winner()} wins!\"\n        : _board.IsOver\n            ? \"It's a tie!\"\n            : $\"Player {_board.CurrentPlayer}, choose a column.\";\n}\n"
     },
     {
@@ -791,7 +1747,34 @@ window.CONNECT_FOUR_DATA = {
       "folder": "frameworks/wpfvb",
       "note": "This is the representative file - the VB.NET code-behind of a WPF window (Prism has no XAML grammar, so MainWindow.xaml is not shown here). See {link} to browse the XAML view, board logic and the rest of the project.",
       "linkText": "the full WPF (VB.NET) app on GitHub",
+      "stack": "",
+      "languages": [
+        "VB.NET"
+      ],
       "code": "Imports System.Windows\nImports System.Windows.Controls\nImports System.Windows.Media\n\nPartial Public Class MainWindow\n\n    Private Shared ReadOnly EmptySlot As Brush = New SolidColorBrush(Color.FromRgb(&HB, &H12, &H20))\n    Private Shared ReadOnly RedDisc As Brush = New SolidColorBrush(Color.FromRgb(&HEF, &H44, &H44))\n    Private Shared ReadOnly YellowDisc As Brush = New SolidColorBrush(Color.FromRgb(&HFA, &HCC, &H15))\n\n    Private _board As New ConnectFourBoard()\n\n    Public Sub New()\n        InitializeComponent()\n        Render()\n    End Sub\n\n    Private Sub OnColumnClicked(sender As Object, e As RoutedEventArgs)\n        Dim button = TryCast(sender, Button)\n        Dim column As Integer\n\n        If button IsNot Nothing AndAlso Integer.TryParse(CStr(button.Tag), column) AndAlso\n           Not _board.IsOver AndAlso Not _board.IsFull(column - 1) Then\n            _board.Drop(column - 1)\n            Render()\n        End If\n    End Sub\n\n    Private Sub OnResetClicked(sender As Object, e As RoutedEventArgs)\n        _board = New ConnectFourBoard()\n        Render()\n    End Sub\n\n    Private Sub Render()\n        StatusLabel.Text = Status()\n        BoardGrid.Children.Clear()\n\n        For row As Integer = ConnectFourBoard.Rows - 1 To 0 Step -1\n            For column As Integer = 0 To ConnectFourBoard.Columns - 1\n                BoardGrid.Children.Add(New Border With {\n                    .Background = BrushFor(_board.Cell(row, column)),\n                    .CornerRadius = New CornerRadius(20),\n                    .Margin = New Thickness(3)\n                })\n            Next\n        Next\n    End Sub\n\n    Private Shared Function BrushFor(cell As Char) As Brush\n        If cell = \"X\"c Then Return RedDisc\n        If cell = \"O\"c Then Return YellowDisc\n        Return EmptySlot\n    End Function\n\n    Private Function Status() As String\n        If _board.Winner() <> ConnectFourBoard.Empty Then\n            Return $\"Player {_board.Winner()} wins!\"\n        ElseIf _board.IsOver Then\n            Return \"It's a tie!\"\n        Else\n            Return $\"Player {_board.CurrentPlayer}, choose a column.\"\n        End If\n    End Function\nEnd Class\n"
     }
-  ]
+  ],
+  "languageExtensions": {
+    "C#": ".cs",
+    "CQL": ".cql",
+    "CSS": ".css",
+    "Dart": ".dart",
+    "Elixir": ".ex",
+    "Go": ".go",
+    "JSON": ".json",
+    "Java": ".java",
+    "JavaScript": ".js",
+    "Kotlin": ".kt",
+    "PHP": ".php",
+    "PL/SQL": ".plsql",
+    "Python": ".py",
+    "Ruby": ".rb",
+    "Rust": ".rs",
+    "SQL": ".sql",
+    "Scala": ".scala",
+    "SurrealQL": ".surql",
+    "Swift": ".swift",
+    "TypeScript": ".ts",
+    "VB.NET": ".vb"
+  }
 };

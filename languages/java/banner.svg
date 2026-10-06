@@ -48,12 +48,12 @@
     <text x="56" y="110" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="46" font-weight="700" fill="#f2f5f3">Java</text>
     <rect x="56" y="126" width="56" height="3" rx="1.5" fill="#8debc4"/>
     <text x="56" y="152" font-family="'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace" font-size="14" fill="#8a93a0">JDK 17 or newer (javac + java)</text>
-    <rect x="56" y="172" width="94" height="34" rx="17" fill="#12291f" stroke="#3d7c64" stroke-width="1"/>
-    <text x="71" y="194" font-family="'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace" font-size="13" fill="#8debc4">JVM/.NET</text>
-    <rect x="160" y="172" width="288" height="34" rx="17" fill="#0a0e15" stroke="#26303f" stroke-width="1"/>
-    <text x="175" y="194" font-family="'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace" font-size="13" fill="#c3cad3">BufferedReader/InputStreamReader</text>
-    <rect x="458" y="172" width="159" height="34" rx="17" fill="#0a0e15" stroke="#26303f" stroke-width="1"/>
-    <text x="473" y="194" font-family="'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace" font-size="13" fill="#c3cad3">System.out.flush</text>
-    <rect x="627" y="172" width="191" height="34" rx="17" fill="#0a0e15" stroke="#26303f" stroke-width="1"/>
-    <text x="642" y="194" font-family="'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace" font-size="13" fill="#c3cad3">Static final helpers</text>
+    <rect x="56" y="172" width="54" height="34" rx="17" fill="#12291f" stroke="#3d7c64" stroke-width="1"/>
+    <text x="71" y="194" font-family="'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace" font-size="13" fill="#8debc4">JVM</text>
+    <rect x="120" y="172" width="288" height="34" rx="17" fill="#0a0e15" stroke="#26303f" stroke-width="1"/>
+    <text x="135" y="194" font-family="'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace" font-size="13" fill="#c3cad3">BufferedReader/InputStreamReader</text>
+    <rect x="418" y="172" width="159" height="34" rx="17" fill="#0a0e15" stroke="#26303f" stroke-width="1"/>
+    <text x="433" y="194" font-family="'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace" font-size="13" fill="#c3cad3">System.out.flush</text>
+    <rect x="587" y="172" width="191" height="34" rx="17" fill="#0a0e15" stroke="#26303f" stroke-width="1"/>
+    <text x="602" y="194" font-family="'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace" font-size="13" fill="#c3cad3">Static final helpers</text>
 </svg>

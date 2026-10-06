@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Connect Four</title>
+</head>
+<body>
+    <h1>Connect Four</h1>
+
+    {#if board.winner}
+        <p>Player {board.winner} wins!</p>
+    {#else if board.over}
+        <p>It's a tie!</p>
+    {#else}
+        <p>Player {board.currentPlayer}, choose a column.</p>
+    {/if}
+
+    <table class="board">
+        {#for row in board.rowsTopDown}
+            <tr>
+                {#for cell in row}
+                    <td class="cell cell--{cell.toLowerCase}">{cell}</td>
+                {/for}
+            </tr>
+        {/for}
+    </table>
+
+    <form method="post" action="/move">
+        {#for column in board.columns}
+            <button type="submit" name="column" value="{column}"
+                    {#if board.over}disabled{/if}>{column}</button>
+        {/for}
+    </form>
+
+    <form method="post" action="/reset">
+        <button type="submit">New game</button>
+    </form>
+</body>
+</html>

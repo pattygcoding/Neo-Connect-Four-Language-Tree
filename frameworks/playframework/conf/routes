@@ -1,0 +1,3 @@
+GET     /           controllers.GameController.index
+POST    /move       controllers.GameController.move
+POST    /reset      controllers.GameController.reset

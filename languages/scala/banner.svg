@@ -48,12 +48,12 @@
     <text x="56" y="110" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="46" font-weight="700" fill="#f2f5f3">Scala</text>
     <rect x="56" y="126" width="56" height="3" rx="1.5" fill="#8debc4"/>
     <text x="56" y="152" font-family="'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace" font-size="14" fill="#8a93a0">scala (the Scala CLI, which needs a JVM)</text>
-    <rect x="56" y="172" width="94" height="34" rx="17" fill="#12291f" stroke="#3d7c64" stroke-width="1"/>
-    <text x="71" y="194" font-family="'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace" font-size="13" fill="#8debc4">JVM/.NET</text>
-    <rect x="160" y="172" width="143" height="34" rx="17" fill="#0a0e15" stroke="#26303f" stroke-width="1"/>
-    <text x="175" y="194" font-family="'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace" font-size="13" fill="#c3cad3">scala.io.StdIn</text>
-    <rect x="313" y="172" width="199" height="34" rx="17" fill="#0a0e15" stroke="#26303f" stroke-width="1"/>
-    <text x="328" y="194" font-family="'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace" font-size="13" fill="#c3cad3">Console.flush prompts</text>
-    <rect x="523" y="172" width="167" height="34" rx="17" fill="#0a0e15" stroke="#26303f" stroke-width="1"/>
-    <text x="538" y="194" font-family="'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace" font-size="13" fill="#c3cad3">Array-based board</text>
+    <rect x="56" y="172" width="54" height="34" rx="17" fill="#12291f" stroke="#3d7c64" stroke-width="1"/>
+    <text x="71" y="194" font-family="'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace" font-size="13" fill="#8debc4">JVM</text>
+    <rect x="120" y="172" width="143" height="34" rx="17" fill="#0a0e15" stroke="#26303f" stroke-width="1"/>
+    <text x="135" y="194" font-family="'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace" font-size="13" fill="#c3cad3">scala.io.StdIn</text>
+    <rect x="273" y="172" width="199" height="34" rx="17" fill="#0a0e15" stroke="#26303f" stroke-width="1"/>
+    <text x="288" y="194" font-family="'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace" font-size="13" fill="#c3cad3">Console.flush prompts</text>
+    <rect x="482" y="172" width="167" height="34" rx="17" fill="#0a0e15" stroke="#26303f" stroke-width="1"/>
+    <text x="497" y="194" font-family="'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace" font-size="13" fill="#c3cad3">Array-based board</text>
 </svg>

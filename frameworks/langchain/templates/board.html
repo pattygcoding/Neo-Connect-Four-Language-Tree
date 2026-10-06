@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Connect Four - LangChain coach</title>
+</head>
+<body>
+    <h1>Connect Four</h1>
+
+    <p id="status">
+        {% if board.winner %}
+            Player {{ board.winner }} wins!
+        {% elif board.is_over %}
+            It's a tie!
+        {% else %}
+            Player {{ board.current_player }}, choose a column.
+        {% endif %}
+    </p>
+
+    <pre class="board">{{ board.render() }}</pre>
+
+    <form method="post" action="/move">
+        {% for column in columns %}
+            <button type="submit" name="column" value="{{ column }}"
+                    {% if board.is_over %}disabled{% endif %}>{{ column }}</button>
+        {% endfor %}
+    </form>
+
+    <form action="/coach">
+        <button type="submit">Ask the coach</button>
+    </form>
+</body>
+</html>

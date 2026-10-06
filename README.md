@@ -324,44 +324,108 @@ GitHub, with a note above the code explaining just that.
 | Framework     | Project                   | Representative file                                           | Run                   |
 |---------------|---------------------------|--------------------------------------------------------------|-----------------------|
 | .NET MAUI     | `frameworks/maui/`        | `frameworks/maui/MainPage.xaml.cs`                           | `dotnet build -t:Run` |
+| AdonisJS      | `frameworks/adonisjs/`    | `frameworks/adonisjs/app/controllers/games_controller.ts`    | `node ace serve`      |
+| Alpine.js     | `frameworks/alpinejs/`    | `frameworks/alpinejs/index.html`                             | `npx serve .`         |
 | Angular       | `frameworks/angular/`     | `frameworks/angular/src/app/connect-four/connect-four.component.ts` | `ng serve`      |
 | ASP.NET Core  | `frameworks/aspnetcore/`  | `frameworks/aspnetcore/Controllers/GameController.cs`        | `dotnet run`          |
+| Astro         | `frameworks/astro/`       | `frameworks/astro/src/lib/board.ts`                          | `npm run dev`         |
+| Avalonia      | `frameworks/avalonia/`    | `frameworks/avalonia/MainWindow.axaml.cs`                    | `dotnet run`          |
+| Axum          | `frameworks/axum/`        | `frameworks/axum/src/main.rs`                                | `cargo run`           |
 | Blazor        | `frameworks/blazor/`      | `frameworks/blazor/Components/Pages/ConnectFour.razor`       | `dotnet run`          |
+| Bootstrap     | `frameworks/bootstrap/`   | `frameworks/bootstrap/index.html`                            | `npx serve .`         |
+| Cassandra     | `frameworks/cassandra/`   | `frameworks/cassandra/schema.cql`                            | `cqlsh -f schema.cql` |
+| ClickHouse    | `frameworks/clickhouse/`  | `frameworks/clickhouse/schema.sql`                           | `clickhouse-client < schema.sql` |
 | Django        | `frameworks/django/`      | `frameworks/django/game/views.py`                            | `manage.py runserver` |
+| DuckDB        | `frameworks/duckdb/`      | `frameworks/duckdb/schema.sql`                               | `duckdb < schema.sql` |
+| Echo (Go)     | `frameworks/echo/`        | `frameworks/echo/main.go`                                    | `go run .`            |
+| Electron      | `frameworks/electron/`    | `frameworks/electron/main.js`                                | `npm start`           |
+| Ember.js      | `frameworks/ember/`       | `frameworks/ember/app/components/connect-four.js`            | `npm start`           |
 | Express (Node) | `frameworks/expressjs/`  | `frameworks/expressjs/app.ts`                                | `npm start`           |
 | FastAPI       | `frameworks/fastapi/`     | `frameworks/fastapi/app/main.py`                             | `fastapi dev`         |
 | Fastify       | `frameworks/fastify/`     | `frameworks/fastify/app.js`                                  | `node app.js`         |
 | Fiber         | `frameworks/fiber/`       | `frameworks/fiber/main.go`                                   | `go run .`            |
+| Firebird      | `frameworks/firebird/`    | `frameworks/firebird/schema.sql`                             | `isql < schema.sql`   |
 | Flask         | `frameworks/flask/`       | `frameworks/flask/app.py`                                    | `flask --app app run` |
 | Flutter       | `frameworks/flutter/`     | `frameworks/flutter/lib/connect_four.dart`                   | `flutter run`         |
 | Fyne          | `frameworks/fyne/`        | `frameworks/fyne/main.go`                                    | `go run .`            |
 | Gin           | `frameworks/gin/`         | `frameworks/gin/main.go`                                     | `go run .`            |
 | GraphQL       | `frameworks/graphql/`     | `frameworks/graphql/schema.graphql`                          | `python server.py`    |
+| Handlebars    | `frameworks/handlebars/`  | `frameworks/handlebars/templates/board.hbs`                  | `npm start`           |
+| HTMX          | `frameworks/htmx/`        | `frameworks/htmx/server.js`                                  | `node server.js`      |
+| IBM Db2       | `frameworks/db2/`         | `frameworks/db2/schema.sql`                                  | `db2 -tvf schema.sql` |
+| Ionic         | `frameworks/ionic/`       | `frameworks/ionic/src/app/connect-four/connect-four.page.ts` | `ionic serve`         |
+| JavaFX        | `frameworks/javafx/`      | `frameworks/javafx/src/main/java/com/example/connectfour/ConnectFourApp.java` | `mvn javafx:run` |
+| Jetpack Compose | `frameworks/jetpackcompose/` | `frameworks/jetpackcompose/app/src/main/java/com/example/connectfour/MainActivity.kt` | `gradle installDebug` |
+| jQuery        | `frameworks/jquery/`      | `frameworks/jquery/app.js`                                   | `npx serve .`         |
 | JSON          | `frameworks/json/`        | `frameworks/json/connect_four.json`                          | `python play.py`      |
+| Koa           | `frameworks/koa/`         | `frameworks/koa/app.js`                                      | `npm start`           |
+| Ktor          | `frameworks/ktor/`        | `frameworks/ktor/src/main/kotlin/com/example/connectfour/Application.kt` | `gradle run` |
+| LangChain     | `frameworks/langchain/`   | `frameworks/langchain/coach.py`                              | `python app.py`       |
 | Laravel       | `frameworks/laravel/`     | `frameworks/laravel/app/Http/Controllers/GameController.php` | `php artisan serve`   |
+| Lit           | `frameworks/lit/`         | `frameworks/lit/src/connect-four.ts`                         | `npm run dev`         |
+| MariaDB       | `frameworks/mariadb/`     | `frameworks/mariadb/schema.sql`                              | `mariadb < schema.sql` |
 | Minimax AI    | `frameworks/minimax/`     | `frameworks/minimax/minimax.py`                              | `python play.py`      |
 | MongoDB (NoSQL) | `frameworks/mongodb/`   | `frameworks/mongodb/schema.js`                               | `mongosh --file schema.js` |
 | MySQL         | `frameworks/mysql/`       | `frameworks/mysql/schema.sql`                                | `mysql < schema.sql`  |
 | NestJS        | `frameworks/nestjs/`      | `frameworks/nestjs/src/game/game.controller.ts`              | `ts-node src/main.ts` |
 | Next.js       | `frameworks/nextjs/`      | `frameworks/nextjs/app/page.jsx`                             | `npm run dev`         |
 | Nuxt          | `frameworks/nuxt/`        | `frameworks/nuxt/composables/useConnectFour.js`              | `npm run dev`         |
+| Ollama        | `frameworks/ollama/`      | `frameworks/ollama/app.py`                                   | `python app.py`       |
+| Oracle Database | `frameworks/oracle/`    | `frameworks/oracle/schema.sql`                               | `sqlplus @schema.sql` |
+| Oracle PL/SQL | `frameworks/plsql/`       | `frameworks/plsql/packages.sql`                              | `sqlplus @packages.sql` |
 | Phoenix       | `frameworks/phoenix/`     | `frameworks/phoenix/lib/connect_four_web/controllers/game_controller.ex` | `mix phx.server` |
+| Play Framework | `frameworks/playframework/` | `frameworks/playframework/app/controllers/GameController.scala` | `sbt run`          |
+| Playwright    | `frameworks/playwright/`  | `frameworks/playwright/tests/connect-four.spec.ts`           | `npx playwright test` |
+| PostgreSQL    | `frameworks/postgresql/`  | `frameworks/postgresql/schema.sql`                           | `psql < schema.sql`   |
+| Preact        | `frameworks/preact/`      | `frameworks/preact/src/connect-four.jsx`                     | `npm run dev`         |
+| Prisma        | `frameworks/prisma/`      | `frameworks/prisma/src/gameService.ts`                       | `prisma studio`       |
+| PySide6 (Qt)  | `frameworks/pyside6/`     | `frameworks/pyside6/main.py`                                 | `python main.py`      |
+| Quarkus       | `frameworks/quarkus/`     | `frameworks/quarkus/src/main/java/com/example/connectfour/GameResource.java` | `mvn quarkus:dev` |
+| QuestDB       | `frameworks/questdb/`     | `frameworks/questdb/schema.sql`                              | Web Console           |
+| Qwik          | `frameworks/qwik/`        | `frameworks/qwik/src/routes/index.tsx`                       | `npm run dev`         |
 | React         | `frameworks/react/`       | `frameworks/react/src/ConnectFour.jsx`                       | `npx vite`            |
+| React Bootstrap | `frameworks/reactbootstrap/` | `frameworks/reactbootstrap/src/ConnectFour.jsx`          | `npm run dev`         |
 | React Native  | `frameworks/reactnative/` | `frameworks/reactnative/src/ConnectFour.jsx`                 | `npx expo start`      |
+| Redis         | `frameworks/redis/`       | `frameworks/redis/app.py`                                    | `python app.py`       |
+| Redux Toolkit | `frameworks/redux/`       | `frameworks/redux/src/features/game/gameSlice.js`            | `npm run dev`         |
+| Remix (React Router) | `frameworks/remix/` | `frameworks/remix/app/routes/home.tsx`                       | `npm run dev`         |
 | Ruby on Rails | `frameworks/rubyonrails/` | `frameworks/rubyonrails/app/controllers/games_controller.rb` | `bin/rails server`    |
+| Sanic         | `frameworks/sanic/`       | `frameworks/sanic/app.py`                                    | `python app.py`       |
+| SCSS          | `frameworks/scss/`        | `frameworks/scss/scss/main.scss`                             | `npm run build`       |
+| Selenium      | `frameworks/selenium/`    | `frameworks/selenium/tests/test_connect_four.py`             | `pytest`              |
+| SolidJS       | `frameworks/solidjs/`     | `frameworks/solidjs/src/ConnectFour.jsx`                     | `npm run dev`         |
 | Spring Boot   | `frameworks/springboot/`  | `frameworks/springboot/src/main/java/com/example/connectfour/GameController.java` | `mvn spring-boot:run` |
+| SQLite        | `frameworks/sqlite/`      | `frameworks/sqlite/schema.sql`                               | `sqlite3 < schema.sql` |
 | Svelte        | `frameworks/svelte/`      | `frameworks/svelte/src/lib/store.js`                         | `npx vite`            |
+| SwiftUI       | `frameworks/swiftui/`     | `frameworks/swiftui/Sources/ConnectFour/ContentView.swift`   | Xcode Run             |
 | Symfony       | `frameworks/symfony/`     | `frameworks/symfony/src/Controller/GameController.php`       | `symfony server:start` |
+| SurrealDB     | `frameworks/surrealdb/`   | `frameworks/surrealdb/schema.surql`                          | `surreal import`      |
+| Tailwind CSS  | `frameworks/tailwindcss/` | `frameworks/tailwindcss/index.html`                          | `npm run build`       |
+| TanStack Query | `frameworks/tanstackquery/` | `frameworks/tanstackquery/src/ConnectFour.jsx`             | `npm run server`      |
+| Tauri         | `frameworks/tauri/`       | `frameworks/tauri/src-tauri/src/main.rs`                     | `npm run dev`         |
 | Tkinter (Python) | `frameworks/tkinter/`  | `frameworks/tkinter/app.py`                                  | `python app.py`       |
+| tRPC          | `frameworks/trpc/`        | `frameworks/trpc/server/router.ts`                           | `npm run server`      |
+| T-SQL         | `frameworks/tsql/`        | `frameworks/tsql/schema.sql`                                 | `sqlcmd -i schema.sql` |
+| Vapor         | `frameworks/vapor/`       | `frameworks/vapor/Sources/App/routes.swift`                  | `swift run`           |
 | WPF (C#)      | `frameworks/wpf/`         | `frameworks/wpf/MainWindow.xaml.cs`                          | `dotnet run`          |
 | WPF (VB.NET)  | `frameworks/wpfvb/`       | `frameworks/wpfvb/MainWindow.xaml.vb`                        | `dotnet run`          |
 | Vue           | `frameworks/vue/`         | `frameworks/vue/src/composables/useConnectFour.js`           | `npx vite`            |
+| Vue Bootstrap | `frameworks/vuebootstrap/` | `frameworks/vuebootstrap/src/composables/useConnectFour.js` | `npm run dev`        |
 
 A framework app renders its own UI — HTML, mobile or desktop widgets — rather
 than the byte-for-byte console protocol, so frameworks are deliberately
 **outside** the golden test suite (`tests/`). Each one carries its own README,
 and the dashboard's **Frameworks** browse mode renders it without the
 console-capture tab.
+
+Inside that mode the sidebar carries three facets - **Category**, **Stack** and
+**Language**. Stack splits the Web tree into Frontend, Backend and Full stack;
+Language filters by the programming language a framework is written in, so
+picking C# pulls up Blazor, .NET MAUI, ASP.NET Core, Avalonia and WPF together.
+Both extra facets appear only in Frameworks mode. Stacks show as short badges
+(**FE** / **BE** / **FS**, spelled out in the dropdown) and languages as blue
+file-extension tags (`.ts`, `.cs`, `.py`) on each framework's sidebar row, so
+Blazor reads "Web · FS · .cs" at a glance.
 
 ## Language folders
 
@@ -414,7 +478,17 @@ because an app is many files, not one `connect_four.<ext>`:
    the `folder` to link on GitHub, and the `note`/`linkText` banner above the
    code (put a `{link}` placeholder where the "view the whole project" link
    goes).
-3. Add a `frameworks/<name>/README.md` explaining prerequisites, how to run it
+3. Fill in the two facets the Frameworks filters read:
+   * `FRAMEWORK_STACKS` - `Frontend`, `Backend` or `Full stack`, for a **Web**
+     framework. The Stack chips list only the values that are present, and a
+     framework without one is simply left out of that facet.
+   * `FRAMEWORK_LANGUAGES` - the language(s) the app is written in, e.g.
+     `["C#"]` or `["JavaScript", "Rust"]`. This is what the Language chips
+     filter on, so C# pulls up Blazor, ASP.NET Core and the rest.
+4. Add a `frameworks/<name>/README.md` explaining prerequisites, how to run it
    and the skills it demonstrates.
-4. Run `python tools/generate_dashboard.py` and add a row to the Frameworks
+5. Add a banner: a facts entry to `FRAMEWORK_BANNERS` in
+   `tools/generate_language_readmes.py`, then run
+   `python tools/generate_language_readmes.py`.
+6. Run `python tools/generate_dashboard.py` and add a row to the Frameworks
    table above.

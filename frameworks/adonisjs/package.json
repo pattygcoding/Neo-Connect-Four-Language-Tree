@@ -1,0 +1,24 @@
+{
+    "name": "connect-four-adonisjs",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "node ace serve --hmr",
+        "start": "node bin/server.js",
+        "build": "node ace build"
+    },
+    "imports": {
+        "#controllers/*": "./app/controllers/*.js",
+        "#services/*": "./app/services/*.js"
+    },
+    "dependencies": {
+        "@adonisjs/core": "^6.14.0",
+        "@adonisjs/session": "^7.5.0",
+        "@adonisjs/view": "^6.2.0",
+        "edge.js": "^6.2.0",
+        "reflect-metadata": "^0.2.0"
+    },
+    "devDependencies": {
+        "typescript": "^5.6.0"
+    }
+}

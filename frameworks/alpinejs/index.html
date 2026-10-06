@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Connect Four - Alpine.js</title>
+        <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+        <script type="module" src="./app.js"></script>
+    </head>
+    <body>
+        <main x-data="connectFour" class="game">
+            <h1>Connect Four</h1>
+
+            <p role="status" x-text="status"></p>
+
+            <table class="board">
+                <tbody>
+                    <template x-for="(cells, rowIndex) in rows" :key="rowIndex">
+                        <tr>
+                            <template x-for="(cell, columnIndex) in cells" :key="columnIndex">
+                                <td class="cell" x-text="cell" :class="`cell--${cell.toLowerCase()}`"></td>
+                            </template>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+
+            <div class="columns">
+                <template x-for="column in columns" :key="column">
+                    <button
+                        type="button"
+                        x-text="column + 1"
+                        :disabled="over || isColumnFull(column)"
+                        @click="play(column)"
+                    ></button>
+                </template>
+            </div>
+
+            <button type="button" @click="reset">New game</button>
+        </main>
+    </body>
+</html>

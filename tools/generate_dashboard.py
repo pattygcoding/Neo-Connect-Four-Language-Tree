@@ -58,22 +58,22 @@ LANGUAGE_INFO = {
     "cobol": ("COBOL", "language-cobol", "Legacy"),
     "cpp": ("C++", "language-cpp", "Systems"),
     "crystal": ("Crystal", "language-crystal", "Systems"),
-    "csharp": ("C#", "language-csharp", "JVM/.NET"),
+    "csharp": ("C#", "language-csharp", ".NET"),
     "d": ("D", "language-d", "Systems"),
     "dart": ("Dart", "language-dart", "Web"),
     "elixir": ("Elixir", "language-elixir", "Functional"),
     "erlang": ("Erlang", "language-erlang", "Functional"),
     "fortran": ("Fortran", "language-fortran", "Scientific"),
-    "fsharp": ("F#", "language-fsharp", "JVM/.NET"),
+    "fsharp": ("F#", "language-fsharp", ".NET"),
     "go": ("Go", "language-go", "Systems"),
-    "groovy": ("Groovy", "language-groovy", "JVM/.NET"),
+    "groovy": ("Groovy", "language-groovy", "JVM"),
     "haskell": ("Haskell", "language-haskell", "Functional"),
     "haxe": ("Haxe", "language-haxe", "Systems"),
     "htmlcss": ("HTML/CSS", "language-markup", "Web"),
-    "java": ("Java", "language-java", "JVM/.NET"),
+    "java": ("Java", "language-java", "JVM"),
     "javascript": ("JavaScript", "language-javascript", "Web"),
     "julia": ("Julia", "language-julia", "Scientific"),
-    "kotlin": ("Kotlin", "language-kotlin", "JVM/.NET"),
+    "kotlin": ("Kotlin", "language-kotlin", "JVM"),
     "lisp": ("Lisp", "language-lisp", "Functional"),
     "lua": ("Lua", "language-lua", "Scripting"),
     "matlab": ("MATLAB", "language-matlab", "Scientific"),
@@ -89,14 +89,14 @@ LANGUAGE_INFO = {
     "r": ("R", "language-r", "Scientific"),
     "ruby": ("Ruby", "language-ruby", "Scripting"),
     "rust": ("Rust", "language-rust", "Systems"),
-    "scala": ("Scala", "language-scala", "JVM/.NET"),
+    "scala": ("Scala", "language-scala", "JVM"),
     "scheme": ("Scheme", "language-scheme", "Functional"),
     "sql": ("SQL", "language-sql", "Data"),
     "swift": ("Swift", "language-swift", "Systems"),
     "tiger": ("Tiger (Custom)", "language-javascript", "Custom"),
     "typescript": ("TypeScript", "language-typescript", "Web"),
     "v": ("V", "language-v", "Systems"),
-    "vb": ("Visual Basic", "language-vbnet", "JVM/.NET"),
+    "vb": ("Visual Basic", "language-vbnet", ".NET"),
     "zig": ("Zig", "language-zig", "Systems"),
 }
 
@@ -529,6 +529,759 @@ FRAMEWORK_INFO = {
                 "and the rest of the project.",
         "linkText": "the full Vue app on GitHub",
     },
+    "adonisjs": {
+        "name": "AdonisJS",
+        "prism": "language-typescript",
+        "category": "Web",
+        "file": "app/controllers/games_controller.ts",
+        "folder": "frameworks/adonisjs",
+        "note": "This is one representative file from the app. See {link} to "
+                "browse the board service, routes, Edge view and the rest of the project.",
+        "linkText": "the full AdonisJS app on GitHub",
+    },
+    "alpinejs": {
+        "name": "Alpine.js",
+        "prism": "language-markup",
+        "category": "Web",
+        "file": "index.html",
+        "folder": "frameworks/alpinejs",
+        "note": "This is one representative file from the app. See {link} to "
+                "browse the Alpine component and the rest of the project.",
+        "linkText": "the full Alpine.js app on GitHub",
+    },
+    "astro": {
+        "name": "Astro",
+        "prism": "language-typescript",
+        "category": "Web",
+        "file": "src/lib/board.ts",
+        "folder": "frameworks/astro",
+        "note": "This is one representative file from the app - the typed board "
+                "module (Prism has no Astro grammar, so the .astro files are not "
+                "shown here). See {link} to browse the component, page and the rest "
+                "of the project.",
+        "linkText": "the full Astro app on GitHub",
+    },
+    "avalonia": {
+        "name": "Avalonia",
+        "prism": "language-csharp",
+        "category": "Desktop",
+        "file": "MainWindow.axaml.cs",
+        "folder": "frameworks/avalonia",
+        "note": "This is one representative file from the app - the code-behind "
+                "(Prism has no AXAML grammar, so MainWindow.axaml is not shown "
+                "here). See {link} to browse the XAML view, board logic and the rest "
+                "of the project.",
+        "linkText": "the full Avalonia app on GitHub",
+    },
+    "axum": {
+        "name": "Axum",
+        "prism": "language-rust",
+        "category": "Web",
+        "file": "src/main.rs",
+        "folder": "frameworks/axum",
+        "note": "This is one representative file from the app. See {link} to "
+                "browse the board, MiniJinja template and the rest of the project.",
+        "linkText": "the full Axum app on GitHub",
+    },
+    "echo": {
+        "name": "Echo (Go)",
+        "prism": "language-go",
+        "category": "Web",
+        "file": "main.go",
+        "folder": "frameworks/echo",
+        "note": "This is one representative file from the app. See {link} to "
+                "browse the board package, template and the rest of the project.",
+        "linkText": "the full Echo app on GitHub",
+    },
+    "electron": {
+        "name": "Electron",
+        "prism": "language-javascript",
+        "category": "Desktop",
+        "file": "main.js",
+        "folder": "frameworks/electron",
+        "note": "This is one representative file from the app - the main process. "
+                "See {link} to browse the preload script, renderer and the rest of "
+                "the project.",
+        "linkText": "the full Electron app on GitHub",
+    },
+    "htmx": {
+        "name": "HTMX",
+        "prism": "language-javascript",
+        "category": "Web",
+        "file": "server.js",
+        "folder": "frameworks/htmx",
+        "note": "This is one representative file from the app - the server that "
+                "returns htmx fragments. See {link} to browse the board and the rest "
+                "of the project.",
+        "linkText": "the full htmx app on GitHub",
+    },
+    "ionic": {
+        "name": "Ionic",
+        "prism": "language-typescript",
+        "category": "Mobile",
+        "file": "src/app/connect-four/connect-four.page.ts",
+        "folder": "frameworks/ionic",
+        "note": "This is one representative file from the app. See {link} to "
+                "browse the template, board logic and the rest of the project.",
+        "linkText": "the full Ionic app on GitHub",
+    },
+    "javafx": {
+        "name": "JavaFX",
+        "prism": "language-java",
+        "category": "Desktop",
+        "file": "src/main/java/com/example/connectfour/ConnectFourApp.java",
+        "folder": "frameworks/javafx",
+        "note": "This is one representative file from the app. See {link} to "
+                "browse the board and the rest of the project.",
+        "linkText": "the full JavaFX app on GitHub",
+    },
+    "jetpackcompose": {
+        "name": "Jetpack Compose",
+        "prism": "language-kotlin",
+        "category": "Mobile",
+        "file": "app/src/main/java/com/example/connectfour/MainActivity.kt",
+        "folder": "frameworks/jetpackcompose",
+        "note": "This is one representative file from the app. See {link} to "
+                "browse the ViewModel, board, Gradle build and the rest of the project.",
+        "linkText": "the full Jetpack Compose app on GitHub",
+    },
+    "koa": {
+        "name": "Koa",
+        "prism": "language-javascript",
+        "category": "Web",
+        "file": "app.js",
+        "folder": "frameworks/koa",
+        "note": "This is one representative file from the app. See {link} to "
+                "browse the board module and the rest of the project.",
+        "linkText": "the full Koa app on GitHub",
+    },
+    "ktor": {
+        "name": "Ktor",
+        "prism": "language-kotlin",
+        "category": "Web",
+        "file": "src/main/kotlin/com/example/connectfour/Application.kt",
+        "folder": "frameworks/ktor",
+        "note": "This is one representative file from the app. See {link} to "
+                "browse the board, Gradle build and the rest of the project.",
+        "linkText": "the full Ktor app on GitHub",
+    },
+    "langchain": {
+        "name": "LangChain",
+        "prism": "language-python",
+        "category": "AI",
+        "file": "coach.py",
+        "folder": "frameworks/langchain",
+        "note": "This is one representative file from the app - the LCEL chain. "
+                "See {link} to browse the board, Flask app and the rest of the project.",
+        "linkText": "the full LangChain app on GitHub",
+    },
+    "ollama": {
+        "name": "Ollama",
+        "prism": "language-python",
+        "category": "AI",
+        "file": "app.py",
+        "folder": "frameworks/ollama",
+        "note": "This is one representative file from the app - the game loop that "
+                "asks a local model for a move. See {link} to browse the board and the "
+                "rest of the project.",
+        "linkText": "the full Ollama app on GitHub",
+    },
+    "playframework": {
+        "name": "Play Framework",
+        "prism": "language-scala",
+        "category": "Web",
+        "file": "app/controllers/GameController.scala",
+        "folder": "frameworks/playframework",
+        "note": "This is one representative file from the app. See {link} to "
+                "browse the board model, Twirl template, routes and the rest of the project.",
+        "linkText": "the full Play Framework app on GitHub",
+    },
+    "playwright": {
+        "name": "Playwright",
+        "prism": "language-typescript",
+        "category": "Data",
+        "file": "tests/connect-four.spec.ts",
+        "folder": "frameworks/playwright",
+        "note": "This is one representative file from the test suite. See {link} "
+                "to browse the config, helpers and the rest of the project.",
+        "linkText": "the full Playwright suite on GitHub",
+    },
+    "postgresql": {
+        "name": "PostgreSQL",
+        "prism": "language-sql",
+        "category": "Database",
+        "file": "schema.sql",
+        "folder": "frameworks/postgresql",
+        "note": "This is the representative file - the schema, window-function "
+                "board view and the `winner`/`drop_disc` functions. See {link} to "
+                "browse the seed data and the rest of the project.",
+        "linkText": "the full PostgreSQL example on GitHub",
+    },
+    "prisma": {
+        "name": "Prisma",
+        "prism": "language-typescript",
+        "category": "Data",
+        "file": "src/gameService.ts",
+        "folder": "frameworks/prisma",
+        "note": "This is one representative file from the app. See {link} to "
+                "browse the schema, board logic and the rest of the project.",
+        "linkText": "the full Prisma example on GitHub",
+    },
+    "pyside6": {
+        "name": "PySide6 (Qt)",
+        "prism": "language-python",
+        "category": "Desktop",
+        "file": "main.py",
+        "folder": "frameworks/pyside6",
+        "note": "This is one representative file from the app. See {link} to "
+                "browse the board model and the rest of the project.",
+        "linkText": "the full PySide6 app on GitHub",
+    },
+    "qwik": {
+        "name": "Qwik",
+        "prism": "language-tsx",
+        "category": "Web",
+        "file": "src/routes/index.tsx",
+        "folder": "frameworks/qwik",
+        "note": "This is one representative file from the app. See {link} to "
+                "browse the typed board module and the rest of the project.",
+        "linkText": "the full Qwik app on GitHub",
+    },
+    "quarkus": {
+        "name": "Quarkus",
+        "prism": "language-java",
+        "category": "Web",
+        "file": "src/main/java/com/example/connectfour/GameResource.java",
+        "folder": "frameworks/quarkus",
+        "note": "This is one representative file from the app. See {link} to "
+                "browse the board, Qute template, Maven build and the rest of the project.",
+        "linkText": "the full Quarkus app on GitHub",
+    },
+    "redis": {
+        "name": "Redis",
+        "prism": "language-python",
+        "category": "Database",
+        "file": "app.py",
+        "folder": "frameworks/redis",
+        "note": "This is one representative file from the app. See {link} to "
+                "browse the board, template and the rest of the project.",
+        "linkText": "the full Redis example on GitHub",
+    },
+    "redux": {
+        "name": "Redux Toolkit",
+        "prism": "language-javascript",
+        "category": "Data",
+        "file": "src/features/game/gameSlice.js",
+        "folder": "frameworks/redux",
+        "note": "This is one representative file from the app - the state slice. "
+                "See {link} to browse the store, components and the rest of the project.",
+        "linkText": "the full Redux Toolkit app on GitHub",
+    },
+    "remix": {
+        "name": "Remix (React Router)",
+        "prism": "language-tsx",
+        "category": "Web",
+        "file": "app/routes/home.tsx",
+        "folder": "frameworks/remix",
+        "note": "This is one representative file from the app. See {link} to "
+                "browse the board, session storage, root layout and the rest of the project.",
+        "linkText": "the full React Router app on GitHub",
+    },
+    "sanic": {
+        "name": "Sanic",
+        "prism": "language-python",
+        "category": "Web",
+        "file": "app.py",
+        "folder": "frameworks/sanic",
+        "note": "This is one representative file from the app. See {link} to "
+                "browse the board, template and the rest of the project.",
+        "linkText": "the full Sanic app on GitHub",
+    },
+    "solidjs": {
+        "name": "SolidJS",
+        "prism": "language-jsx",
+        "category": "Web",
+        "file": "src/ConnectFour.jsx",
+        "folder": "frameworks/solidjs",
+        "note": "This is one representative file from the app. See {link} to "
+                "browse the board logic, entry point and the rest of the project.",
+        "linkText": "the full SolidJS app on GitHub",
+    },
+    "swiftui": {
+        "name": "SwiftUI",
+        "prism": "language-swift",
+        "category": "Mobile",
+        "file": "Sources/ConnectFour/ContentView.swift",
+        "folder": "frameworks/swiftui",
+        "note": "This is one representative file from the app. See {link} to "
+                "browse the board, app entry point and the rest of the project.",
+        "linkText": "the full SwiftUI app on GitHub",
+    },
+    "tailwindcss": {
+        "name": "Tailwind CSS",
+        "prism": "language-markup",
+        "category": "Web",
+        "file": "index.html",
+        "folder": "frameworks/tailwindcss",
+        "note": "This is one representative file from the app. See {link} to "
+                "browse the theme config, stylesheet, game script and the rest of "
+                "the project.",
+        "linkText": "the full Tailwind CSS page on GitHub",
+    },
+    "tanstackquery": {
+        "name": "TanStack Query",
+        "prism": "language-jsx",
+        "category": "Data",
+        "file": "src/ConnectFour.jsx",
+        "folder": "frameworks/tanstackquery",
+        "note": "This is one representative file from the app. See {link} to "
+                "browse the API client, server and the rest of the project.",
+        "linkText": "the full TanStack Query app on GitHub",
+    },
+    "tauri": {
+        "name": "Tauri",
+        "prism": "language-rust",
+        "category": "Desktop",
+        "file": "src-tauri/src/main.rs",
+        "folder": "frameworks/tauri",
+        "note": "This is one representative file from the app - the Rust entry "
+                "point and its commands. See {link} to browse the board, frontend "
+                "and the rest of the project.",
+        "linkText": "the full Tauri app on GitHub",
+    },
+    "trpc": {
+        "name": "tRPC",
+        "prism": "language-typescript",
+        "category": "API",
+        "file": "server/router.ts",
+        "folder": "frameworks/trpc",
+        "note": "This is one representative file from the app - the typed router. "
+                "See {link} to browse the board, server, client and the rest of the project.",
+        "linkText": "the full tRPC app on GitHub",
+    },
+    "vapor": {
+        "name": "Vapor",
+        "prism": "language-swift",
+        "category": "Web",
+        "file": "Sources/App/routes.swift",
+        "folder": "frameworks/vapor",
+        "note": "This is one representative file from the app. See {link} to "
+                "browse the board, configure step, boot file and the rest of the project.",
+        "linkText": "the full Vapor app on GitHub",
+    },
+    "tsql": {
+        "name": "T-SQL",
+        "prism": "language-tsql",
+        "category": "Database",
+        "file": "schema.sql",
+        "folder": "frameworks/tsql",
+        "note": "This is the representative file - the tables, the `dbo.Cells` "
+                "window-function view and the constraints. See {link} to browse the "
+                "`fn_Winner`/`DropDisc` procedures, seed data and the rest of the project.",
+        "linkText": "the full T-SQL example on GitHub",
+    },
+    "jquery": {
+        "name": "jQuery",
+        "prism": "language-javascript",
+        "category": "Web",
+        "file": "app.js",
+        "folder": "frameworks/jquery",
+        "note": "This is one representative file from the app. See {link} to "
+                "browse the markup, stylesheet and the rest of the project.",
+        "linkText": "the full jQuery app on GitHub",
+    },
+    "scss": {
+        "name": "SCSS",
+        "prism": "language-scss",
+        "category": "Web",
+        "file": "scss/main.scss",
+        "folder": "frameworks/scss",
+        "note": "This is one representative file from the app - the entry "
+                "stylesheet (the `_variables`/`_board` partials and the plain "
+                "JavaScript next to it). See {link} to browse the rest of the project.",
+        "linkText": "the full SCSS project on GitHub",
+    },
+    "ember": {
+        "name": "Ember.js",
+        "prism": "language-javascript",
+        "category": "Web",
+        "file": "app/components/connect-four.js",
+        "folder": "frameworks/ember",
+        "note": "This is one representative file from the app. See {link} to "
+                "browse the template, board util, app entry and the rest of the project.",
+        "linkText": "the full Ember.js app on GitHub",
+    },
+    "lit": {
+        "name": "Lit",
+        "prism": "language-typescript",
+        "category": "Web",
+        "file": "src/connect-four.ts",
+        "folder": "frameworks/lit",
+        "note": "This is one representative file from the app. See {link} to "
+                "browse the typed board module and the rest of the project.",
+        "linkText": "the full Lit app on GitHub",
+    },
+    "handlebars": {
+        "name": "Handlebars",
+        "prism": "language-handlebars",
+        "category": "Web",
+        "file": "templates/board.hbs",
+        "folder": "frameworks/handlebars",
+        "note": "This is one representative file from the app. See {link} to "
+                "browse the partial, renderer, server and the rest of the project.",
+        "linkText": "the full Handlebars app on GitHub",
+    },
+    "cassandra": {
+        "name": "Cassandra",
+        "prism": "language-cql",
+        "category": "Database",
+        "file": "schema.cql",
+        "folder": "frameworks/cassandra",
+        "note": "This is the representative file - the keyspace and the query-driven "
+                "tables (lists of discs, timeuuid clustering), plus a materialized "
+                "view and a secondary index. See {link} to browse the queries, seed "
+                "data and the rest of the project.",
+        "linkText": "the full Apache Cassandra example on GitHub",
+    },
+    "oracle": {
+        "name": "Oracle Database",
+        "prism": "language-plsql",
+        "category": "Database",
+        "file": "schema.sql",
+        "folder": "frameworks/oracle",
+        "note": "This is the representative file - the tables, constraints, index and "
+                "the `cells` window-function view. See {link} to browse the `INSERT "
+                "ALL` seed and the PL/SQL package sibling.",
+        "linkText": "the full Oracle Database example on GitHub",
+    },
+    "plsql": {
+        "name": "Oracle PL/SQL",
+        "prism": "language-plsql",
+        "category": "Database",
+        "file": "packages.sql",
+        "folder": "frameworks/plsql",
+        "note": "This is the representative file - the `connect_four_pkg` package "
+                "spec and body. See {link} to browse the Oracle tables it runs on.",
+        "linkText": "the full Oracle PL/SQL example on GitHub",
+    },
+    "sqlite": {
+        "name": "SQLite",
+        "prism": "language-sql",
+        "category": "Database",
+        "file": "schema.sql",
+        "folder": "frameworks/sqlite",
+        "note": "This is the representative file - the STRICT tables, constraints "
+                "and the `cells` window-function view. See {link} to browse the "
+                "recursive-CTE queries and the rest of the project.",
+        "linkText": "the full SQLite example on GitHub",
+    },
+    "mariadb": {
+        "name": "MariaDB",
+        "prism": "language-sql",
+        "category": "Database",
+        "file": "schema.sql",
+        "folder": "frameworks/mariadb",
+        "note": "This is the representative file - the sequence default, tables, "
+                "constraints and the `cells` view. See {link} to browse the "
+                "window-function queries and the rest of the project.",
+        "linkText": "the full MariaDB example on GitHub",
+    },
+    "db2": {
+        "name": "IBM Db2",
+        "prism": "language-sql",
+        "category": "Database",
+        "file": "schema.sql",
+        "folder": "frameworks/db2",
+        "note": "This is the representative file - the identity-column tables, "
+                "constraints and the `cells` view. See {link} to browse the "
+                "LISTAGG queries and the rest of the project.",
+        "linkText": "the full IBM Db2 example on GitHub",
+    },
+    "questdb": {
+        "name": "QuestDB",
+        "prism": "language-sql",
+        "category": "Database",
+        "file": "schema.sql",
+        "folder": "frameworks/questdb",
+        "note": "This is the representative file - the designated-timestamp, "
+                "`PARTITION BY` time-series tables with `SYMBOL` columns. See {link} "
+                "to browse the LATEST ON / SAMPLE BY / ASOF JOIN queries.",
+        "linkText": "the full QuestDB example on GitHub",
+    },
+    "duckdb": {
+        "name": "DuckDB",
+        "prism": "language-sql",
+        "category": "Database",
+        "file": "schema.sql",
+        "folder": "frameworks/duckdb",
+        "note": "This is the representative file - the sequence default, tables, "
+                "constraints and the `cells` view. See {link} to browse the `range()`, "
+                "`PIVOT` and window-function queries.",
+        "linkText": "the full DuckDB example on GitHub",
+    },
+    "surrealdb": {
+        "name": "SurrealDB",
+        "prism": "language-sql",
+        "category": "Database",
+        "file": "schema.surql",
+        "folder": "frameworks/surrealdb",
+        "note": "This is the representative file - the SCHEMAFULL table and field "
+                "definitions with ASSERT rules and a record link. See {link} to browse "
+                "the SurrealQL queries and the rest of the project.",
+        "linkText": "the full SurrealDB example on GitHub",
+    },
+    "firebird": {
+        "name": "Firebird",
+        "prism": "language-sql",
+        "category": "Database",
+        "file": "schema.sql",
+        "folder": "frameworks/firebird",
+        "note": "This is the representative file - the identity-column tables, "
+                "constraints and the `cells` view. See {link} to browse the PSQL "
+                "procedures and the rest of the project.",
+        "linkText": "the full Firebird example on GitHub",
+    },
+    "clickhouse": {
+        "name": "ClickHouse",
+        "prism": "language-sql",
+        "category": "Database",
+        "file": "schema.sql",
+        "folder": "frameworks/clickhouse",
+        "note": "This is the representative file - the MergeTree tables and the "
+                "SummingMergeTree materialized view. See {link} to browse the "
+                "argMax / groupArray / ANY LEFT JOIN queries.",
+        "linkText": "the full ClickHouse example on GitHub",
+    },
+    "preact": {
+        "name": "Preact",
+        "prism": "language-jsx",
+        "category": "Web",
+        "file": "src/connect-four.jsx",
+        "folder": "frameworks/preact",
+        "note": "This is one representative file from the app. See {link} to "
+                "browse the board logic, entry point and the rest of the project.",
+        "linkText": "the full Preact app on GitHub",
+    },
+    "bootstrap": {
+        "name": "Bootstrap",
+        "prism": "language-markup",
+        "category": "Web",
+        "file": "index.html",
+        "folder": "frameworks/bootstrap",
+        "note": "This is one representative file from the app. See {link} to "
+                "browse the game script and the rest of the project.",
+        "linkText": "the full Bootstrap page on GitHub",
+    },
+    "reactbootstrap": {
+        "name": "React Bootstrap",
+        "prism": "language-jsx",
+        "category": "Web",
+        "file": "src/ConnectFour.jsx",
+        "folder": "frameworks/reactbootstrap",
+        "note": "This is one representative file from the app. See {link} to "
+                "browse the board logic, entry point and the rest of the project.",
+        "linkText": "the full React Bootstrap app on GitHub",
+    },
+    "vuebootstrap": {
+        "name": "Vue Bootstrap",
+        "prism": "language-javascript",
+        "category": "Web",
+        "file": "src/composables/useConnectFour.js",
+        "folder": "frameworks/vuebootstrap",
+        "note": "This is one representative file from the app - the Composition API "
+                "composable (Prism has no Vue grammar, so App.vue is not shown "
+                "here). See {link} to browse the single-file component, board logic "
+                "and the rest of the project.",
+        "linkText": "the full Vue Bootstrap app on GitHub",
+    },
+    "selenium": {
+        "name": "Selenium",
+        "prism": "language-python",
+        "category": "Data",
+        "file": "tests/test_connect_four.py",
+        "folder": "frameworks/selenium",
+        "note": "This is one representative file from the test suite. See {link} "
+                "to browse the Page Object, the driver fixtures and the rest of the project.",
+        "linkText": "the full Selenium suite on GitHub",
+    },
+}
+
+# ---------------------------------------------------------------------------
+# Extra facets the dashboard's Frameworks filters read.
+#
+#   FRAMEWORK_STACKS     the Web sub-classification: Frontend, Backend or
+#                        Full stack.  Only Web frameworks carry one, so the
+#                        Stack facet is meaningful for the web tree alone.
+#   FRAMEWORK_LANGUAGES  the programming language(s) each framework is written
+#                        in (display names).  This is what lets the dashboard's
+#                        Language facet pull up, say, every C# or Java
+#                        framework regardless of its category.
+# ---------------------------------------------------------------------------
+FRAMEWORK_STACKS = {
+    "adonisjs": "Backend",
+    "alpinejs": "Frontend",
+    "angular": "Frontend",
+    "aspnetcore": "Backend",
+    "astro": "Frontend",
+    "axum": "Backend",
+    "blazor": "Full stack",
+    "bootstrap": "Frontend",
+    "django": "Full stack",
+    "echo": "Backend",
+    "ember": "Frontend",
+    "expressjs": "Backend",
+    "fastapi": "Backend",
+    "fastify": "Backend",
+    "fiber": "Backend",
+    "flask": "Backend",
+    "gin": "Backend",
+    "handlebars": "Frontend",
+    "htmx": "Frontend",
+    "jquery": "Frontend",
+    "koa": "Backend",
+    "ktor": "Backend",
+    "laravel": "Full stack",
+    "lit": "Frontend",
+    "nestjs": "Backend",
+    "nextjs": "Full stack",
+    "nuxt": "Full stack",
+    "phoenix": "Full stack",
+    "playframework": "Full stack",
+    "preact": "Frontend",
+    "qwik": "Frontend",
+    "quarkus": "Backend",
+    "react": "Frontend",
+    "reactbootstrap": "Frontend",
+    "remix": "Full stack",
+    "rubyonrails": "Full stack",
+    "sanic": "Backend",
+    "scss": "Frontend",
+    "solidjs": "Frontend",
+    "springboot": "Backend",
+    "svelte": "Frontend",
+    "symfony": "Full stack",
+    "tailwindcss": "Frontend",
+    "vapor": "Backend",
+    "vue": "Frontend",
+    "vuebootstrap": "Frontend",
+}
+
+FRAMEWORK_LANGUAGES = {
+    "adonisjs": ["TypeScript"],
+    "alpinejs": ["JavaScript"],
+    "angular": ["TypeScript"],
+    "aspnetcore": ["C#"],
+    "astro": ["TypeScript"],
+    "avalonia": ["C#"],
+    "axum": ["Rust"],
+    "blazor": ["C#"],
+    "bootstrap": ["CSS", "JavaScript"],
+    "cassandra": ["CQL"],
+    "clickhouse": ["SQL"],
+    "db2": ["SQL"],
+    "django": ["Python"],
+    "duckdb": ["SQL"],
+    "echo": ["Go"],
+    "electron": ["JavaScript"],
+    "ember": ["JavaScript"],
+    "expressjs": ["TypeScript"],
+    "fastapi": ["Python"],
+    "fastify": ["JavaScript"],
+    "fiber": ["Go"],
+    "firebird": ["SQL"],
+    "flask": ["Python"],
+    "flutter": ["Dart"],
+    "fyne": ["Go"],
+    "gin": ["Go"],
+    "graphql": ["Python"],
+    "handlebars": ["JavaScript"],
+    "htmx": ["JavaScript"],
+    "ionic": ["TypeScript"],
+    "javafx": ["Java"],
+    "jetpackcompose": ["Kotlin"],
+    "jquery": ["JavaScript"],
+    "json": ["JSON"],
+    "koa": ["JavaScript"],
+    "ktor": ["Kotlin"],
+    "langchain": ["Python"],
+    "laravel": ["PHP"],
+    "lit": ["TypeScript"],
+    "mariadb": ["SQL"],
+    "maui": ["C#"],
+    "minimax": ["Python"],
+    "mongodb": ["JavaScript"],
+    "mysql": ["SQL"],
+    "nestjs": ["TypeScript"],
+    "nextjs": ["JavaScript"],
+    "nuxt": ["JavaScript"],
+    "ollama": ["Python"],
+    "oracle": ["SQL"],
+    "phoenix": ["Elixir"],
+    "playframework": ["Scala"],
+    "playwright": ["TypeScript"],
+    "plsql": ["PL/SQL"],
+    "postgresql": ["SQL"],
+    "preact": ["JavaScript"],
+    "prisma": ["TypeScript"],
+    "pyside6": ["Python"],
+    "qwik": ["TypeScript"],
+    "quarkus": ["Java"],
+    "questdb": ["SQL"],
+    "react": ["JavaScript"],
+    "reactbootstrap": ["JavaScript"],
+    "reactnative": ["JavaScript"],
+    "redis": ["Python"],
+    "redux": ["JavaScript"],
+    "remix": ["TypeScript"],
+    "rubyonrails": ["Ruby"],
+    "sanic": ["Python"],
+    "scss": ["CSS"],
+    "selenium": ["Python"],
+    "solidjs": ["JavaScript"],
+    "springboot": ["Java"],
+    "sqlite": ["SQL"],
+    "surrealdb": ["SurrealQL"],
+    "svelte": ["JavaScript"],
+    "swiftui": ["Swift"],
+    "symfony": ["PHP"],
+    "tailwindcss": ["CSS", "JavaScript"],
+    "tanstackquery": ["JavaScript"],
+    "tauri": ["JavaScript", "Rust"],
+    "tkinter": ["Python"],
+    "trpc": ["TypeScript"],
+    "tsql": ["SQL"],
+    "vapor": ["Swift"],
+    "vue": ["JavaScript"],
+    "vuebootstrap": ["JavaScript"],
+    "wpf": ["C#"],
+    "wpfvb": ["VB.NET"],
+}
+
+# The short file-extension tag the dashboard shows for a language, so a
+# framework's language chips (and the Language filter) read ".ts", ".cs", ...
+# rather than a name.  Keys match the names used in FRAMEWORK_LANGUAGES.
+LANGUAGE_EXTENSIONS = {
+    "C#": ".cs",
+    "CQL": ".cql",
+    "CSS": ".css",
+    "Dart": ".dart",
+    "Elixir": ".ex",
+    "Go": ".go",
+    "JSON": ".json",
+    "Java": ".java",
+    "JavaScript": ".js",
+    "Kotlin": ".kt",
+    "PHP": ".php",
+    "PL/SQL": ".plsql",
+    "Python": ".py",
+    "Ruby": ".rb",
+    "Rust": ".rs",
+    "SQL": ".sql",
+    "Scala": ".scala",
+    "SurrealQL": ".surql",
+    "Swift": ".swift",
+    "TypeScript": ".ts",
+    "VB.NET": ".vb",
 }
 
 
@@ -676,6 +1429,8 @@ def discover_frameworks() -> list[dict]:
                 "folder": meta.get("folder", "frameworks/%s" % key),
                 "note": meta.get("note", ""),
                 "linkText": meta.get("linkText", ""),
+                "stack": FRAMEWORK_STACKS.get(key, ""),
+                "languages": FRAMEWORK_LANGUAGES.get(key, []),
                 "code": read_text(highlight),
             }
         )
@@ -723,6 +1478,7 @@ def build_payload() -> dict:
         "outputs": outputs,
         "languages": languages,
         "frameworks": frameworks,
+        "languageExtensions": LANGUAGE_EXTENSIONS,
     }
 
 
