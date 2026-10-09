@@ -636,6 +636,7 @@ python tests/run_tests.py --update      # regenerate tests/expected/ after a pro
 python tools/generate_language_readmes.py  # regenerate every languages/<id>/README.md + banner.svg
 python tools/serve.py                   # preview the built dist/ with Pages' 404.html fallback
 gh api -X PUT repos/<owner>/<repo>/pages -f build_type=workflow  # once: publish from Actions
+gh api -X PUT repos/<owner>/<repo>/pages -f cname=<domain>       # once: attach the custom domain
 ```
 
 `npm run build` is exactly what CI runs (`.github/workflows/deploy.yml`), so a

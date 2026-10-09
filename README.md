@@ -235,9 +235,21 @@ gh api -X PUT repos/pattygcoding/Neo-Connect-Four-Language-Tree/pages \
 ```
 
 or **Settings → Pages → Build and deployment → Source: GitHub Actions**. While
-the source is still *deploy from a branch*, the `deploy-pages` step fails with
-"Get Pages site failed" — nothing is broken, the workflow just has no site to
-publish to yet. Everything the artifact needs travels in `public/`, which Vite
+the source is still *deploy from a branch*, Pages ignores the artifact and runs
+Jekyll over the whole repository instead, so there are two ways for it to look
+broken — check this setting first:
+
+* the `deploy-pages` step fails with "Get Pages site failed" (nothing to publish
+  to), or
+* the workflow goes green and the site still answers with GitHub's generic
+  "There isn't a GitHub Pages site here", because the legacy Jekyll build
+  *errored* — one unparsable file is enough, and `languages/`/`frameworks/`
+  sources do trip it (e.g. "Invalid YAML front matter in
+  `frameworks/astro/src/components/ConnectFour.astro`", whose `---` fences read
+  as front matter). The failing run is the separate **pages-build-deployment**
+  workflow, not this one, which is why a green deploy can still 404.
+
+Everything the artifact needs travels in `public/`, which Vite
 copies verbatim into `dist/`: `404.html`, `CNAME`, `.nojekyll`, `logo.png`,
 `og-image.png` and the generated `dashboard-data.js`. Third-party libraries
 (Prism and the two Google fonts) still load over `https` from CDNs.
@@ -246,10 +258,20 @@ The one page that is not a `public/` file is the HTML/CSS implementation: the
 Play tab shows `languages/htmlcss/connect_four.html` in an iframe, and
 `vite.config.ts` copies that folder to the same path in `dist/`.
 
-The published site lives at **<https://connectfour.pattygcoding.com/>** — the
-`CNAME` file (now `public/CNAME`, so Vite copies it to the artifact's root) names
-that host, so the `<user>.github.io` address redirects to it. The DNS side is a
-single record at the domain's provider:
+The published site lives at **<https://connectfour.pattygcoding.com/>**. A custom
+domain is a *repository setting* here, not a file: an artifact-sourced deployment
+ignores a `CNAME` in the artifact ("no CNAME file is created, and any existing
+CNAME file is ignored and is not required"), so `public/CNAME` is kept only as
+documentation. Set the domain on the site itself — with it unset, the subdomain
+answers with that same generic 404 even though the content is live:
+
+```sh
+gh api -X PUT repos/pattygcoding/Neo-Connect-Four-Language-Tree/pages \
+    -f cname=connectfour.pattygcoding.com
+```
+
+or **Settings → Pages → Custom domain**. The DNS side is a single record at the
+domain's provider:
 
 ```
 connectfour   CNAME   pattygcoding.github.io
