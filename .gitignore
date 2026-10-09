@@ -9,6 +9,10 @@ __pycache__/
 *.py[cod]
 .pytest_cache/
 .mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.egg-info/
 .venv/
 venv/
 
@@ -29,6 +33,22 @@ languages/**/obj/
 .bloop/
 .metals/
 .cpcache/
+
+# A wrapper jar is part of the project, not build output, so it stays trackable
+# despite `*.jar` above (a wrapper is how a clone builds without Gradle or Maven
+# installed, and ignoring it silently breaks exactly that).
+!**/gradle/wrapper/gradle-wrapper.jar
+!**/.mvn/wrapper/maven-wrapper.jar
+
+# --------------------------------------------------------------------------
+# Gradle (JavaFX, Jetpack Compose, Ktor, Quarkus, Spring Boot, Gradle)
+# `.gradle/` is the project cache, `build/` the compiled tree, `.kotlin/` the
+# Kotlin session directory: every build rewrites all three, so a committed copy
+# only ever shows up as a change that is not a change.
+# --------------------------------------------------------------------------
+.gradle/
+build/
+.kotlin/
 
 # --------------------------------------------------------------------------
 # BEAM (Erlang, Elixir)
@@ -69,6 +89,37 @@ zig-out/
 # --------------------------------------------------------------------------
 node_modules/
 *.tsbuildinfo
+
+# --------------------------------------------------------------------------
+# Web frameworks (frameworks/): the build directories and caches a dev server
+# writes - Next.js, Nuxt, Astro, SvelteKit, Angular, Remix, Vite, Turborepo.
+# --------------------------------------------------------------------------
+.next/
+.nuxt/
+.output/
+.astro/
+.svelte-kit/
+.angular/
+.cache/
+.turbo/
+.vercel/
+.vite/
+.parcel-cache/
+coverage/
+
+# --------------------------------------------------------------------------
+# Dart and Flutter (frameworks/flutter)
+# --------------------------------------------------------------------------
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# --------------------------------------------------------------------------
+# Swift (Vapor, SwiftUI): SwiftPM's `.build/` and Xcode's DerivedData
+# --------------------------------------------------------------------------
+.build/
+DerivedData/
+*.xcuserstate
 
 # --------------------------------------------------------------------------
 # Showcase dashboard (Vue + Vite): the built site is the GitHub Pages artifact

@@ -14,6 +14,11 @@ export const hasData: boolean = !!DATA && Array.isArray(DATA.languages) && DATA.
 // first; a fork without it falls back to the first language present.
 export const DEFAULT_LANG_ID = "csharp";
 
+// The last-resort repository, for the one place a link cannot read `meta`: a
+// checkout that has not generated the showcase data yet.  The generator writes the
+// real one (git remote, else GITHUB_REPOSITORY, else this same default).
+const DEFAULT_REPOSITORY = "https://github.com/pattygcoding/Neo-Connect-Four-Language-Tree";
+
 export function languages(): Item[] {
     return DATA?.languages ?? [];
 }
@@ -106,6 +111,14 @@ export function repoUrlFor(item: Item): string {
         return "";
     }
     return repository + "/tree/" + (DATA?.meta?.branch || "main") + "/" + repoFolder(item);
+}
+
+// The repository root itself, behind the sidebar's GitHub mark - the same generated
+// `meta.repository` the per-folder links are built from, so a fork marks its own
+// project.  A checkout that has not run the generator yet has no `meta` at all, so
+// the committed default stands in (the generator's own last-resort default).
+export function repoHomeUrl(): string {
+    return DATA?.meta?.repository || DEFAULT_REPOSITORY;
 }
 
 // A language's short file-extension tag (".ts", ".cs") - how the language tags and

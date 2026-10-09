@@ -187,6 +187,10 @@ export const metaLine = computed<string>(() => {
 
 export const repoUrl = computed<string>(() => (currentItem.value ? data.repoUrlFor(currentItem.value) : ""));
 
+// The repository root, behind the sidebar's GitHub mark: a real link rather than a
+// per-folder one, so the whole project is one click away from every screen.
+export const repoHomeUrl = computed<string>(() => data.repoHomeUrl());
+
 export const repoFolderName = computed<string>(() => (currentItem.value ? data.repoFolder(currentItem.value) : ""));
 
 // Language tags for a framework: the blue file-extension of each language it is
