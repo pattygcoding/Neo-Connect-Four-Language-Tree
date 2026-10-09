@@ -1,20 +1,23 @@
 #!/usr/bin/env python3
-"""Preview the showcase the way GitHub Pages serves it.
+"""Preview the built showcase the way GitHub Pages serves it.
 
-The dashboard gives every implementation a pretty address (`/csharp`, `/ada`,
-`/objectivec`), but those are not files.  Pages has no rewrite rules either: it
-answers an unknown path with the site's own ``404.html``, and the tiny shim in
-that file sends the browser on to ``index.html?lang=<id>``.  That is what makes
-*refreshing* one of those screens work on the deployed site.
+The dashboard is a built site (``npm run build`` writes ``dist/``), and its
+addresses are pretty paths (`/csharp`, `/ada`, `/objectivec`) that are not files.
+Pages has no rewrite rules either: it answers an unknown path with the site's own
+``404.html``, and the tiny shim in that file sends the browser on to
+``index.html?lang=<id>``.  That is what makes *refreshing* one of those screens
+work on the deployed site.
 
 ``python -m http.server`` does not do that - it answers ``/csharp`` with its own
 404 page - so a refresh looks broken locally even though production is fine.
 This server mirrors Pages instead: unknown paths get ``404.html`` with a 404
-status, everything else is served from the repository root, and the shim in the
-browser finishes the job.
+status, everything else is served from ``dist/``, and the shim in the browser
+finishes the job.  Before the first build it falls back to serving the repository
+itself, which the dashboard's own static files are enough for.
 
 Usage::
 
+    npm run build                    # once, so dist/ exists
     python tools/serve.py [port]     # then open http://localhost:8000/csharp
 """
 
@@ -27,12 +30,16 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-FALLBACK = ROOT / "404.html"
+DIST = ROOT / "dist"
+# The deployed artifact when it has been built, else the sources (the dashboard
+# then shows its "no data" state until `npm run data` has run).
+SERVE_ROOT = DIST if DIST.is_dir() else ROOT
+FALLBACK = SERVE_ROOT / "404.html"
 DEFAULT_PORT = 8000
 
 
 class PagesLikeHandler(http.server.SimpleHTTPRequestHandler):
-    """Static files from the repository root, with Pages' 404.html fallback."""
+    """Static files from the built site, with Pages' 404.html fallback."""
 
     def handle_one_request(self):
         # A browser dropping a keep-alive socket mid-navigation is normal here (it
@@ -43,8 +50,8 @@ class PagesLikeHandler(http.server.SimpleHTTPRequestHandler):
             self.close_connection = True
 
     def end_headers(self):
-        # Without this the browser heuristically caches dashboard-data.js and keeps
-        # showing stale data after the generator rewrites it.
+        # Without this the browser heuristically caches the built files and keeps
+        # showing a stale build after `npm run build` rewrites them.
         self.send_header("Cache-Control", "no-cache")
         super().end_headers()
 
@@ -82,7 +89,7 @@ class PagesLikeServer(http.server.ThreadingHTTPServer):
 
 def main() -> int:
     port = int(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT_PORT
-    handler = functools.partial(PagesLikeHandler, directory=str(ROOT))
+    handler = functools.partial(PagesLikeHandler, directory=str(SERVE_ROOT))
     try:
         server = PagesLikeServer(("", port), handler)
     except OSError as error:
@@ -97,7 +104,9 @@ def main() -> int:
         print("    python tools/serve.py 8080", file=sys.stderr)
         return 1
     with server:
-        print("Serving %s" % ROOT)
+        print("Serving %s" % SERVE_ROOT)
+        if SERVE_ROOT is ROOT:
+            print("  (no dist/ yet - run `npm run build` to serve the real thing)")
         print("  http://localhost:%d/            (opens the default implementation)" % port)
         print("  http://localhost:%d/csharp      (404.html fallback, like Pages)" % port)
         try:

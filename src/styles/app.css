@@ -1,0 +1,160 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Palette tokens.  Dark is the default; [data-theme="light"] overrides every one of
+   them, and the Tailwind colours in `tailwind.config.js` resolve to these channels,
+   so one attribute on <html> flips the whole palette. */
+:root {
+    color-scheme: dark;
+    --ink-950: 5 7 12;
+    --ink-900: 10 14 21;
+    --ink-850: 13 18 25;
+    --ink-800: 17 24 35;
+    --ink-700: 26 34 48;
+    --ink-600: 38 48 63;
+    --fg: 232 236 234;
+    --fg-strong: 242 245 243;
+    --fg-soft: 195 202 211;
+    --fg-muted: 138 147 160;
+    --fg-dim: 107 116 130;
+    --gutter: 74 84 98;
+    --hint: 92 100 112;
+    --console: 4 6 10;
+    --line: 255 255 255;
+    --accent: 141 235 196;
+    --sel-bg: rgba(141, 235, 196, 0.25);
+    --sel-fg: #f2f5f3;
+    --glow-a: rgba(141, 235, 196, 0.07);
+    --glow-b: rgba(105, 140, 200, 0.06);
+}
+html[data-theme="light"] {
+    color-scheme: light;
+    --ink-950: 244 246 245;
+    --ink-900: 255 255 255;
+    --ink-850: 255 255 255;
+    --ink-800: 238 241 240;
+    --ink-700: 203 211 208;
+    --ink-600: 166 178 174;
+    --fg: 28 35 43;
+    --fg-strong: 11 16 21;
+    --fg-soft: 58 67 79;
+    --fg-muted: 91 100 114;
+    --fg-dim: 111 120 133;
+    --gutter: 160 169 182;
+    --hint: 154 163 175;
+    --console: 238 241 240;
+    --line: 15 23 34;
+    --accent: 12 150 106;
+    --sel-bg: rgba(12, 150, 106, 0.20);
+    --sel-fg: #0b1015;
+    --glow-a: rgba(12, 150, 106, 0.10);
+    --glow-b: rgba(96, 132, 196, 0.12);
+}
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: rgb(var(--ink-950)); }
+::-webkit-scrollbar-thumb { background: rgb(var(--ink-700)); border-radius: 5px; }
+::-webkit-scrollbar-thumb:hover { background: rgb(var(--ink-600)); }
+::selection { background: var(--sel-bg); color: var(--sel-fg); }
+
+body {
+    background-color: rgb(var(--ink-950));
+    background-image:
+        radial-gradient(1100px 520px at 78% -8%, var(--glow-a), transparent 65%),
+        radial-gradient(900px 480px at 8% 108%, var(--glow-b), transparent 70%);
+    /* Full viewport height.  `dvh` tracks the mobile browser's dynamic toolbar so
+       the layout is not cropped; `vh` is the fallback.  The page itself never
+       scrolls - the sidebar list, the code panel and the console capture do. */
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+}
+
+/* The app mounts into `#app`, which is the layout's flex row - the row the page
+   used to build on <body> itself.  Both the body height above and this one have to
+   be explicit: a percentage height inside an auto-height box resolves to `auto`, so
+   a `.h-full` on a child of an unstyled mount point would let the sidebar grow to
+   the full height of its list (4944px of languages) instead of scrolling, and the
+   page could not scroll either.  Keep the height and the overflow here, not in the
+   markup, so the two stay together. */
+#app {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* The toggle shows the mode it switches to: sun while dark, moon while light. */
+html[data-theme="dark"] .theme-icon-moon { display: none; }
+html[data-theme="light"] .theme-icon-sun { display: none; }
+
+/* Small uppercase mono label, as on the portfolio ("PG / ENGINEERING & PRODUCT"). */
+.micro {
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-size: 10px;
+    line-height: 1.4;
+}
+
+pre code { white-space: pre; }
+
+/* A language's blue file-extension tag, e.g. ".ts" / ".cs".  Declared outside .micro
+   so it can opt out of the uppercase/wide tracking. */
+.lang-tag {
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 10px;
+    letter-spacing: 0.02em;
+    text-transform: none;
+    padding: 1px 6px;
+    border-radius: 9999px;
+    color: #7dd3fc;
+    background: rgba(56, 189, 248, 0.15);
+    border: 1px solid rgba(56, 189, 248, 0.35);
+}
+html[data-theme="light"] .lang-tag {
+    color: #0369a1;
+    background: rgba(14, 165, 233, 0.12);
+    border-color: rgba(14, 165, 233, 0.4);
+}
+
+/* The filter menus cap their height and scroll, so the 90-odd frameworks never run
+   off the screen. */
+.menu-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(148, 163, 184, 0.4) transparent;
+}
+.menu-scroll::-webkit-scrollbar {
+    width: 8px;
+}
+.menu-scroll::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.4);
+    border-radius: 4px;
+}
+.menu-scroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+/* Prism's theme styles the <pre> it highlighted (adding its own padding, margin,
+   background, overflow and border-radius, plus a Consolas font and a 1.5
+   line-height).  Strip that so the dashboard palette, the gutter and the code share
+   one full-width panel and every line lines up. */
+pre.cf-code {
+    margin: 0 !important;
+    /* Small top inset so the first line sits at the top of the panel like an editor
+       (a full line-height of head room reads as a stray blank line).  The bottom
+       keeps the roomier inset; left/right keep the gutter gap. */
+    padding: 0.5rem 1.25rem 1.25rem !important;
+    background: transparent !important;
+    border-radius: 0 !important;
+    overflow: visible !important;
+    font-family: inherit !important;   /* else Prism's Consolas wins */
+    line-height: inherit !important;   /* must match the gutter's line height */
+}
+pre.cf-code code[class*="language-"] {
+    font-family: inherit !important;
+    font-size: inherit !important;
+    line-height: inherit !important;
+    background: transparent !important;
+}

@@ -2,7 +2,8 @@
 """Generate the static showcase dashboard.
 
 This script reads the *real* repository contents and writes
-``dashboard-data.js`` next to ``index.html``:
+``public/dashboard-data.js`` - the file the dashboard loads with a ``<script>``
+tag, so ``npm run build`` copies it into the published site untouched:
 
   * every implementation in ``languages/<name>/connect_four.<ext>`` becomes
     a sidebar entry (source code included),
@@ -37,7 +38,11 @@ ROOT = Path(__file__).resolve().parent.parent
 LANGUAGES_DIR = ROOT / "languages"
 FRAMEWORKS_DIR = ROOT / "frameworks"
 EXPECTED_DIR = ROOT / "tests" / "expected"
-OUTPUT_FILE = ROOT / "dashboard-data.js"
+# The Vue app loads this with a classic <script> tag, so it has to sit beside the
+# built ``index.html``.  Vite copies ``public/`` verbatim into ``dist/``, which is
+# also what the dev server serves at the site root - hence ``public/`` and not the
+# repository root.  It is generated, never hand-edited, and not tracked in git.
+OUTPUT_FILE = ROOT / "public" / "dashboard-data.js"
 
 # Fallbacks for the project link the dashboard shows above each implementation.
 DEFAULT_REPOSITORY = "https://github.com/pattygcoding/Neo-Connect-Four-Language-Tree"

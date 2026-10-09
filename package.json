@@ -1,0 +1,31 @@
+{
+    "name": "neo-connect-four-language-tree",
+    "version": "1.0.0",
+    "private": true,
+    "description": "The Connect Four multi-language showcase dashboard (Vue 3 + TypeScript).",
+    "type": "module",
+    "engines": {
+        "node": ">=20.19"
+    },
+    "scripts": {
+        "data": "node tools/generate-data.mjs",
+        "start": "npm run data && vite",
+        "dev": "vite",
+        "build": "npm run data && npm run typecheck && vite build",
+        "typecheck": "vue-tsc --noEmit",
+        "preview": "vite preview"
+    },
+    "dependencies": {
+        "vue": "^3.5.43"
+    },
+    "devDependencies": {
+        "@types/node": "^22.19.7",
+        "@vitejs/plugin-vue": "^6.0.9",
+        "autoprefixer": "^10.6.1",
+        "postcss": "^8.5.29",
+        "tailwindcss": "^3.4.19",
+        "typescript": "^5.9.3",
+        "vite": "^8.3.4",
+        "vue-tsc": "^3.3.12"
+    }
+}

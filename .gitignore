@@ -35,7 +35,6 @@ languages/**/obj/
 # --------------------------------------------------------------------------
 *.beam
 erl_crash.dump
-AGENTS.md
 _build/
 deps/
 
@@ -70,6 +69,14 @@ zig-out/
 # --------------------------------------------------------------------------
 node_modules/
 *.tsbuildinfo
+
+# --------------------------------------------------------------------------
+# Showcase dashboard (Vue + Vite): the built site is the GitHub Pages artifact
+# (built in CI, never committed), and the data it loads is generated from the
+# repository by tools/generate_dashboard.py via `npm run data`.
+# --------------------------------------------------------------------------
+dist/
+public/dashboard-data.js
 
 # --------------------------------------------------------------------------
 # Rust

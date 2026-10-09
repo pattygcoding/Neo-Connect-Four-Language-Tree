@@ -29,13 +29,25 @@ tests/
   expected/<scenario>.txt   golden stdout for each scenario
   run_tests.py              master test runner
 tools/
-  generate_dashboard.py     builds the static showcase data
+  generate_dashboard.py     builds the showcase data
+  generate-data.mjs         runs that generator with whichever Python is installed
   generate_language_readmes.py  writes each language's README.md + banner.svg
   serve.py                  local preview server (Pages-style 404.html fallback)
-index.html                  static showcase dashboard (no backend)
-404.html                    GitHub Pages deep-link fallback for /<language-id>
-logo.png                    site favicon, used by the dashboard and the 404 shim
-dashboard-data.js           generated data consumed by index.html
+src/                        the showcase dashboard (Vue 3 + TypeScript)
+  App.vue                   sidebar + detail panel layout
+  components/               sidebar, filters, header and the three views
+  store/                    generated data, selection, URL router, theme
+  styles/app.css            palette tokens + the Tailwind entry point
+public/                     static files copied verbatim into the build
+  404.html                  GitHub Pages deep-link fallback for /<language-id>
+  CNAME, .nojekyll, logo.png, og-image.png
+  dashboard-data.js         generated data consumed by index.html (not tracked)
+index.html                  Vite entry: head metadata + the app mount point
+package.json                npm scripts: start, build, data, preview
+vite.config.ts              build config (+ the preview-page copy step)
+tailwind.config.js          the design tokens, as the page's own config
+tsconfig.json               TypeScript configuration for src/ and vite.config.ts
+.github/workflows/deploy.yml   builds dist/ and publishes it to GitHub Pages
 ```
 
 ## Running the tests
@@ -112,24 +124,37 @@ by ASCII digits. Whitespace around the token is stripped.
 
 ## Static showcase dashboard
 
-`index.html` is a fully client-side dashboard (Tailwind + Prism.js, no
-backend, no live compilers). It shows a sidebar of every implementation and
-a main panel with two tabs: **Source Code** and **Console Output**. It also
-has a language search box, category filters, and a selector for which
-pre-captured console scenario to display.
+`src/` is a Vue 3 + TypeScript app built by Vite: a fully client-side dashboard
+(no backend, no live compilers) with a sidebar of every implementation and a main
+panel whose tabs are **Source Code**, **Console Output** and — for the one
+browser-only implementation — **Play**. It also has a language search box,
+category filters, and a selector for which pre-captured console scenario to
+display. Build and run it with npm:
+
+```sh
+npm start          # regenerate the data, then serve the dashboard on :5173
+npm run build      # regenerate the data, type-check, and write dist/
+npm run preview    # serve the built dist/ straight from Vite
+npm run data       # only regenerate public/dashboard-data.js
+npm run typecheck  # vue-tsc --noEmit
+```
+
+`npm start` and `npm run build` run the generator first, so the Python command
+never has to be remembered: `tools/generate-data.mjs` finds `python3`/`python`
+and runs `tools/generate_dashboard.py` for you.
 
 Every implementation has its own address, `/<language-id>` — `/ada`, `/c`,
 `/objectivec` — and the sidebar entries are real links, so they can be copied,
 bookmarked or opened in a new tab. The site root (`/`, or `index.html` without a
 `?lang=`) opens the C# implementation, the reference walkthrough; the id lives
-in `DEFAULT_LANG_ID` at the top of the script, and a fork that ships without C#
+in `DEFAULT_LANG_ID` in `src/store/data.ts`, and a fork that ships without C#
 falls back to the first language it does have. The console view carries its
-scenario, e.g. `/go?tab=output&scenario=tie`. The page keeps the address in step
-with the selection (including browser back/forward) using the History API, and
-falls back to the query-string shape when the browser refuses path writes — that
-is all `file://` allows, so `index.html?lang=go&tab=output&scenario=tie` still
-works there. `?lang=`, `?tab=` and `?scenario=` are read on load in both
-shapes, so older links keep working.
+scenario, e.g. `/go?tab=output&scenario=tie`. The router in
+`src/store/session.ts` keeps the address in step with the selection (including
+browser back/forward) using the History API, and falls back to the query-string
+shape whenever the browser refuses path writes. `?lang=`, `?tab=` and
+`?scenario=` are read on load in both shapes, so older links — and the ones the
+`404.html` shim forwards — keep working.
 
 Above the selected implementation the header links to that folder on GitHub,
 labelled `View languages/<id> on GitHub` behind a GitHub mark — its target is
@@ -140,24 +165,30 @@ project for a clone or a fork while still reading as a label rather than a URL.
 
 The styling follows the author's portfolio site: a near-black navy canvas, a
 pale-mint accent, Inter for text and JetBrains Mono for the small uppercase
-tracking-wide labels. Those tokens (the Tailwind `ink`/`mint` palettes and a
-`.micro` label helper) are declared inline in `index.html`, so the page still
-needs no build step.
+tracking-wide labels. Those tokens (the Tailwind `ink`/`mint` palette and the
+`.micro` label helper) live in `tailwind.config.js` and `src/styles/app.css`:
+Tailwind is pinned at 3.4, the same major the page loaded from the Play CDN
+before this rewrite, so the stylesheet is now built instead of compiled in the
+browser without the design moving.
 
 Everything it shows is generated from the real repository by:
 
 ```sh
-python tools/generate_dashboard.py
+npm run data                      # or: python tools/generate_dashboard.py
 ```
 
-That script scans `languages/*/connect_four.*` for source and reuses the
-verified captures in `tests/expected/` as the console output, then writes
-`dashboard-data.js`. Because that data is loaded with a `<script>` tag (not
-`fetch`), the page works both on a static host **and** straight from
-`file://`. To serve it locally:
+That script scans `languages/*/connect_four.*` and `frameworks/*/` for source and
+reuses the verified captures in `tests/expected/` as the console output, then
+writes `public/dashboard-data.js`. Because the data is loaded with a `<script>`
+tag (not `fetch`) it stays out of the app bundle, needs no CORS, and Vite copies
+it into `dist/` unchanged. It is generated, so it is not tracked in git; a
+checkout that has not run the generator yet boots and says so instead of failing.
+
+To preview the **built** site the way GitHub Pages serves it:
 
 ```sh
-python tools/serve.py            # then open http://localhost:8000/
+npm run build                     # writes dist/
+python tools/serve.py             # then open http://localhost:8000/csharp
 ```
 
 `serve.bat` (Windows) and `./serve.sh` are one-word shortcuts for exactly that
@@ -167,40 +198,58 @@ Use that rather than `python -m http.server`. The dashboard's addresses are
 pretty paths (`/csharp`, `/ada`), which are not files, and a bare file server
 answers them with its own 404 page — so *refreshing* one of those screens looks
 broken locally even though the deployed site is fine. `tools/serve.py` mirrors
-GitHub Pages instead: an unknown path is answered with the site's own
-`404.html` (404 status, shim included), and that shim sends the browser on to
-`index.html?lang=<id>`. Opening the dashboard straight from `file://` needs no
-server at all — it just uses the `?lang=` query shape.
+GitHub Pages instead: it serves `dist/` and answers an unknown path with the
+site's own `404.html` (404 status, shim included), and that shim sends the
+browser on to `index.html?lang=<id>`. `npm run preview` serves the same built
+files without that fallback, and the dev server rewrites unknown paths to
+`index.html` itself, so refreshing a pretty path works under all three.
 
-Any static host or GitHub Pages deployment works as-is; re-run the
-generator whenever you add a language.
+Any static host serves `dist/` as-is, with no server-side rewrites. One thing
+`file://` can no longer do: the app is an ES module bundle, and browsers refuse
+to load those from a `file://` document, so open the dev server (or
+`tools/serve.py`) instead.
 
 ### Deploying to GitHub Pages
 
-The dashboard is GitHub Pages ready with no build step: `index.html` and the
-committed `dashboard-data.js` sit at the repository root, every local asset
-is referenced with a relative path, and all third-party libraries load over
-`https` from CDNs. A `.nojekyll` file is included so Pages serves the files
-verbatim. Publish from the repository root (branch `main`, folder `/`).
-
-**Publishing is automatic.** Pages is set to *deploy from a branch* (`main`,
-folder `/`) with no build step, so **any push to `main` redeploys the site** —
-there is no separate publish or deploy command to run. Commit and push your
-changes from PowerShell:
+The site is a build now, and `.github/workflows/deploy.yml` does all of it. On
+every push to `main` it checks out the repository, installs Node 22 and Python,
+runs `npm ci` and then `npm run build` — which regenerates the showcase data from
+the repository, type-checks the app and writes `dist/` — uploads `dist/` as the
+Pages artifact and publishes it. Nothing else to run, and no build output in git:
 
 ```powershell
 git add -A; git commit -m "Deploy showcase"; git push
 ```
 
-Watch the run under the repository's **Actions → pages build and deployment**;
-the update goes live at <https://connectfour.pattygcoding.com/> a minute or two
-later. If you changed the showcase, re-run `python tools/generate_dashboard.py`
-first so the committed `dashboard-data.js` is current before you push.
+Watch the run under the repository's **Actions → Deploy showcase to GitHub
+Pages**; the update goes live at <https://connectfour.pattygcoding.com/> a minute
+or two later. A push that fails to build simply leaves the previous deployment in
+place.
+
+Publishing from an artifact needs a one-time setting per repository — Pages
+publishing from **GitHub Actions** instead of from a branch:
+
+```sh
+gh api -X PUT repos/pattygcoding/Neo-Connect-Four-Language-Tree/pages \
+    -f build_type=workflow
+```
+
+or **Settings → Pages → Build and deployment → Source: GitHub Actions**. While
+the source is still *deploy from a branch*, the `deploy-pages` step fails with
+"Get Pages site failed" — nothing is broken, the workflow just has no site to
+publish to yet. Everything the artifact needs travels in `public/`, which Vite
+copies verbatim into `dist/`: `404.html`, `CNAME`, `.nojekyll`, `logo.png`,
+`og-image.png` and the generated `dashboard-data.js`. Third-party libraries
+(Prism and the two Google fonts) still load over `https` from CDNs.
+
+The one page that is not a `public/` file is the HTML/CSS implementation: the
+Play tab shows `languages/htmlcss/connect_four.html` in an iframe, and
+`vite.config.ts` copies that folder to the same path in `dist/`.
 
 The published site lives at **<https://connectfour.pattygcoding.com/>** — the
-`CNAME` file in the repository root names that host, so the `<user>.github.io`
-address redirects to it. The DNS side is a single record at the domain's
-provider:
+`CNAME` file (now `public/CNAME`, so Vite copies it to the artifact's root) names
+that host, so the `<user>.github.io` address redirects to it. The DNS side is a
+single record at the domain's provider:
 
 ```
 connectfour   CNAME   pattygcoding.github.io
@@ -218,24 +267,26 @@ GitHub allows one custom domain per site, and a *path* under someone else's
 domain can only exist inside that site's own files. A dedicated subdomain keeps
 the pretty `/csharp` addresses and the `404.html` fallback intact.
 
-The dashboard adapts to whatever directory it is served from: it derives the
-deployment prefix at load (`APP_DIR`) and builds every link, `pushState` and
-canonical language address from it, so the same files work at
+The dashboard adapts to whatever directory it is served from: `base: "./"` keeps
+every asset URL relative, and the app derives the deployment prefix at load
+(`APP_DIR` in `src/store/session.ts`) and builds every link, `pushState` and
+canonical language address from it, so the same build works at
 `https://connectfour.pattygcoding.com/csharp` and at
 `https://<user>.github.io/<repo>/csharp` with no configuration.
 
-Pages has no rewrite rules, so the committed `404.html` stands in for them:
-it is served for any path it cannot find (with the address bar untouched)
-and rebuilds the request as `index.html?lang=<id>` — `/ada`, `/repo/ada` and
-a tolerated `/ada/output` all resolve, and the dashboard then puts the pretty
-`/ada` path back into the address bar. Anything else (a typo, a missing
-file) climbs one directory per attempt, so a junk link cannot redirect in
-circles and simply ends up on the default implementation (C#).
+Pages has no rewrite rules, so the tracked `404.html` stands in for them: it is
+served for any path it cannot find (with the address bar untouched) and rebuilds
+the request as `index.html?lang=<id>` — `/ada`, `/repo/ada` and a tolerated
+`/ada/output` all resolve, and the dashboard then puts the pretty `/ada` path back
+into the address bar. Anything else (a typo, a missing file) climbs one directory
+per attempt, so a junk link cannot redirect in circles and simply ends up on the
+default implementation (C#).
 
-Keep `404.html` **tracked in git**: it is the only thing that makes refreshing
-a pretty path (`/csharp`) work on Pages, and without it GitHub answers the
-refresh with its own 404 page. `tools/serve.py` reproduces that behaviour
-locally, so a refresh test there means something.
+Keep `404.html` — now `public/404.html` — **tracked in git**: it is the only
+thing that makes refreshing a pretty path (`/csharp`) work on Pages, and without
+it GitHub answers the refresh with its own 404 page. `tools/serve.py` reproduces
+that behaviour locally (it serves `dist/`, so run `npm run build` first), which
+means a refresh test there means something.
 
 ## Languages
 
@@ -460,7 +511,9 @@ or changing how one is built, rather than editing the generated files.
    (`name`, `source`, `build`, `run`).
 3. Run `python tests/run_tests.py` until it passes.
 4. Add a row to the language table above, then refresh the generated files:
-   * `python tools/generate_dashboard.py` for the showcase data,
+   * `npm run data` (or `python tools/generate_dashboard.py`) for the showcase
+     data. CI runs this on every push too, so a forgotten local run only means a
+     stale local dev server, never a stale deployment.
    * `python tools/generate_language_readmes.py` for the folder's README and
      banner (add a display entry to `LANGUAGE_INFO` in the dashboard generator
      and a facts entry to `INFO` in the README generator).
