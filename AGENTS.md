@@ -513,7 +513,12 @@ written to the address — the router only ever names an item — and switching 
 resets the search and every facet to keep the two lists independent. Because
 `knownLang`/`currentItem` read `allItems()` (both lists), opening a framework's
 `/<id>` reveals the Frameworks list on load, and `setMode` selects an item so the
-code panel always matches the visible list.
+code panel always matches the visible list. That selection goes through
+`applySelection()` rather than `selectLanguage()`, because the two have different
+drawer behaviour on mobile: a tap on a list row ends the interaction, so it closes
+the drawer, while the mode pill is *how* you reach the other list, so the sidebar
+stays open and shows it. `selectLanguage` is `applySelection` plus that close, so
+keep the close out of the shared helper.
 
 The sidebar's filters are three labelled dropdowns (`categoryOptions`,
 `stackOptions`, `languageOptions`): `Category` (both modes), and — only in

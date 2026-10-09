@@ -297,12 +297,15 @@ export function setMode(mode: ModeId): void {
     state.language = "All";
     state.query = "";
     // Select something from the new list so the detail panel matches it, keeping
-    // the current selection only if it lives in both lists.
+    // the current selection only if it lives in both lists.  This deliberately does
+    // *not* go through `selectLanguage`: the pill is pressed to get at the other
+    // list, so on mobile the drawer has to stay open and show it, while a tap on a
+    // list row still puts the drawer away.
     const items = modeItems.value;
     if (items.some((item) => item.id === state.langId)) {
         syncUrl("push");
     } else if (items.length) {
-        selectLanguage(items[0].id);
+        applySelection(items[0].id);
     } else {
         state.langId = null;
     }
@@ -321,14 +324,21 @@ function syncMode(): void {
     state.language = "All";
 }
 
-export function selectLanguage(id: string): void {
+// Move the selection.  A tab the new item cannot show would leave an empty panel,
+// so it falls back to that item's code before the address below is written.
+function applySelection(id: string): void {
     state.langId = id;
-    // A tab the new item cannot show would leave an empty panel, so fall back to
-    // its code before the push below writes the address.
     if (!data.tabAvailableFor(currentItem.value, state.tab)) {
         state.tab = "code";
     }
     syncUrl("push");
+}
+
+export function selectLanguage(id: string): void {
+    applySelection(id);
+    // A tap on a list row ends that interaction, so the mobile drawer goes away.
+    // `setMode` moves the selection through `applySelection` instead, because there
+    // the sidebar has to stay open and show the list that was just asked for.
     state.sidebarOpen = false;
 }
 
